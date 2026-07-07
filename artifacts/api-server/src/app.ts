@@ -10,7 +10,8 @@ import "../engine/bootstrap.js";
 import engineRouter from "../engine/routes/index.js";
 // @ts-expect-error - ported CommonJS engine, no type declarations
 import { errorHandler } from "../engine/middleware/errorHandler.js";
-
+// @ts-expect-error - ported CommonJS engine, no type declarations
+import mcpRouter from "../engine/mcp-layer/router.js";
 const app: Express = express();
 
 app.use(
@@ -38,6 +39,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use("/api", router);
 app.use("/api", engineRouter);
+app.use("/api/mcp", mcpRouter);
 
 // JSON error handler from the ported engine so failures return { error } as JSON.
 app.use(errorHandler);
