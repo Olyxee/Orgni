@@ -60,3 +60,11 @@ Orgni is a live business-context layer by Olyxee: it reads a company's documents
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
+
+## Orgni Docs
+
+- `artifacts/orgni-docs` is the Python/FastAPI document integrity service promoted from the separately developed upload pipeline.
+- Keep it as a clean service boundary inside this project: OCR, structured extraction, validation, and trust scoring live there.
+- The Node API remains the app-facing upload path (`POST /api/orgs/:orgId/documents`, multipart field `files`).
+- Wire Orgni Docs into the Node upload flow through a narrow adapter that calls its `/run` endpoint and stores the returned integrity report on the document.
+- See `docs/orgni-docs-integration.md` for the integration contract.
