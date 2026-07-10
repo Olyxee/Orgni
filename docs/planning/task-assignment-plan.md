@@ -58,7 +58,7 @@ Title: Add checksum and raw evidence contracts
 Owner role: Backend platform engineer
 Priority: P1
 Dependencies: ORG-SCH-001
-Files involved: `artifacts/api-server/engine/ingestion/checksum.js`, `evidence-store.js`, tests
+Files involved: `services/api/engine/ingestion/checksum.js`, `evidence-store.js`, tests
 Description: Add checksum generation and raw evidence reference creation without changing upload behavior.
 Acceptance criteria: same file produces same checksum; evidence record references tenant/org and content ref.
 Tests required: unit tests for checksum/evidence record.
@@ -105,7 +105,7 @@ Title: Define DocumentProcessor interface
 Owner role: Backend platform engineer
 Priority: P1
 Dependencies: ORG-SCH-002
-Files involved: `artifacts/api-server/engine/document-processing/DocumentProcessor.js`, README
+Files involved: `services/api/engine/document-processing/DocumentProcessor.js`, README
 Description: Define input/output contract for document processors.
 Acceptance criteria: interface documents supported fields, errors, and normalized events.
 Tests required: contract fixture tests.
@@ -214,7 +214,7 @@ Title: Add append-only event store interface
 Owner role: Backend platform engineer
 Priority: P1
 Dependencies: ORG-SCH-002
-Files involved: `artifacts/api-server/engine/event-store/event-store.js`, tests
+Files involved: `services/api/engine/event-store/event-store.js`, tests
 Description: Implement append and read APIs over repository adapter.
 Acceptance criteria: events cannot be updated through event store API.
 Tests required: append/read tests.
@@ -359,7 +359,7 @@ Title: Surface integrity report summary in Sources
 Owner role: Product frontend engineer
 Priority: P3
 Dependencies: ORG-DOC-003
-Files involved: `artifacts/orgni-app/src/App.jsx`, styles
+Files involved: `apps/product/src/App.jsx`, styles
 Description: Display verdict, trust score, and risk level when backend returns normalized document integrity summary.
 Acceptance criteria: existing Sources page works with and without integrity summary.
 Tests required: UI smoke/manual test.

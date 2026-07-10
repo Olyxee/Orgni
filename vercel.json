@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "bash scripts/vercel-build.sh",
-  "outputDirectory": "artifacts/orgni/dist/public",
+  "outputDirectory": "apps/frontend/dist/public",
   "rewrites": [
     { "source": "/app", "destination": "/app/index.html" },
     { "source": "/app/:path*", "destination": "/app/index.html" },

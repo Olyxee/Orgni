@@ -4,9 +4,9 @@ Orgni is a live business-context layer by Olyxee: it reads a company's documents
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/orgni run dev` — marketing + docs site (landing page)
-- `pnpm --filter @workspace/orgni-app run dev` — the product web app (Lucy, Sources, Operating Model)
-- `pnpm --filter @workspace/api-server run dev` — API server + Orgni engine
+- `pnpm --filter @workspace/frontend run dev` — marketing + docs site (landing page)
+- `pnpm --filter @workspace/product run dev` — the product web app (Lucy, Sources, Operating Model)
+- `pnpm --filter @workspace/api run dev` — API server + Orgni engine
 - `pnpm --filter @workspace/mockup-sandbox run dev` — component preview server (canvas mockups)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
@@ -22,11 +22,11 @@ Orgni is a live business-context layer by Olyxee: it reads a company's documents
 
 ## Where things live
 
-- `artifacts/orgni` — public marketing + docs/API/pricing site. Pages in `src/pages`, shared UI in `src/components` (`site-header.tsx`, `site-footer.tsx`, `waitlist-dialog.tsx`).
-- `artifacts/orgni-app` — the product web app. Single-file UI in `src/App.jsx`, styles in `src/styles.css`, API client in `src/localApi.js`.
-- `artifacts/api-server` — Express API in `src/`; the Orgni engine (knowledge extraction, AI services) in `engine/` (controllers, routes, services, models). Engine AI config lives in `engine/services/ai.service.js`.
+- `apps/frontend` — public marketing + docs/API/pricing site. Pages in `src/pages`, shared UI in `src/components` (`site-header.tsx`, `site-footer.tsx`, `waitlist-dialog.tsx`).
+- `apps/product` — the product web app. Single-file UI in `src/App.jsx`, styles in `src/styles.css`, API client in `src/localApi.js`.
+- `services/api` — Express API in `src/`; the Orgni engine (knowledge extraction, AI services) in `engine/` (controllers, routes, services, models). Engine AI config lives in `engine/services/ai.service.js`.
 - `artifacts/mockup-sandbox` — Vite preview server for isolated component mockups on the canvas.
-- `vercel.json` (root) — Vercel build output dir points at `artifacts/orgni/dist/public`.
+- `vercel.json` (root) — Vercel build output dir points at `apps/frontend/dist/public`.
 
 ## Architecture decisions
 
@@ -63,7 +63,7 @@ Orgni is a live business-context layer by Olyxee: it reads a company's documents
 
 ## Orgni Docs
 
-- `artifacts/orgni-docs` is the Python/FastAPI document integrity service promoted from the separately developed upload pipeline.
+- `services/document-service` is the Python/FastAPI document integrity service promoted from the separately developed upload pipeline.
 - Keep it as a clean service boundary inside this project: OCR, structured extraction, validation, and trust scoring live there.
 - The Node API remains the app-facing upload path (`POST /api/orgs/:orgId/documents`, multipart field `files`).
 - Wire Orgni Docs into the Node upload flow through a narrow adapter that calls its `/run` endpoint and stores the returned integrity report on the document.

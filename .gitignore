@@ -52,4 +52,4 @@ Thumbs.db
 .local/
 
 # Orgni Docs runtime uploads
-artifacts/orgni-docs/uploads/
+services/document-service/uploads/

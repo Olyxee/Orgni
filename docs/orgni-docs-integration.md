@@ -1,7 +1,7 @@
 # Orgni Docs Integration
 
 Orgni Docs is now a first-class service inside the Orgni project at
-`artifacts/orgni-docs`.
+`services/document-service`.
 
 It was developed separately, so it keeps its own service boundary:
 
@@ -25,7 +25,7 @@ That endpoint accepts a single multipart upload using field name `file` and retu
 
 Keep Orgni Docs standing as its own service, but wire it into the main upload flow through a narrow adapter:
 
-1. Main app uploads files to `artifacts/api-server`.
+1. Main app uploads files to `services/api`.
 2. The Node document controller stores/parses the upload as it does today.
 3. For supported integrity file types, Node forwards the file buffer to Orgni Docs `/run`.
 4. Node stores the returned integrity report on the document record.
@@ -35,7 +35,7 @@ This keeps the project unified without mixing Python OCR concerns into the Node 
 
 ## Local Run
 
-From `artifacts/orgni-docs`:
+From `services/document-service`:
 
 ```bash
 python -m venv .venv

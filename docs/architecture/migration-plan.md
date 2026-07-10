@@ -141,13 +141,13 @@ Files to create:
 - `services/ingestion-service/src/checksum.ts`
 - `services/ingestion-service/src/jobs.ts`
 - `services/ingestion-service/src/events.ts`
-- or, if internal-first: `artifacts/api-server/engine/ingestion/*`
+- or, if internal-first: `services/api/engine/ingestion/*`
 
 Files to modify:
 
-- `artifacts/api-server/engine/controllers/document.controller.js`
-- `artifacts/api-server/engine/routes/index.js`
-- `artifacts/api-server/engine/models/document.model.js`
+- `services/api/engine/controllers/document.controller.js`
+- `services/api/engine/routes/index.js`
+- `services/api/engine/models/document.model.js`
 
 Files to deprecate:
 
@@ -196,11 +196,11 @@ Objective: integrate Orgni Docs without leaking its raw response as the platform
 
 Files to create:
 
-- `artifacts/api-server/engine/document-processing/DocumentProcessor.js`
-- `artifacts/api-server/engine/document-processing/LegacyNodeParserProcessor.js`
-- `artifacts/api-server/engine/document-processing/OrgniDocsProcessor.js`
-- `artifacts/api-server/engine/document-processing/events.js`
-- `artifacts/api-server/engine/document-processing/README.md`
+- `services/api/engine/document-processing/DocumentProcessor.js`
+- `services/api/engine/document-processing/LegacyNodeParserProcessor.js`
+- `services/api/engine/document-processing/OrgniDocsProcessor.js`
+- `services/api/engine/document-processing/events.js`
+- `services/api/engine/document-processing/README.md`
 
 Files to modify:
 
@@ -256,7 +256,7 @@ Objective: emit canonical events from ingestion/document processing.
 Files to create:
 
 - `packages/events`
-- `services/event-store` or `artifacts/api-server/engine/event-store`
+- `services/event-store` or `services/api/engine/event-store`
 - event fixtures/tests
 
 Files to modify:
@@ -568,9 +568,9 @@ Objective: migrate Lucy away from raw chunk-first retrieval.
 
 Files to modify:
 
-- `artifacts/orgni-app/src/App.jsx`
-- `artifacts/api-server/engine/engine/orgni.engine.js`
-- `artifacts/api-server/engine/controllers/engine.controller.js`
+- `apps/product/src/App.jsx`
+- `services/api/engine/engine/orgni.engine.js`
+- `services/api/engine/controllers/engine.controller.js`
 
 Files to deprecate:
 

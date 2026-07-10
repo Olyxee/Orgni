@@ -8,9 +8,9 @@ dev-only tool. Each is built and deployed independently.
 
 | Component | Package | Type | Azure target |
 |-----------|---------|------|--------------|
-| Marketing + docs site | `@workspace/orgni` | Static SPA (Vite) | Azure Static Web Apps |
-| Product web app | `@workspace/orgni-app` | Static SPA (Vite) | Azure Static Web Apps |
-| API + Orgni engine | `@workspace/api-server` | Node/Express service | Azure App Service (Linux) or Container Apps |
+| Marketing + docs site | `@workspace/frontend` | Static SPA (Vite) | Azure Static Web Apps |
+| Product web app | `@workspace/product` | Static SPA (Vite) | Azure Static Web Apps |
+| API + Orgni engine | `@workspace/api` | Node/Express service | Azure App Service (Linux) or Container Apps |
 | Component sandbox | `@workspace/mockup-sandbox` | Dev tool | **Not deployed** |
 
 ---
@@ -36,16 +36,16 @@ pnpm run build          # typecheck + build every package
 
 Build outputs:
 
-- `artifacts/orgni/dist/public` — static files for the marketing site
-- `artifacts/orgni-app/dist/public` — static files for the product app
-- `artifacts/api-server/dist/index.mjs` — bundled Node server (ESM)
+- `apps/frontend/dist/public` — static files for the marketing site
+- `apps/product/dist/public` — static files for the product app
+- `services/api/dist/index.mjs` — bundled Node server (ESM)
 
 To build a single component:
 
 ```bash
-pnpm --filter @workspace/orgni run build
-pnpm --filter @workspace/orgni-app run build
-pnpm --filter @workspace/api-server run build
+pnpm --filter @workspace/frontend run build
+pnpm --filter @workspace/product run build
+pnpm --filter @workspace/api run build
 ```
 
 ---
@@ -55,7 +55,7 @@ pnpm --filter @workspace/api-server run build
 Set these in the relevant Azure resource (App Service **Configuration**, Container
 Apps secrets, or Static Web Apps settings). Never commit secrets to the repo.
 
-### API server (`@workspace/api-server`)
+### API server (`@workspace/api`)
 
 | Variable | Required | Notes |
 |----------|----------|-------|
@@ -106,7 +106,7 @@ For **orgni** and **orgni-app** (repeat per app):
 ### 4.2 API server — Azure App Service (Linux, Node 24)
 
 1. Provision an App Service plan (Linux) with the **Node 24 LTS** runtime.
-2. Deploy the repo (or just `artifacts/api-server` with its `dist/` and
+2. Deploy the repo (or just `services/api` with its `dist/` and
    `node_modules`). Recommended: build in CI, deploy `dist/` + production deps.
 3. Configure the **startup command**:
 
@@ -114,7 +114,7 @@ For **orgni** and **orgni-app** (repeat per app):
    node --enable-source-maps dist/index.mjs
    ```
 
-   (equivalent to `pnpm --filter @workspace/api-server run start`)
+   (equivalent to `pnpm --filter @workspace/api run start`)
 4. Set all API environment variables from §3. Azure provides `PORT`; the server
    binds `0.0.0.0:$PORT` (Express default host), which App Service requires.
 5. Route the front-end's `/api/*` traffic to this service (Static Web Apps linked
@@ -154,9 +154,9 @@ jobs:
       - run: corepack enable && corepack prepare pnpm@10.26.1 --activate
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      # then: deploy artifacts/orgni/dist/public        -> Static Web App (site)
-      #       deploy artifacts/orgni-app/dist/public     -> Static Web App (app)
-      #       deploy artifacts/api-server (dist + deps)   -> App Service / Container Apps
+      # then: deploy apps/frontend/dist/public        -> Static Web App (site)
+      #       deploy apps/product/dist/public     -> Static Web App (app)
+      #       deploy services/api (dist + deps)   -> App Service / Container Apps
 ```
 
 ---

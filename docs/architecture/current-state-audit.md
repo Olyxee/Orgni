@@ -6,10 +6,10 @@ Date: 2026-07-10
 
 This audit covers the current Orgni repository at `C:\dev\Orgni`, especially:
 
-- `artifacts/orgni`
-- `artifacts/orgni-app`
-- `artifacts/api-server`
-- `artifacts/orgni-docs`
+- `apps/frontend`
+- `apps/product`
+- `services/api`
+- `services/document-service`
 - shared `lib/*`
 - repository-level docs/config
 
@@ -17,28 +17,28 @@ The audit is intentionally descriptive. It does not approve the current implemen
 
 ## Current Application Boundaries
 
-### `artifacts/orgni`
+### `apps/frontend`
 
 Public marketing and documentation website.
 
 Important files:
 
-- `artifacts/orgni/src/App.tsx`
-- `artifacts/orgni/src/pages/home.tsx`
-- `artifacts/orgni/src/pages/docs.tsx`
-- `artifacts/orgni/src/pages/api.tsx`
-- `artifacts/orgni/src/components/site-header.tsx`
-- `artifacts/orgni/src/components/waitlist-dialog.tsx`
+- `apps/frontend/src/App.tsx`
+- `apps/frontend/src/pages/home.tsx`
+- `apps/frontend/src/pages/docs.tsx`
+- `apps/frontend/src/pages/api.tsx`
+- `apps/frontend/src/components/site-header.tsx`
+- `apps/frontend/src/components/waitlist-dialog.tsx`
 
 Current role: public website only. It does not own product state, ingestion, document processing, canonical events, or memory.
 
-### `artifacts/orgni-app`
+### `apps/product`
 
 Product UI for Sources, Lucy, Operating Model, workflows, exceptions, and business profile.
 
 Important files/functions:
 
-- `artifacts/orgni-app/src/App.jsx`
+- `apps/product/src/App.jsx`
   - `api(path, options)`
   - `initialize()`
   - `refreshOrgData(nextOrgId)`
@@ -50,49 +50,49 @@ Important files/functions:
   - `reviewFinding(id, mode, patch)`
   - `saveWorkflow(payload, id)`
   - `scanExceptions()`
-- `artifacts/orgni-app/src/localApi.js`
+- `apps/product/src/localApi.js`
   - browser-local fallback for orgs, documents, engine context, workflows, and exceptions
 
 Current role: product UI and a large amount of product orchestration. It calls backend routes directly and mirrors some backend behavior locally.
 
-### `artifacts/api-server`
+### `services/api`
 
 Node/Express backend for the product app.
 
 Important files:
 
-- `artifacts/api-server/src/app.ts`
-- `artifacts/api-server/src/routes/index.ts`
-- `artifacts/api-server/engine/routes/index.js`
-- `artifacts/api-server/engine/controllers/*.js`
-- `artifacts/api-server/engine/models/*.js`
-- `artifacts/api-server/engine/services/*.js`
-- `artifacts/api-server/engine/engine/orgni.engine.js`
-- `artifacts/api-server/engine/sdk/engine.sdk.js`
+- `services/api/src/app.ts`
+- `services/api/src/routes/index.ts`
+- `services/api/engine/routes/index.js`
+- `services/api/engine/controllers/*.js`
+- `services/api/engine/models/*.js`
+- `services/api/engine/services/*.js`
+- `services/api/engine/engine/orgni.engine.js`
+- `services/api/engine/sdk/engine.sdk.js`
 
 Current role: API gateway, application service, ingestion controller, parser, retrieval layer, knowledge map builder, validation manager, exception manager, action formatter, and chat context provider. This is too many responsibilities for the target architecture.
 
-### `artifacts/orgni-docs`
+### `services/document-service`
 
 Python/FastAPI document integrity service promoted from the separately developed upload pipeline.
 
 Important files:
 
-- `artifacts/orgni-docs/main.py`
-- `artifacts/orgni-docs/pipeline/runner.py`
-- `artifacts/orgni-docs/ocr/extractor.py`
-- `artifacts/orgni-docs/extraction/extractor.py`
-- `artifacts/orgni-docs/validation/engine.py`
-- `artifacts/orgni-docs/integrity/trust_scorer.py`
-- `artifacts/orgni-docs/schemas/document.py`
-- `artifacts/orgni-docs/tests/test_api.py`
-- `artifacts/orgni-docs/tests/test_pipeline.py`
+- `services/document-service/main.py`
+- `services/document-service/pipeline/runner.py`
+- `services/document-service/ocr/extractor.py`
+- `services/document-service/extraction/extractor.py`
+- `services/document-service/validation/engine.py`
+- `services/document-service/integrity/trust_scorer.py`
+- `services/document-service/schemas/document.py`
+- `services/document-service/tests/test_api.py`
+- `services/document-service/tests/test_pipeline.py`
 
 Current role: standalone document integrity pipeline. It is present in the repo but is not yet called by the main Node upload flow.
 
 ## Current Upload Flow
 
-Product upload starts in `artifacts/orgni-app/src/App.jsx`.
+Product upload starts in `apps/product/src/App.jsx`.
 
 Relevant functions:
 
@@ -113,7 +113,7 @@ files
 
 The route is registered in:
 
-- `artifacts/api-server/engine/routes/index.js`
+- `services/api/engine/routes/index.js`
 
 Relevant route:
 
@@ -129,7 +129,7 @@ Multer is configured with:
 
 The controller is:
 
-- `artifacts/api-server/engine/controllers/document.controller.js`
+- `services/api/engine/controllers/document.controller.js`
 
 Current upload path:
 
@@ -206,7 +206,7 @@ Builds exceptions by scanning documents, validations, and active knowledge map. 
 
 File:
 
-- `artifacts/api-server/engine/services/parser.service.js`
+- `services/api/engine/services/parser.service.js`
 
 Exports:
 
@@ -250,8 +250,8 @@ Limitations:
 
 Files:
 
-- `artifacts/api-server/engine/services/chunker.service.js`
-- `artifacts/api-server/engine/models/chunk.model.js`
+- `services/api/engine/services/chunker.service.js`
+- `services/api/engine/models/chunk.model.js`
 
 Chunk records include:
 
@@ -274,7 +274,7 @@ Current issue: chunks are central to retrieval and context construction. In the 
 
 File:
 
-- `artifacts/api-server/engine/services/retrieval.service.js`
+- `services/api/engine/services/retrieval.service.js`
 
 Important functions:
 
@@ -300,16 +300,16 @@ This is useful as a compatibility layer, but it is not the target context-servic
 
 Frontend:
 
-- `artifacts/orgni-app/src/App.jsx`
+- `apps/product/src/App.jsx`
   - `sendChat(text, mode)`
 
 Backend:
 
-- `artifacts/api-server/engine/controllers/engine.controller.js`
+- `services/api/engine/controllers/engine.controller.js`
   - `chat`
-- `artifacts/api-server/engine/sdk/engine.sdk.js`
+- `services/api/engine/sdk/engine.sdk.js`
   - `chat`
-- `artifacts/api-server/engine/engine/orgni.engine.js`
+- `services/api/engine/engine/orgni.engine.js`
   - `chat`
 
 Flow:
@@ -339,9 +339,9 @@ Conflict with target architecture:
 
 Files:
 
-- `artifacts/api-server/engine/engine/orgni.engine.js`
-- `artifacts/api-server/engine/models/knowledgeMap.model.js`
-- `artifacts/api-server/engine/controllers/document.controller.js`
+- `services/api/engine/engine/orgni.engine.js`
+- `services/api/engine/models/knowledgeMap.model.js`
+- `services/api/engine/controllers/document.controller.js`
 
 Full intake:
 
@@ -375,10 +375,10 @@ Conflict:
 
 Database access is through:
 
-- `artifacts/api-server/engine/db/index.js`
-- `artifacts/api-server/engine/db/repository.interface.js`
-- `artifacts/api-server/engine/db/adapters/lowdb.adapter.js`
-- `artifacts/api-server/engine/db/adapters/postgres.adapter.js`
+- `services/api/engine/db/index.js`
+- `services/api/engine/db/repository.interface.js`
+- `services/api/engine/db/adapters/lowdb.adapter.js`
+- `services/api/engine/db/adapters/postgres.adapter.js`
 
 Adapters:
 
@@ -432,12 +432,12 @@ Missing target models:
 
 Current authentication:
 
-- No user authentication was found in `artifacts/api-server`.
+- No user authentication was found in `services/api`.
 - No session, JWT, OAuth, API key, or identity middleware was found.
 
 Current authorization:
 
-- `artifacts/api-server/engine/middleware/orgResolver.js` loads an org by `req.params.orgId`.
+- `services/api/engine/middleware/orgResolver.js` loads an org by `req.params.orgId`.
 - Several model methods check `orgId` before mutation, such as `workflow.model.findById`, `validation.model.findByIdForOrg`, and document `get/remove` controller checks.
 
 Gaps:
@@ -472,7 +472,7 @@ Risks:
 
 Location:
 
-- `artifacts/orgni-docs`
+- `services/document-service`
 
 Endpoint:
 
@@ -552,8 +552,8 @@ Gaps:
 
 Found tests:
 
-- `artifacts/orgni-docs/tests/test_api.py`
-- `artifacts/orgni-docs/tests/test_pipeline.py`
+- `services/document-service/tests/test_api.py`
+- `services/document-service/tests/test_pipeline.py`
 
 Missing or not found:
 

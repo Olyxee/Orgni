@@ -61,60 +61,60 @@ Create:
 
 Create either a standalone service or internal-first module. Recommended internal-first for first PR:
 
-- `artifacts/api-server/engine/ingestion/README.md`
-- `artifacts/api-server/engine/ingestion/ingestion.service.js`
-- `artifacts/api-server/engine/ingestion/evidence-store.js`
-- `artifacts/api-server/engine/ingestion/checksum.js`
-- `artifacts/api-server/engine/ingestion/jobs.js`
-- `artifacts/api-server/engine/ingestion/events.js`
-- `artifacts/api-server/engine/ingestion/__tests__/*.test.js`
+- `services/api/engine/ingestion/README.md`
+- `services/api/engine/ingestion/ingestion.service.js`
+- `services/api/engine/ingestion/evidence-store.js`
+- `services/api/engine/ingestion/checksum.js`
+- `services/api/engine/ingestion/jobs.js`
+- `services/api/engine/ingestion/events.js`
+- `services/api/engine/ingestion/__tests__/*.test.js`
 
 Modify:
 
-- `artifacts/api-server/engine/controllers/document.controller.js`
-- `artifacts/api-server/engine/models/document.model.js`
-- `artifacts/api-server/engine/db/adapters/lowdb.adapter.js`
+- `services/api/engine/controllers/document.controller.js`
+- `services/api/engine/models/document.model.js`
+- `services/api/engine/db/adapters/lowdb.adapter.js`
 
 ### Document processor adapter
 
 Create:
 
-- `artifacts/api-server/engine/document-processing/README.md`
-- `artifacts/api-server/engine/document-processing/DocumentProcessor.js`
-- `artifacts/api-server/engine/document-processing/LegacyNodeParserProcessor.js`
-- `artifacts/api-server/engine/document-processing/OrgniDocsProcessor.js`
-- `artifacts/api-server/engine/document-processing/normalizeOrgniDocsResult.js`
-- `artifacts/api-server/engine/document-processing/events.js`
-- `artifacts/api-server/engine/document-processing/__tests__/*.test.js`
+- `services/api/engine/document-processing/README.md`
+- `services/api/engine/document-processing/DocumentProcessor.js`
+- `services/api/engine/document-processing/LegacyNodeParserProcessor.js`
+- `services/api/engine/document-processing/OrgniDocsProcessor.js`
+- `services/api/engine/document-processing/normalizeOrgniDocsResult.js`
+- `services/api/engine/document-processing/events.js`
+- `services/api/engine/document-processing/__tests__/*.test.js`
 
 Modify:
 
-- `artifacts/api-server/engine/services/parser.service.js` only if needed to expose metadata
-- `artifacts/api-server/engine/controllers/document.controller.js`
+- `services/api/engine/services/parser.service.js` only if needed to expose metadata
+- `services/api/engine/controllers/document.controller.js`
 
 ### Event store
 
 Create:
 
-- `artifacts/api-server/engine/event-store/README.md`
-- `artifacts/api-server/engine/event-store/event-store.js`
-- `artifacts/api-server/engine/event-store/dedupe.js`
-- `artifacts/api-server/engine/event-store/replay.js`
-- `artifacts/api-server/engine/event-store/__tests__/*.test.js`
+- `services/api/engine/event-store/README.md`
+- `services/api/engine/event-store/event-store.js`
+- `services/api/engine/event-store/dedupe.js`
+- `services/api/engine/event-store/replay.js`
+- `services/api/engine/event-store/__tests__/*.test.js`
 
 Modify:
 
-- `artifacts/api-server/engine/db/adapters/lowdb.adapter.js`
-- `artifacts/api-server/engine/db/adapters/postgres.adapter.js`
+- `services/api/engine/db/adapters/lowdb.adapter.js`
+- `services/api/engine/db/adapters/postgres.adapter.js`
 
 ## Files Not To Change In Phase 1
 
 Do not move or rewrite:
 
-- `artifacts/orgni`
-- `artifacts/orgni-app`
-- `artifacts/api-server/engine/engine/orgni.engine.js` except for feature-flagged adapter calls if approved
-- `artifacts/orgni-docs` internals except service docs/config if required
+- `apps/frontend`
+- `apps/product`
+- `services/api/engine/engine/orgni.engine.js` except for feature-flagged adapter calls if approved
+- `services/document-service` internals except service docs/config if required
 
 Do not implement yet:
 

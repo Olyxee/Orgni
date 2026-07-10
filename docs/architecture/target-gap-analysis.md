@@ -17,13 +17,13 @@ The current repository has a working product, document upload flow, Node parser,
 
 | Target module | Current status | Existing reusable code | Missing capability | Required refactor | Dependencies | Risk | Recommended owner | Priority |
 |---|---|---|---|---|---|---|---|---|
-| `apps/orgni-web` | INCORRECTLY_PLACED | `artifacts/orgni` | target app path and app contract | keep current app, add migration alias later | workspace migration | low | frontend | P3 |
-| `apps/orgni-product` | INCORRECTLY_PLACED | `artifacts/orgni-app` | target app path, typed API client to context service | keep operational, migrate API consumers gradually | API contracts | medium | product frontend | P2 |
+| `apps/orgni-web` | INCORRECTLY_PLACED | `apps/frontend` | target app path and app contract | keep current app, add migration alias later | workspace migration | low | frontend | P3 |
+| `apps/orgni-product` | INCORRECTLY_PLACED | `apps/product` | target app path, typed API client to context service | keep operational, migrate API consumers gradually | API contracts | medium | product frontend | P2 |
 | `apps/admin-console` | MISSING | none | admin UI | create later | auth/governance | low now | product/admin | P4 |
 | `apps/review-console` | PARTIAL | validation/findings UI in `orgni-app` | dedicated review workflows | isolate review UI later | validation/action service | medium | product frontend | P3 |
-| `services/api-gateway` | PARTIAL | `artifacts/api-server/src/app.ts`, `engine/routes/index.js` | auth, routing boundary, service delegation | separate gateway responsibilities from domain engine | auth, schemas | high | backend platform | P1 |
+| `services/api-gateway` | PARTIAL | `services/api/src/app.ts`, `engine/routes/index.js` | auth, routing boundary, service delegation | separate gateway responsibilities from domain engine | auth, schemas | high | backend platform | P1 |
 | `services/ingestion-service` | MISSING | `document.controller.upload`, `parser.service.js` | raw evidence, checksums, jobs, idempotency, SignalEnvelope | extract internal ingestion module first | schemas, storage | high | backend platform | P1 |
-| `services/document-service` | PARTIAL | `parser.service.js`, `artifacts/orgni-docs` | processor adapter contract, normalized outputs | wrap legacy parser and Orgni Docs behind `DocumentProcessor` | ingestion, schemas | high | backend/document AI | P1 |
+| `services/document-service` | PARTIAL | `parser.service.js`, `services/document-service` | processor adapter contract, normalized outputs | wrap legacy parser and Orgni Docs behind `DocumentProcessor` | ingestion, schemas | high | backend/document AI | P1 |
 | `services/tokenization-service` | MISSING | deterministic extractors as reference | OrganizationalToken generation | create tokenizer module | schemas, events | high | intelligence | P1 |
 | `services/entity-resolution-service` | MISSING | role/department extraction hints | entity identity resolution and review status | create explicit service/module | schemas, event store | high | intelligence/backend | P2 |
 | `services/relationship-service` | PARTIAL | workflow/rule/risk extractors | relationship model and provenance | extract relationship builder from engine | entities/events | high | intelligence | P3 |
