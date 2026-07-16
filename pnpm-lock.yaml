@@ -639,6 +639,9 @@ importers:
       joi:
         specifier: ^18.2.1
         version: 18.2.3
+      lodash:
+        specifier: ^4.18.1
+        version: 4.18.1
       lowdb:
         specifier: ^1.0.0
         version: 1.0.0
