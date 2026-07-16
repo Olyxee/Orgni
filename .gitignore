@@ -1,3 +1,7 @@
+
+
+
+
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
@@ -53,3 +57,7 @@ Thumbs.db
 
 # Orgni Docs runtime uploads
 services/document-service/uploads/
+
+# Deployment bundles
+deploy/
+services/api/deploy/
