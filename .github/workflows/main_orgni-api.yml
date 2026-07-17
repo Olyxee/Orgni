@@ -38,11 +38,23 @@ jobs:
           rm -rf deploy
           pnpm --filter @workspace/api deploy --prod --legacy deploy
 
-      - name: Upload deployment artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: api
-          path: deploy
+      - name: Debug deployment bundle
+        run: |
+          echo "===== deploy/node_modules ====="
+          find deploy/node_modules -maxdepth 2 -type d | sort
+
+          echo ""
+          echo "===== Checking lowdb dependencies ====="
+          test -d deploy/node_modules/lodash && echo "lodash: FOUND" || echo "lodash: MISSING"
+          test -d deploy/node_modules/is-promise && echo "is-promise: FOUND" || echo "is-promise: MISSING"
+          test -d deploy/node_modules/graceful-fs && echo "graceful-fs: FOUND" || echo "graceful-fs: MISSING"
+          test -d deploy/node_modules/pify && echo "pify: FOUND" || echo "pify: MISSING"
+          test -d deploy/node_modules/steno && echo "steno: FOUND" || echo "steno: MISSING"
+            - name: Upload deployment artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: api
+                path: deploy
 
   deploy:
     runs-on: ubuntu-latest
