@@ -1,3 +1,11 @@
+/**
+ * Orgni Organizational Tokenizer — Public API
+ *
+ * Two surfaces:
+ *   1. tokenizeCanonicalEvent / tokenizeCanonicalEvents — original (unchanged)
+ *   2. tokenizeDocument — document-sourced tokenization (Phase 1 addition)
+ */
+
 import type { CanonicalEvent, OrganizationalToken, PrincipalRule } from "@workspace/schemas";
 import { clampConfidence } from "@workspace/schemas";
 
@@ -38,3 +46,17 @@ export function tokenizeCanonicalEvents(
 ): OrganizationalToken[] {
   return events.map((event) => tokenizeCanonicalEvent(event, options));
 }
+
+// ── Document tokenization (Phase 1) ──────────────────────────────────────────
+export { tokenizeDocument } from "./tokenizer/document.tokenizer.js";
+export type { DocumentExtraction, DocumentTokenizerResult } from "./tokenizer/document.tokenizer.js";
+
+// ── Envelope types ────────────────────────────────────────────────────────────
+export type { ExtractionEnvelopeBase, DocumentType, ExtractionStatus, ConfidenceMethod, FieldExtraction } from "./envelopes/types.js";
+export type { InvoiceExtraction, InvoiceLineItem } from "./envelopes/invoice.js";
+export type { ProofOfPaymentExtraction, PaymentMethod } from "./envelopes/proof_of_payment.js";
+export type { ContractExtraction, ContractParty, ContractType } from "./envelopes/contract.js";
+
+// ── Validator ─────────────────────────────────────────────────────────────────
+export { validateToken, validateTokens } from "./validators/token.validator.js";
+export type { TokenValidationResult, BatchValidationResult } from "./validators/token.validator.js";
