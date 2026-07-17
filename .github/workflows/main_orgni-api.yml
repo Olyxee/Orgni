@@ -65,6 +65,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: api
+      - name: Inspect pnpm links
+        run: |
+          echo "Top level node_modules:"
+          ls -la deploy/node_modules
+
+          echo ""
+          echo "Looking for is-promise link:"
+          ls -la deploy/node_modules/is-promise || true
+
+          echo ""
+          echo "Looking for lowdb:"
+          ls -la deploy/node_modules/lowdb || true
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
