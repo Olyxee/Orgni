@@ -1,0 +1,31 @@
+modules = ["nodejs-20", "web", "python-3.12"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+AI_PROVIDER = "grok"
+AI_MODEL = "grok-3"
+ORGNI_USE_LLM_EXTRACTION = "true"
+AI_BASE_URL = "https://api.x.ai"
+
+[nix]
+channel = "stable-25_05"

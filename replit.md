@@ -1,70 +1,45 @@
-# Orgni
+# [Project name]
 
-Orgni is a live business-context layer by Olyxee: it reads a company's documents, processes, decisions, and systems and maps them into a living operating model that teams and intelligent tools can rely on.
+_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/frontend run dev` — marketing + docs site (landing page)
-- `pnpm --filter @workspace/product run dev` — the product web app (Lucy, Sources, Operating Model)
-- `pnpm --filter @workspace/api run dev` — API server + Orgni engine
-- `pnpm --filter @workspace/mockup-sandbox run dev` — component preview server (canvas mockups)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- Each artifact binds to the `PORT` env var assigned by Replit; the preview pane routes to each by its base path.
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
-- pnpm workspaces, Node.js 24 LTS (pinned via `engines`), TypeScript 5.9
-- Web (orgni, orgni-app): React 19.2 + Vite 7 + Tailwind 4 + framer-motion + wouter
-- API: Express on esbuild bundle; the `engine/` directory is plain CommonJS
-- AI: configurable provider via env (`AI_PROVIDER`, `AI_BASE_URL`, `AI_MODEL`); currently Grok (xAI) using `GROK_API_KEY`
-- Build: esbuild (API), Vite (web artifacts)
+- pnpm workspaces, Node.js 24, TypeScript 5.9
+- API: Express 5
+- DB: PostgreSQL + Drizzle ORM
+- Validation: Zod (`zod/v4`), `drizzle-zod`
+- API codegen: Orval (from OpenAPI spec)
+- Build: esbuild (CJS bundle)
 
 ## Where things live
 
-- `apps/frontend` — public marketing + docs/API/pricing site. Pages in `src/pages`, shared UI in `src/components` (`site-header.tsx`, `site-footer.tsx`, `waitlist-dialog.tsx`).
-- `apps/product` — the product web app. Single-file UI in `src/App.jsx`, styles in `src/styles.css`, API client in `src/localApi.js`.
-- `services/api` — Express API in `src/`; the Orgni engine (knowledge extraction, AI services) in `engine/` (controllers, routes, services, models). Engine AI config lives in `engine/services/ai.service.js`.
-- `artifacts/mockup-sandbox` — Vite preview server for isolated component mockups on the canvas.
-- `vercel.json` (root) — Vercel build output dir points at `apps/frontend/dist/public`.
+_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
 
 ## Architecture decisions
 
-- The engine (`api-server/engine`) is CommonJS and separate from the TypeScript API surface; `ai.service.js` reads provider config from env at call time, so the process must be restarted to pick up new AI env vars.
-- AI provider is pluggable through env vars rather than hard-coded, so the engine can switch between Grok and other providers without code changes.
-- `orgni` (Vite) outputs to `dist/public`, which is why the root `vercel.json` overrides `outputDirectory`.
-- Document-first onboarding: the app builds an operating model from an uploaded document instead of long manual forms.
+_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
 
 ## Product
 
-- Marketing site: positions Orgni as a live operating-context layer; CTAs open the waitlist/access dialog and link to the app.
-- App: "Lucy" operations analyst answers grounded questions about the business; Sources manages indexed documents; Operating Model shows the mapped knowledge map.
+_Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-- CTA buttons are labeled "Try it for free" (not "Request access"); the access/waitlist dialog and in-sentence prose mentions stay as-is.
-- App sidebar uses a unified white surface with a BETA badge by the brand and "What's New" + "Send Feedback" entries above Profile.
-- Feedback / contact links point to `https://www.olyxee.com/contact`.
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
-- Restart the `api-server` workflow after changing any AI / engine env var — config is read at call time but the running process caches the environment.
-- The engine's `safeExtract` swallows non-auth errors, so an upstream AI failure (e.g. no provider credits) can silently produce an empty knowledge map rather than a visible error.
-- Document upload uses the multipart field name `files` (multer array), not `file`.
-
-## Deployment
-
-- See `DEPLOYMENT.md` for the Azure deployment guide (Static Web Apps for the two
-  front-ends, App Service / Container Apps for the API server, env vars, CI sketch).
+_Populate as you build — sharp edges, "always run X before Y" rules._
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
-
-## Orgni Docs
-
-- `services/document-service` is the Python/FastAPI document integrity service promoted from the separately developed upload pipeline.
-- Keep it as a clean service boundary inside this project: OCR, structured extraction, validation, and trust scoring live there.
-- The Node API remains the app-facing upload path (`POST /api/orgs/:orgId/documents`, multipart field `files`).
-- Wire Orgni Docs into the Node upload flow through a narrow adapter that calls its `/run` endpoint and stores the returned integrity report on the document.
-- See `docs/orgni-docs-integration.md` for the integration contract.
+- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
