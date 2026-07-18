@@ -1,5 +1,7 @@
 # Organizational Tokenizer
 
+> **Status:** Not yet ported to the live Replit workspace — this backup copy is the current source. Despite the name, this is a TypeScript module that structures business events into "organizational tokens" — it is not an ML/NLP tokenizer and hosts no models.
+
 Purpose: convert canonical events and extracted evidence into organizational tokens.
 
 Responsibilities:

@@ -1,5 +1,7 @@
 # Ingestion Service
 
+> **Status:** Not yet ported to the live Replit workspace — this backup copy is the current source.
+
 Purpose: convert incoming source material into immutable signal envelopes.
 
 Responsibilities:

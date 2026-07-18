@@ -1,5 +1,7 @@
 # Orgni Docs — Document Integrity Pipeline
 
+> **Status:** Not yet ported to the live Replit workspace — this backup copy is the current source. Runs as a standalone Python/FastAPI service; deploy to any Python host (e.g. Azure App Service). It calls Anthropic's hosted API for LLM extraction — no models or tokenizers are self-hosted; the only local processing is Tesseract OCR.
+
 ## Overview
 
 Orgni Docs is the document understanding and integrity layer inside the Orgni platform.
