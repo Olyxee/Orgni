@@ -1,45 +1,48 @@
-# [Project name]
+# Orgni — Business context for AI execution
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+## Project overview
 
-## Run & Operate
+Orgni is an AI-driven business intelligence platform that extracts structured "Business Maps" from documents — identifying roles, workflows, financial patterns, and rules. This is the marketing/landing site ported from Vercel to Replit as a pnpm monorepo.
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+## Architecture
 
-## Stack
+- **`artifacts/frontend`** — Marketing site (React + Vite, Tailwind v4, wouter, shadcn/ui). Served at `/`.
+- **`artifacts/api-server`** — Express API server. Served at `/api`. Handles waitlist signup.
+- **`lib/api-spec`** — OpenAPI spec (source of truth for all API contracts).
+- **`lib/api-client-react`** — Generated React Query hooks (from codegen).
+- **`lib/api-zod`** — Generated Zod validation schemas (from codegen).
+- **`lib/db`** — Drizzle ORM + PostgreSQL schema.
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+## Key commands
 
-## Where things live
+```bash
+# Install dependencies
+pnpm install
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+# Run codegen after any OpenAPI spec change
+pnpm --filter @workspace/api-spec run codegen
 
-## Architecture decisions
+# Push DB schema changes
+pnpm --filter @workspace/db run push
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+# Typecheck frontend
+pnpm --filter @workspace/frontend run typecheck
+```
 
-## Product
+## Workflows
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- `artifacts/frontend: web` — Vite dev server for the marketing site
+- `artifacts/api-server: API Server` — Express API server
+
+## Design
+
+- Dark mode by default (`class="dark"` on `<html>`)
+- Brand: black background, orange primary (`16 88% 54%`), Geist / Geist Mono fonts
+- All shadcn/ui components in `artifacts/frontend/src/components/ui/`
+- Tailwind v4 with CSS variable tokens in `artifacts/frontend/src/index.css`
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Use pnpm for all package management
+- Follow OpenAPI-first pattern: edit spec → run codegen → use generated hooks
+- Never hardcode ports; always read from `process.env.PORT`
