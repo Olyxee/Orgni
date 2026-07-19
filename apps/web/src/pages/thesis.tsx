@@ -183,6 +183,20 @@ export default function Thesis() {
           <p className="text-xl md:text-3xl text-white/60 leading-relaxed font-light">
             {thesisData.subtitle}
           </p>
+          <div className="mt-12 pt-8 md:pt-12 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-1.5">
+              <span className="font-bold text-white">Lethabo Scofield</span>
+              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Research Scientist</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="font-bold text-white">Alisha Fatima</span>
+              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Founding AI<br/>Infrastructure Engineer</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <span className="font-bold text-white">Mosa Maseko</span>
+              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Founding Data Engineer</span>
+            </div>
+          </div>
         </div>
       </header>
 

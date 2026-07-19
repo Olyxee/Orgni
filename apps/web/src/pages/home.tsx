@@ -10,7 +10,6 @@ import { ProductInterfaceSection } from "@/components/landing/ProductInterfaceSe
 import { BeforeAfterSection } from "@/components/landing/BeforeAfterSection";
 import { EnterpriseSection } from "@/components/landing/EnterpriseSection";
 import { DevelopersSection } from "@/components/landing/DevelopersSection";
-import { TeamSection } from "@/components/landing/TeamSection";
 import { ClosingSection } from "@/components/landing/ClosingSection";
 
 export default function Home() {
@@ -34,7 +33,6 @@ export default function Home() {
         <BeforeAfterSection />
         <EnterpriseSection />
         <DevelopersSection />
-        <TeamSection />
         <ClosingSection />
       </main>
 
