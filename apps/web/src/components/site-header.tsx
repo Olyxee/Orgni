@@ -55,13 +55,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             <img
               src={`${import.meta.env.BASE_URL}orgni-logo.png`}
               alt="Orgni logo"
-              className="h-5 w-5 object-cover"
+              className="h-9 w-9 object-cover"
             />
             <div className="flex flex-col">
-              <span className="font-mono font-bold tracking-tight text-sm leading-none text-foreground">
+              <span className="font-mono font-bold tracking-tight text-base leading-none text-foreground">
                 ORGNI
               </span>
-              <span className="text-[9px] text-foreground/40 font-mono leading-none mt-1 tracking-widest uppercase">
+              <span className="text-[10px] text-foreground/40 font-mono leading-none mt-1 tracking-widest uppercase">
                 by Olyxee
               </span>
             </div>
