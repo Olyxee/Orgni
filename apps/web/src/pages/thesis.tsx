@@ -106,6 +106,21 @@ export default function Thesis() {
     title: "The Business Context Thesis - Olyxee",
     description: thesisData.subtitle,
     path: "/thesis",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "ScholarlyArticle",
+      headline: "The Business Context Thesis",
+      description: thesisData.subtitle,
+      author: [
+        { "@type": "Person", name: "Lethabo Scofield", jobTitle: "Research Scientist" },
+        { "@type": "Person", name: "Alisha Fatima", jobTitle: "Founding AI Infrastructure Engineer" },
+        { "@type": "Person", name: "Mosa Maseko", jobTitle: "Founding Data Engineer" },
+      ],
+      publisher: { "@type": "Organization", name: "Olyxee", url: "https://www.olyxee.com" },
+      about: ["business context", "AI execution", "organizational intelligence"],
+      url: "https://orgni.com/thesis",
+      isPartOf: { "@type": "WebSite", name: "Orgni", url: "https://orgni.com" },
+    },
   });
 
   const shouldReduceMotion = useReducedMotion();
