@@ -37,10 +37,6 @@ export function HeroSection() {
     };
   }, []);
 
-  const scrollToTransform = () => {
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section ref={heroRef} className="relative z-20 min-h-[90vh] bg-black text-white flex flex-col pt-16 lg:pt-24 pb-0">
       <div className="container max-w-screen-xl px-4 md:px-8 mx-auto relative z-10 flex flex-col items-center text-center">
@@ -56,22 +52,26 @@ export function HeroSection() {
             Your organisation already has intelligence. <br className="hidden md:block" />
             <span className="text-primary">Orgni makes it usable.</span>
           </h1>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex items-center justify-center mt-4">
             <Button
-              size="lg"
-              onClick={() => window.location.href = SIGNUP_URL}
-              className="group w-full sm:w-auto h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-bold rounded-sm shadow-md transition-all hover:shadow-lg"
+              asChild
+              className={`
+                group relative h-[60px] px-10 rounded-sm bg-primary text-primary-foreground 
+                font-mono text-sm font-bold uppercase tracking-widest overflow-hidden
+                transition-all duration-500 ease-out
+                ${!shouldReduceMotion ? 'hover:shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]' : ''}
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black
+              `}
             >
-              Explore Orgni
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={scrollToTransform}
-              className="w-full sm:w-auto h-14 px-8 border-white/20 hover:bg-white/10 hover:border-white/40 text-white bg-white/[0.02] backdrop-blur-sm text-base font-bold rounded-sm transition-all"
-            >
-              See how it works
+              <a href={SIGNUP_URL}>
+                <span className="relative z-10 flex items-center">
+                  Explore Orgni
+                  <ArrowRight className={`ml-4 h-5 w-5 transition-transform duration-500 ease-out ${!shouldReduceMotion ? 'group-hover:translate-x-2' : ''}`} />
+                </span>
+                {!shouldReduceMotion && (
+                  <div className="absolute inset-0 z-0 bg-white/0 transition-colors duration-500 ease-out group-hover:bg-white/20 pointer-events-none" />
+                )}
+              </a>
             </Button>
           </div>
         </motion.div>
