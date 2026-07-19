@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Api from "@/pages/api";
+import Thesis from "@/pages/thesis";
 import { CommandPaletteProvider } from "@/components/command-palette";
 import { ScrollToTopButton } from "@/components/scroll-to-top";
 
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference" component={Api} />
+      <Route path="/thesis" component={Thesis} />
       <Route component={NotFound} />
     </Switch>
   );

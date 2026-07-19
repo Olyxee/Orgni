@@ -69,7 +69,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-10">
-          <Link href="/#thesis" onClick={(e) => handleHashNav(e, "#thesis")} className={navLink}>
+          <Link href="/thesis" className={navLink}>
             Thesis
             <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
           </Link>
@@ -85,14 +85,15 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          <a href={SIGNUP_URL} className="hidden sm:inline-flex">
-            <Button
-              size="sm"
-              className="rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
-            >
+          <Button
+            asChild
+            size="sm"
+            className="hidden sm:inline-flex rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
+          >
+            <a href={SIGNUP_URL}>
               Request Access
-            </Button>
-          </a>
+            </a>
+          </Button>
 
           {/* Mobile menu toggle */}
           <button
@@ -110,7 +111,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
       {mobileOpen && (
         <div className="md:hidden absolute top-full left-0 w-full border-t border-white/5 bg-background/95 backdrop-blur-xl shadow-2xl">
           <nav className="flex flex-col px-6 py-4">
-            <Link href="/#thesis" onClick={(e) => { handleHashNav(e, "#thesis"); closeMobile(); }} className={mobileLink}>
+            <Link href="/thesis" onClick={closeMobile} className={mobileLink}>
               Thesis
             </Link>
             <Link href="/api-reference" onClick={closeMobile} className={mobileLink}>
@@ -120,11 +121,11 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
               Contact
             </a>
             <div className="pt-6 pb-4">
-              <a href={SIGNUP_URL}>
-                <Button className="w-full rounded-sm h-12 font-mono text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button asChild className="w-full rounded-sm h-12 font-mono text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90">
+                <a href={SIGNUP_URL}>
                   Request Access
-                </Button>
-              </a>
+                </a>
+              </Button>
             </div>
           </nav>
         </div>

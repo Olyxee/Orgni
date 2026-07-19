@@ -84,6 +84,11 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             </h4>
             <ul className={`space-y-3 text-sm ${muted}`}>
               <li>
+                <Link href="/thesis" className={linkHover}>
+                  Research Thesis
+                </Link>
+              </li>
+              <li>
                 <Link href="/docs" className={linkHover}>
                   Documentation
                 </Link>
