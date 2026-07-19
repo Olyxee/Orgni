@@ -1,13 +1,16 @@
 # Orgni — Pre-Migration Snapshot (archived)
 
-> **⚠️ This directory is a frozen backup.** The live codebase now lives at the repository root (see the [root README](../README.md)). During the July 2026 migration to Replit's pnpm workspace:
+> **⚠️ This directory is a frozen backup.** The live codebase now lives at the repository root (see the [root README](../README.md) and [DEPLOYMENT.md](../DEPLOYMENT.md)). After the July 2026 migration and restructure into the production monorepo layout:
 >
-> - `apps/frontend` → ported to `artifacts/frontend` (deployed on Vercel)
-> - `services/api` (waitlist routes) → ported to `artifacts/api-server`
-> - `lib/*` → ported to root `lib/`
-> - `attached_assets/` → copied to root `attached_assets/`
-> - `apps/product`, `services/document-service`, `services/ingestion-service`, `intelligence/`, `packages/` → **not yet ported**; this backup is their only copy
+> - `apps/frontend` → now `apps/web` (`@workspace/web`, deployed on Vercel)
+> - `services/api` → now `apps/api` (`@workspace/api`, waitlist removed; health/version endpoints added)
+> - `services/ingestion-service` → ported into `apps/worker/src/ingestion`
+> - `packages/schemas` + `packages/events` → merged into `packages/contracts`
+> - shadcn UI components → extracted to `packages/ui`
+> - `lib/*` → root `lib/`; `attached_assets/` → root `attached_assets/`
+> - `apps/product` (product dashboard), `services/document-service` (Python pipeline), `services/api` engine, `intelligence/` → **not yet ported**; this backup is their only copy
 >
+> `DEPLOYMENT.md` in this directory is outdated — use the root [DEPLOYMENT.md](../DEPLOYMENT.md).
 > Do not edit files here expecting them to affect the running app.
 
 Orgni is Olyxee's operating-context platform. The repository is organized by product apps, backend services, shared contracts, and intelligence modules.

@@ -1,67 +1,85 @@
 # Orgni
 
-Orgni is Olyxee's operating-context platform — an AI-driven business intelligence layer that extracts structured "Business Maps" (roles, workflows, financial patterns, rules) from company documents.
+Orgni is Olyxee's AI business-intelligence platform — it turns an
+organization's documents into structured, queryable business context.
 
-This repository is a pnpm monorepo hosted on Replit. It was migrated from the original Vercel repo; the pre-migration snapshot is preserved in [`.migration-backup/`](.migration-backup/README.md).
+This repository is a production-oriented modular monorepo (pnpm + Turborepo).
 
-## Repository Map
+## Structure
 
 ```text
-artifacts/
-  frontend/              Public marketing site + docs (React, Vite, Tailwind v4)
-  api-server/            Node/Express API (waitlist endpoints, health)
-  mockup-sandbox/        Isolated UI/mockup preview workspace
-
+apps/
+  web/       Marketing site (React + Vite)         → Vercel
+  api/       Main backend API (Express)            → Azure Container Apps
+  worker/    Background & async processing         → Azure Container Apps
+packages/
+  contracts/       Shared domain types & canonical events
+  ui/              Shared frontend components (shadcn-based)
+  auth/            Shared auth types & permission logic
+  config/          Validated environment configuration (zod)
+  observability/   Structured logging (pino)
+  testing/         Shared test utilities
 lib/
-  api-spec/              OpenAPI source of truth for all API contracts
-  api-client-react/      Generated React Query API client
-  api-zod/               Generated Zod validation schemas
-  db/                    Drizzle ORM + PostgreSQL schema
-
-attached_assets/         Images and video used by the frontend (@assets alias)
-
-.migration-backup/       Frozen pre-migration snapshot (original apps/, services/,
-                         intelligence/, packages/ — see its README for details)
+  api-spec/            OpenAPI contract (source of truth)
+  api-client-react/    Generated React Query client
+  api-zod/             Generated zod validators
+  db/                  Drizzle ORM + PostgreSQL
+infrastructure/
+  docker/    Dockerfiles + docker-compose (API, worker, Postgres, Redis)
+  azure/     Azure Container Apps deployment guide
+  scripts/   Build & deploy scripts
+docs/        Architecture, API and development documentation
+.github/     CI workflows (PR validation, frontend build, Docker validation)
+.migration-backup/   Archived original repo (unported product app & services)
 ```
 
-## Development
+> Replit note: `artifacts/web` and `artifacts/api` contain only Replit
+> platform config (`.replit-artifact/`) so the dev preview keeps working;
+> all application code lives in `apps/`.
+
+## Getting started
 
 ```bash
+corepack enable          # pnpm 10
 pnpm install
 
-# Frontend dev server
-pnpm --filter @workspace/frontend run dev
-
-# API server
-pnpm --filter @workspace/api-server run dev
-
-# After editing lib/api-spec/openapi.yaml
-pnpm --filter @workspace/api-spec run codegen
-
-# After editing lib/db schema
-pnpm --filter @workspace/db run push
+pnpm --filter @workspace/web run dev      # marketing site
+pnpm --filter @workspace/api run dev      # API on :8080
+pnpm --filter @workspace/worker run dev   # background worker
 ```
 
-On Replit, the frontend and API server run as managed workflows and are wired together automatically.
+## Root scripts
+
+| Command                 | Purpose                                    |
+| ----------------------- | ------------------------------------------ |
+| `pnpm run dev`          | Run dev tasks via Turborepo                |
+| `pnpm run build`        | Typecheck + build all packages             |
+| `pnpm run typecheck`    | TypeScript across the workspace            |
+| `pnpm run lint`         | Prettier check                             |
+| `pnpm run test`         | All package tests                          |
+| `pnpm run docker:build` | Build API + worker production images       |
+
+## Full local platform (Docker)
+
+```bash
+docker compose -f infrastructure/docker/docker-compose.yml up --build
+```
+
+Runs API (:8080), worker, PostgreSQL (:5432) and Redis (:6379).
 
 ## Deployment
 
-| Piece | Where | Notes |
-|---|---|---|
-| Marketing site (`artifacts/frontend`) | Vercel | Static build via root `vercel.json`; SPA rewrites included |
-| API server + PostgreSQL | Replit (dev) | Not included in the Vercel static deploy — host separately (Replit publishing, Azure App Service, etc.) and point the frontend at it |
-| Document / ingestion services | Not yet ported | Live only in `.migration-backup/services/` — see below |
+| App         | Target                | How                                             |
+| ----------- | --------------------- | ----------------------------------------------- |
+| `apps/web`  | Vercel                | `vercel.json` at repo root (static build)       |
+| `apps/api`  | Azure Container Apps  | `infrastructure/docker/api.Dockerfile` — see `infrastructure/azure/README.md` |
+| `apps/worker` | Azure Container Apps | `infrastructure/docker/worker.Dockerfile`      |
 
-The Vercel build is configured by [`vercel.json`](vercel.json): it builds `@workspace/frontend` and serves `artifacts/frontend/dist/public`. No Root Directory or build-command overrides are needed in Vercel project settings.
+Health endpoints: `GET /api/health`, `GET /api/health/ready`, `GET /api/version`.
 
-> **Note on AI infrastructure:** Orgni does not self-host ML models. Document understanding calls Anthropic's hosted API; the only local processing is Tesseract OCR. The backend services are ordinary Node/Python web services — any host with Node, Python, and Postgres works.
+## Docs
 
-## Backend services not yet ported
-
-These remain in `.migration-backup/services/` and are not running in this workspace:
-
-- **document-service** — Python/FastAPI document integrity pipeline (OCR → extraction → validation → trust scoring)
-- **ingestion-service** — TypeScript signal-envelope ingestion boundary
-- **intelligence/organizational-tokenizer** — converts canonical events into organizational tokens
-
-To deploy them, host each as its own service (e.g. Azure App Service, or port them into this workspace) alongside a PostgreSQL database.
+- [Deployment guide](DEPLOYMENT.md)
+- [Architecture overview](docs/architecture/overview.md)
+- [Local development](docs/development/local-setup.md)
+- [API & codegen](docs/api/README.md)

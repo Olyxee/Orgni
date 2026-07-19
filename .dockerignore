@@ -1,0 +1,23 @@
+# Build context is the repo root (see infrastructure/docker/*.Dockerfile).
+# Keep images small and never bake local state or secrets into them.
+node_modules
+**/node_modules
+**/dist
+.git
+.migration-backup
+attached_assets
+artifacts
+.local
+.agents
+.cache
+docs
+*.md
+.env
+**/.env
+.env.*
+!**/.env.example
+/tmp
+.github
+.replit
+replit.md
+vercel.json

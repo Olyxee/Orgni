@@ -1,4 +1,9 @@
-# Orgni — Deployment Guide (Azure)
+# Orgni — Deployment Guide (Azure) — OUTDATED
+
+> **⚠️ Archived.** This guide describes the pre-restructure repo. The live
+> deployment guide is the root [DEPLOYMENT.md](../DEPLOYMENT.md)
+> (frontend → Vercel; API + worker → Azure Container Apps via
+> `infrastructure/docker` and `infrastructure/azure`).
 
 This document is for the deployment / DevOps team. It describes how to build and
 deploy the Orgni project to **Microsoft Azure**.

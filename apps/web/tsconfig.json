@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "preserve",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/components/ui/*": ["../../packages/ui/src/components/*"],
+      "@/hooks/use-mobile": ["../../packages/ui/src/hooks/use-mobile.tsx"],
+      "@/hooks/use-toast": ["../../packages/ui/src/hooks/use-toast.ts"],
+      "@/lib/utils": ["../../packages/ui/src/lib/utils.ts"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../../lib/api-client-react"
+    }
+  ]
+}

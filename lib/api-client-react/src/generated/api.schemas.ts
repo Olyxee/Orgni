@@ -12,4 +12,3 @@ export interface HealthStatus {
 export interface ErrorResponse {
   error: string;
 }
-
