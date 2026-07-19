@@ -1,8 +1,9 @@
 import { SIGNUP_URL } from "@/lib/links";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCommandPalette } from "@/components/command-palette";
 
 function handleHashNav(e: React.MouseEvent, hash: string) {
   const id = hash.replace(/^\/?#/, "");
@@ -18,6 +19,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
+  const commandPalette = useCommandPalette();
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -46,16 +48,15 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
     <header className={headerClass}>
       <div className="flex items-center justify-between px-6 md:px-12 max-w-screen-2xl mx-auto">
         
-        {/* Logo area */}
-        <div className="flex items-center">
+        {/* Left side: Logo & Nav */}
+        <div className="flex items-center gap-12">
+          {/* Logo area - no box/border */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative flex items-center justify-center h-8 w-8 rounded-sm bg-white/5 border border-white/10 group-hover:border-white/20 group-hover:bg-white/10 transition-colors">
-              <img
-                src={`${import.meta.env.BASE_URL}orgni-logo.png`}
-                alt="Orgni logo"
-                className="h-4 w-4 object-cover"
-              />
-            </div>
+            <img
+              src={`${import.meta.env.BASE_URL}orgni-logo.png`}
+              alt="Orgni logo"
+              className="h-5 w-5 object-cover"
+            />
             <div className="flex flex-col">
               <span className="font-mono font-bold tracking-tight text-sm leading-none text-foreground">
                 ORGNI
@@ -65,30 +66,54 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
               </span>
             </div>
           </Link>
+
+          {/* Desktop Nav - moved left */}
+          <nav className="hidden md:flex items-center gap-8">
+            <Link href="/thesis" className={navLink}>
+              Thesis
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+            </Link>
+            <Link href="/api-reference" className={navLink}>
+              API
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+            </Link>
+            <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" className={navLink}>
+              Contact
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+            </a>
+          </nav>
         </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-10">
-          <Link href="/thesis" className={navLink}>
-            Thesis
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/api-reference" className={navLink}>
-            API
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
-          </Link>
-          <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" className={navLink}>
-            Contact
-            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
-          </a>
-        </nav>
-
-        {/* Actions */}
+        {/* Right side: Actions */}
         <div className="flex items-center gap-4">
+          
+          {/* Desktop Search Button */}
+          <button
+            onClick={() => commandPalette.open()}
+            className="hidden md:flex items-center gap-3 px-3 py-1.5 text-xs font-mono tracking-widest uppercase text-foreground/50 hover:text-foreground transition-colors group"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="h-3.5 w-3.5" />
+              Search
+            </span>
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-sans font-medium bg-white/5 border border-white/10 rounded-[2px] group-hover:bg-white/10 transition-colors">
+              <span className="mr-0.5 text-[11px] leading-none">⌘</span>K
+            </kbd>
+          </button>
+
+          {/* Mobile Search Button */}
+          <button
+            onClick={() => commandPalette.open()}
+            className="md:hidden inline-flex items-center justify-center h-10 w-10 text-foreground/70 hover:text-foreground transition-colors"
+            aria-label="Search"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+
           <Button
             asChild
             size="sm"
-            className="hidden sm:inline-flex rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
+            className="hidden lg:inline-flex rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
           >
             <a href={SIGNUP_URL}>
               Request Access

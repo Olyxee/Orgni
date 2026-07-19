@@ -20,6 +20,8 @@ import {
   Code2,
   Tag,
   Home as HomeIcon,
+  FileText as ThesisIcon,
+  Mail,
 } from "lucide-react";
 
 type CommandPaletteContextValue = {
@@ -50,10 +52,35 @@ type Item = {
   icon: typeof FileText;
 };
 
-const GROUP_ORDER = ["Pages", "Documentation", "API Reference"] as const;
+const GROUP_ORDER = ["Pages", "Research Thesis", "Documentation", "API Reference"] as const;
 
 const ITEMS: Item[] = [
   // Pages
+
+  {
+    id: "p-thesis",
+    title: "Research Thesis",
+    group: "Pages",
+    path: "/thesis",
+    icon: ThesisIcon,
+    keywords: "thesis research architecture context memory paper",
+  },
+  {
+    id: "p-contact",
+    title: "Contact",
+    group: "Pages",
+    path: "https://www.olyxee.com/contact",
+    icon: Mail,
+    keywords: "contact email reach us support",
+  },
+  // Thesis sections
+  { id: "t-1", title: "1. The central problem", group: "Research Thesis", path: "/thesis", hash: "the-central-problem", icon: ThesisIcon },
+  { id: "t-2", title: "2. Business context", group: "Research Thesis", path: "/thesis", hash: "business-context", icon: ThesisIcon },
+  { id: "t-3", title: "3. The organisational context gap", group: "Research Thesis", path: "/thesis", hash: "the-organisational-context-gap", icon: ThesisIcon },
+  { id: "t-10", title: "10. The proposed solution", group: "Research Thesis", path: "/thesis", hash: "the-proposed-solution", icon: ThesisIcon },
+  { id: "t-13", title: "13. The contextual architecture", group: "Research Thesis", path: "/thesis", hash: "the-contextual-architecture", icon: ThesisIcon },
+  { id: "t-23", title: "23. Conclusion", group: "Research Thesis", path: "/thesis", hash: "conclusion", icon: ThesisIcon },
+
   {
     id: "p-home",
     title: "Home",
@@ -347,6 +374,10 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
     (item: Item | undefined) => {
       if (!item) return;
       close();
+      if (item.path.startsWith('http')) {
+        window.open(item.path, '_blank');
+        return;
+      }
       if (item.path !== location) setLocation(item.path);
       if (item.hash) {
         scrollToId(item.hash);
