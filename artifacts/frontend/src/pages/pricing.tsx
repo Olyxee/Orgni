@@ -1,3 +1,4 @@
+import { SIGNUP_URL } from "@/lib/links";
 import { Fragment, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Minus } from "lucide-react";
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/accordion";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { useWaitlist } from "@/components/waitlist-dialog";
 import { useSeo } from "@/hooks/use-seo";
 
 type Billing = "monthly" | "annual";
@@ -183,7 +183,6 @@ function renderCell(value: Cell) {
 }
 
 export default function Pricing() {
-  const { open } = useWaitlist();
   const [billing, setBilling] = useState<Billing>("monthly");
   const faqJsonLd = useMemo(
     () => ({
@@ -332,7 +331,7 @@ export default function Pricing() {
                     <div className="mt-8 pt-2">
                       <Button
                         variant={plan.variant}
-                        onClick={open}
+                        onClick={() => { window.location.href = SIGNUP_URL; }}
                         className={`w-full rounded-sm ${
                           featured
                             ? "bg-[hsl(0_0%_92%)] text-[hsl(0_0%_12%)] border border-[hsl(0_0%_85%)] hover:bg-[hsl(0_0%_87%)]"
@@ -455,7 +454,7 @@ export default function Pricing() {
               <p className="text-base text-muted-foreground">
                 Still unsure? {" "}
                 <button
-                  onClick={open}
+                  onClick={() => { window.location.href = SIGNUP_URL; }}
                   className="text-primary font-medium hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Request access
@@ -487,10 +486,10 @@ export default function Pricing() {
               <div className="relative z-10">
                 <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-8">Ready to put your business context to work?</h2>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
-                  <Button size="lg" onClick={() => { window.location.href = "/app/"; }} className="w-full sm:w-auto rounded-sm bg-[hsl(0_0%_92%)] text-[hsl(0_0%_12%)] border border-[hsl(0_0%_85%)] hover:bg-[hsl(0_0%_87%)] h-14 px-8 text-base font-bold">
+                  <Button size="lg" onClick={() => { window.location.href = SIGNUP_URL; }} className="w-full sm:w-auto rounded-sm bg-[hsl(0_0%_92%)] text-[hsl(0_0%_12%)] border border-[hsl(0_0%_85%)] hover:bg-[hsl(0_0%_87%)] h-14 px-8 text-base font-bold">
                   Try it for free
                   </Button>
-                  <Button size="lg" variant="outline" onClick={open} className="w-full sm:w-auto rounded-sm h-14 px-8 border-border text-foreground hover:bg-foreground hover:text-background bg-transparent text-base font-medium">
+                  <Button size="lg" variant="outline" onClick={() => { window.location.href = SIGNUP_URL; }} className="w-full sm:w-auto rounded-sm h-14 px-8 border-border text-foreground hover:bg-foreground hover:text-background bg-transparent text-base font-medium">
                     Talk to Sales
                   </Button>
                 </div>

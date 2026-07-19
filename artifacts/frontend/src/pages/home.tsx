@@ -1,3 +1,4 @@
+import { SIGNUP_URL } from "@/lib/links";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect } from "react";
 import {
@@ -150,7 +151,7 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                   <Button
                     size="lg"
-                    onClick={() => { window.location.href = "/app/"; }}
+                    onClick={() => { window.location.href = SIGNUP_URL; }}
                     className="group w-full sm:w-auto rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base font-bold transition-all duration-300 shadow-[0_8px_24px_-10px_hsl(var(--primary)/0.6)] hover:shadow-[0_12px_36px_-8px_hsl(var(--primary)/0.7)] hover:-translate-y-0.5"
                   >
                     Try it for free
@@ -395,7 +396,7 @@ export default function Home() {
                 <div className="flex justify-center px-4">
                   <Button
                     size="lg"
-                    onClick={() => { window.location.href = "/app/"; }}
+                    onClick={() => { window.location.href = SIGNUP_URL; }}
                     className="w-full sm:w-auto rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-10 text-base font-bold"
                   >
                     Try it for free

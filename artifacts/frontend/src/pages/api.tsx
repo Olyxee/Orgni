@@ -1,3 +1,4 @@
+import { SIGNUP_URL } from "@/lib/links";
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Copy } from "lucide-react";
 import { Link } from "wouter";
@@ -297,7 +298,7 @@ export default function Api() {
                     Request access to get keys and a stable spec at launch.
                   </span>
                 </p>
-                <Button onClick={() => { window.location.href = "/app/"; }} className="rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 shrink-0">
+                <Button onClick={() => { window.location.href = SIGNUP_URL; }} className="rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 shrink-0">
                   Try it for free
                 </Button>
               </div>

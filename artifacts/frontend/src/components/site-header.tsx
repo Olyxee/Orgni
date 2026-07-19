@@ -1,3 +1,4 @@
+import { SIGNUP_URL } from "@/lib/links";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Search, Command, Menu, X } from "lucide-react";
@@ -77,7 +78,7 @@ export function SiteHeader({ dark = false }: { dark?: boolean }) {
             <Search className="h-4 w-4" />
           </button>
           <div className={`${dividerClass} mx-1`}></div>
-          <a href="/app/">
+          <a href={SIGNUP_URL}>
             <Button size="sm" className="rounded-sm text-xs h-8 px-4 font-bold bg-[hsl(0_0%_92%)] text-[hsl(0_0%_12%)] border border-[hsl(0_0%_85%)] hover:bg-[hsl(0_0%_87%)]">Try it for free</Button>
           </a>
 
