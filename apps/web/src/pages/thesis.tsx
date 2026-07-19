@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { thesisData } from "@/data/thesis";
 import { List, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Figure1, Figure2, Table1, Table2, FormulaAttention, FormulaMoE, FormulaConfidence } from "@/components/thesis-assets";
 
 function parseText(text: string) {
   const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -46,10 +47,26 @@ function renderContent(content: string[]) {
         continue;
       }
 
-      if (line.startsWith('### ')) {
+      if (line === '{{FIGURE_1}}') {
+        elements.push(<Figure1 key={`fig1-${i}`} />);
+      } else if (line === '{{FIGURE_2}}') {
+        elements.push(<Figure2 key={`fig2-${i}`} />);
+      } else if (line === '{{TABLE_1}}') {
+        elements.push(<Table1 key={`tab1-${i}`} />);
+      } else if (line === '{{TABLE_2}}') {
+        elements.push(<Table2 key={`tab2-${i}`} />);
+      } else if (line === '{{FORMULA_ATTENTION}}') {
+        elements.push(<FormulaAttention key={`form-att-${i}`} />);
+      } else if (line === '{{FORMULA_MOE}}') {
+        elements.push(<FormulaMoE key={`form-moe-${i}`} />);
+      } else if (line === '{{FORMULA_CONFIDENCE}}') {
+        elements.push(<FormulaConfidence key={`form-conf-${i}`} />);
+      } else if (line.startsWith('### ')) {
+        const text = line.slice(4);
+        const subId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         elements.push(
-          <h3 key={`h3-${i}`} className="text-xl md:text-2xl font-bold mt-12 mb-6 text-white font-sans">
-            {line.slice(4)}
+          <h3 id={subId} key={`h3-${i}`} className="text-xl md:text-2xl font-bold mt-16 mb-6 text-white font-sans scroll-mt-32">
+            {text}
           </h3>
         );
       } else if (line.startsWith('> ')) {
@@ -122,7 +139,14 @@ export default function Thesis() {
     };
 
     observeEl('abstract');
-    thesisData.sections.forEach((s) => observeEl(s.id));
+    thesisData.sections.forEach((s) => {
+      observeEl(s.id);
+      s.content.filter(line => line.startsWith('### ')).forEach(line => {
+        const text = line.slice(4);
+        const subId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        observeEl(subId);
+      });
+    });
     observeEl('references');
 
     return () => observer.disconnect();
