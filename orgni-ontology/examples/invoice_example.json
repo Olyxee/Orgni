@@ -1,0 +1,8 @@
+{
+  "invoice_number": "INV-001",
+  "supplier_name": "ABC Ltd",
+  "customer_name": "XYZ",
+  "amount": 50000,
+  "currency": "ZAR",
+  "contract_id": "CON-001"
+}
