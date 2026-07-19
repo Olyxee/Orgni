@@ -1,0 +1,102 @@
+Restructure the existing Orgni codebase into a production-ready modular monorepo.
+
+Target structure:
+
+```text
+orgni/
+├── apps/
+│   ├── web/                 # Existing React/Next.js frontend → Vercel
+│   ├── api/                 # Main backend API → Azure
+│   └── worker/              # Background and asynchronous processing → Azure
+│
+├── packages/
+│   ├── contracts/           # Shared API types, validation schemas and DTOs
+│   ├── ui/                  # Shared frontend components
+│   ├── auth/                # Shared authentication logic and permissions
+│   ├── config/              # Validated environment configuration
+│   ├── observability/       # Logging, tracing and metrics
+│   └── testing/             # Shared testing utilities
+│
+├── infrastructure/
+│   ├── azure/               # Azure infrastructure definitions
+│   ├── docker/              # Docker and Docker Compose configuration
+│   └── scripts/             # Deployment and maintenance scripts
+│
+├── docs/
+│   ├── architecture/
+│   ├── api/
+│   └── development/
+│
+├── .github/
+│   └── workflows/
+│
+├── turbo.json
+├── package.json
+└── README.md
+```
+
+Requirements:
+
+1. Inspect the current repository before making changes.
+2. Preserve all existing working functionality.
+3. Move the current frontend into `apps/web`.
+4. Move the current backend into `apps/api`.
+5. Create `apps/worker` for background jobs, document processing, ingestion and other long-running tasks.
+6. Do not create microservices yet. Keep the backend as one modular application.
+7. Extract shared frontend-backend types and schemas into `packages/contracts`.
+8. Extract reusable UI components into `packages/ui`.
+9. Centralise environment validation inside `packages/config`.
+10. Configure the frontend for Vercel deployment.
+11. Add Dockerfiles for the API and worker so they can later run on Azure Container Apps.
+12. Ensure the API and worker are stateless.
+13. Add health endpoints:
+
+* `GET /health`
+* `GET /health/ready`
+* `GET /version`
+
+14. Add example environment files without secrets.
+15. Add root workspace scripts for:
+
+* development
+* build
+* lint
+* type-check
+* test
+* Docker build
+
+16. Configure Turborepo for dependency-aware builds.
+17. Add GitHub Actions workflows for:
+
+* pull-request validation
+* frontend deployment preparation
+* backend Docker image validation
+
+18. Add local Docker Compose support for the API, worker, PostgreSQL and Redis.
+19. Update all imports, package references and configuration paths.
+20. Update the root README with setup, architecture, local development and deployment instructions.
+
+Important constraints:
+
+* Do not delete functioning code.
+* Do not rewrite application logic unnecessarily.
+* Do not change product behaviour.
+* Do not hardcode Azure, Vercel or database credentials.
+* Do not introduce AKS or Kubernetes.
+* Do not split the project into separate repositories.
+* Make incremental, reviewable changes.
+* Keep commits logically separated where possible.
+
+Before editing, provide:
+
+1. A summary of the current repository structure.
+2. A migration map showing where each existing folder will move.
+3. Any risks or conflicting dependencies you identify.
+
+After implementation, provide:
+
+1. The final directory tree.
+2. A list of moved and newly created files.
+3. Any remaining manual configuration.
+4. Commands for running the full platform locally.
+5. Commands or instructions for deploying the frontend to Vercel and preparing the backend for Azure.
