@@ -9,8 +9,6 @@ import {
   Network,
   History,
   ShieldCheck,
-  Check,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -41,23 +39,6 @@ const capabilities = [
     desc: "The tools, data, and records your operations depend on.",
   },
 ];
-
-const comparison = {
-  static: [
-    "Documents stored somewhere",
-    "Answers without memory",
-    "Scattered decisions",
-    "Manual process understanding",
-    "AI that guesses",
-  ],
-  live: [
-    "Knowledge connected to operations",
-    "Context that improves over time",
-    "Traceable decision history",
-    "Structured operating logic",
-    "Intelligent systems with business context",
-  ],
-};
 
 const modules = [
   {
@@ -324,56 +305,13 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 4. Comparison Section */}
+        {/* 4. Capabilities Section */}
         <section className="border-t border-white/10 py-16 md:py-24 bg-black relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:32px_32px]"></div>
           <div className="container max-w-screen-xl px-4 md:px-8 mx-auto relative z-10">
-            <div className="max-w-2xl mb-10 md:mb-12">
-              <div className="font-mono text-xs font-bold text-white/50 mb-4"><span className="text-primary">02</span> / THE SHIFT</div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                From static knowledge to live operational context.
-              </h2>
-              <p className="text-lg text-white/60 mt-4">
-                Every piece of scattered, static knowledge becomes connected, living context your team and your AI can act on.
-              </p>
-            </div>
-
-            {/* Paired before -> after rows */}
-            <div className="space-y-3 md:space-y-4">
-              <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-4 px-5">
-                <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-white/40">Static knowledge</div>
-                <div className="w-4"></div>
-                <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-primary">Live business context</div>
-              </div>
-              {comparison.static.map((row, i) => (
-                <motion.div
-                  key={row}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.05 }}
-                  className="group grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4 rounded-sm border border-white/10 bg-white/[0.02] p-4 md:p-5 hover:border-primary/30 hover:bg-white/[0.04] transition-colors"
-                >
-                  <div className="flex items-center gap-3 text-white/45">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-white/5 border border-white/10">
-                      <X className="h-3 w-3 text-white/40" />
-                    </span>
-                    <span className="text-sm md:text-base leading-snug">{row}</span>
-                  </div>
-                  <ArrowRight className="h-4 w-4 mx-auto rotate-90 md:rotate-0 text-white/25 group-hover:text-primary transition-colors shrink-0" />
-                  <div className="flex items-center gap-3 text-white">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-primary/15 border border-primary/40">
-                      <Check className="h-3 w-3 text-primary" />
-                    </span>
-                    <span className="text-sm md:text-base font-medium leading-snug">{comparison.live[i]}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
             {/* Capabilities */}
-            <div className="max-w-2xl mt-20 md:mt-28 mb-10 md:mb-12 scroll-mt-20" id="modules">
-              <div className="font-mono text-xs font-bold text-white/50 mb-4"><span className="text-primary">03</span> / CAPABILITIES</div>
+            <div className="max-w-2xl mb-10 md:mb-12 scroll-mt-20" id="modules">
+              <div className="font-mono text-xs font-bold text-white/50 mb-4"><span className="text-primary">02</span> / CAPABILITIES</div>
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
                 Orgni is one product. These are its capabilities.
               </h2>
@@ -417,7 +355,7 @@ export default function Home() {
           <div className="container max-w-screen-xl px-4 md:px-8 mx-auto relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 md:gap-16 items-center">
               <div className="max-w-xl">
-                <div className="font-mono text-xs font-bold text-white/50 mb-4"><span className="text-primary">04</span> / WHY NOW</div>
+                <div className="font-mono text-xs font-bold text-white/50 mb-4"><span className="text-primary">03</span> / WHY NOW</div>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
                   Intelligence is getting stronger. <span className="text-primary">Context</span> is the bottleneck.
                 </h2>
