@@ -14,7 +14,7 @@ export function ProblemSection() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section id="thesis" className="py-24 md:py-32 border-t border-white/10 bg-background">
+    <section id="thesis" className="relative z-10 pt-32 pb-24 md:pt-48 md:pb-32 bg-black">
       <div className="container max-w-screen-xl px-4 md:px-8 mx-auto">
         <div className="max-w-3xl mb-16 md:mb-24">
           <motion.h2 
@@ -46,7 +46,7 @@ export function ProblemSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : i * 0.1 }}
-              className="flex flex-col items-center p-6 border border-white/10 bg-background shadow-sm rounded-sm"
+              className="flex flex-col items-center p-6 border border-white/10 bg-black shadow-sm rounded-sm"
             >
               <div className="w-12 h-12 bg-white/5 rounded-sm flex items-center justify-center mb-6">
                 <col.icon className="h-5 w-5 text-foreground/70" />
@@ -61,7 +61,7 @@ export function ProblemSection() {
               </div>
             </motion.div>
           ))}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/50 hidden md:block"></div>
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/50 hidden md:block"></div>
         </div>
       </div>
     </section>

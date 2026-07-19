@@ -42,7 +42,7 @@ export function HeroSection() {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-[90vh] bg-black text-white overflow-hidden flex flex-col pt-16 lg:pt-24 pb-0">
+    <section ref={heroRef} className="relative z-20 min-h-[90vh] bg-black text-white flex flex-col pt-16 lg:pt-24 pb-0">
       <div className="container max-w-screen-xl px-4 md:px-8 mx-auto relative z-10 flex flex-col items-center text-center">
         
         {/* Text Content */}
@@ -82,7 +82,7 @@ export function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ duration: shouldReduceMotion ? 0 : 1.2, delay: shouldReduceMotion ? 0 : 0.4 }}
           style={{ scale: shouldReduceMotion ? 1 : videoScale, transformOrigin: "center center" }}
-          className="w-full mt-8 md:mt-12 -mb-12 sm:-mb-16 md:-mb-24 relative z-0 aspect-square sm:aspect-video md:aspect-[16/9] will-change-transform"
+          className="w-full mt-8 md:mt-12 -mb-24 sm:-mb-32 md:-mb-48 lg:-mb-64 relative z-0 aspect-square sm:aspect-video md:aspect-[16/9] will-change-transform mix-blend-screen pointer-events-none"
         >
           <motion.div
             style={{ opacity: shouldReduceMotion ? 1 : earthOpacity }}
@@ -100,7 +100,7 @@ export function HeroSection() {
               aria-hidden="true"
             />
           </motion.div>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-b from-transparent to-black" />
+          
         </motion.div>
 
       </div>
