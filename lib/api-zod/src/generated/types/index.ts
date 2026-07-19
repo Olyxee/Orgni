@@ -8,6 +8,3 @@
 
 export * from './errorResponse';
 export * from './healthStatus';
-export * from './waitlistCountResponse';
-export * from './waitlistEntry';
-export * from './waitlistInput';

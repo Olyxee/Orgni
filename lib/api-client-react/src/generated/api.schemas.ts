@@ -9,24 +9,6 @@ export interface HealthStatus {
   status: string;
 }
 
-export interface WaitlistInput {
-  email: string;
-  /** @nullable */
-  company?: string | null;
-}
-
-export interface WaitlistEntry {
-  id: number;
-  email: string;
-  /** @nullable */
-  company?: string | null;
-  createdAt: string;
-}
-
-export interface WaitlistCountResponse {
-  count: number;
-}
-
 export interface ErrorResponse {
   error: string;
 }

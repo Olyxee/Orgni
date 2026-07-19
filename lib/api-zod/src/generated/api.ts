@@ -17,29 +17,3 @@ export const HealthCheckResponse = zod.object({
 })
 
 
-/**
- * Register an email address on the waitlist
- * @summary Join the waitlist
- */
-export const JoinWaitlistBody = zod.object({
-  "email": zod.string(),
-  "company": zod.string().nullish()
-})
-
-export const JoinWaitlistResponse = zod.object({
-  "id": zod.number(),
-  "email": zod.string(),
-  "company": zod.string().nullish(),
-  "createdAt": zod.string()
-})
-
-
-/**
- * Returns the total number of waitlist entries
- * @summary Get waitlist count
- */
-export const GetWaitlistCountResponse = zod.object({
-  "count": zod.number()
-})
-
-

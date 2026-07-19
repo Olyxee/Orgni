@@ -7,7 +7,6 @@ import Home from "@/pages/home";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Api from "@/pages/api";
-import { WaitlistProvider } from "@/components/waitlist-dialog";
 import { CommandPaletteProvider } from "@/components/command-palette";
 import { ScrollToTopButton } from "@/components/scroll-to-top";
 
@@ -29,14 +28,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WaitlistProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <CommandPaletteProvider>
-              <Router />
-              <ScrollToTopButton />
-            </CommandPaletteProvider>
-          </WouterRouter>
-        </WaitlistProvider>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <CommandPaletteProvider>
+            <Router />
+            <ScrollToTopButton />
+          </CommandPaletteProvider>
+        </WouterRouter>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
