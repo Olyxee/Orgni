@@ -1,0 +1,39 @@
+# === Python Cache & Virtual Environments ===
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# === Testing & Coverage Tools ===
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# === IDEs and Editors ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === Windows OS System Files ===
+Thumbs.db
+Ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# === Project Specific (Optional) ===
+# Uncomment the line below if your json mock examples should not be tracked, 
+# though usually demo assets are safe to keep.
+# examples/

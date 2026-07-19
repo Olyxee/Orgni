@@ -1,0 +1,6 @@
+{
+  "contract_id": "CON-001",
+  "supplier_name": "ABC Ltd",
+  "contract_value": 500000,
+  "governing_rule_name": "ProcurementRule"
+}

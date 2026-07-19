@@ -1,0 +1,88 @@
+{
+  "$id": "https://schema.orgni.internal/ontology/2.0.0/provenance.schema.json",
+  "x-schema-version": "2.0.0",
+  "$defs": {
+    "EntityType": {
+      "enum": [
+        "Organization",
+        "Department",
+        "Person",
+        "Role",
+        "Supplier",
+        "Customer",
+        "Counterparty",
+        "Document",
+        "Invoice",
+        "ProofOfPayment",
+        "Contract",
+        "Transaction",
+        "Payment",
+        "Amount",
+        "Account",
+        "Workflow",
+        "Task",
+        "Approval",
+        "Decision",
+        "Rule",
+        "Obligation",
+        "Exception",
+        "Risk"
+      ],
+      "title": "EntityType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "description": "Identifier of the source document/record, e.g. 'invoice_INV-001.pdf'.",
+      "minLength": 1,
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_type": {
+      "$ref": "#/$defs/EntityType",
+      "description": "What kind of document source_id is, e.g. Invoice, Contract, ProofOfPayment."
+    },
+    "extraction_method": {
+      "description": "How the value was obtained, e.g. 'tokenizer', 'manual_entry', 'ocr'.",
+      "minLength": 1,
+      "title": "Extraction Method",
+      "type": "string"
+    },
+    "confidence": {
+      "description": "Extraction confidence in [0, 1]. Required \u2014 never defaulted.",
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "timestamp": {
+      "description": "When this evidence was captured/asserted. Defaults to now() if not supplied by the caller \u2014 this is a system-generated capture time, not an inferred business value, so it does not violate Rule 4 ('never infer missing values') to default it.",
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "source_record": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional finer-grained locator within the source, e.g. 'paragraph_12', 'row_4'. Not part of the v2 spec's required fields; kept as an additive, optional extension.",
+      "title": "Source Record"
+    }
+  },
+  "required": [
+    "source_id",
+    "source_type",
+    "extraction_method",
+    "confidence"
+  ],
+  "title": "Provenance",
+  "type": "object"
+}

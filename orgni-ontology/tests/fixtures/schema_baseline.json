@@ -1,0 +1,379 @@
+{
+  "entity_types": [
+    "Account",
+    "Amount",
+    "Approval",
+    "Contract",
+    "Counterparty",
+    "Customer",
+    "Decision",
+    "Department",
+    "Document",
+    "Exception",
+    "Invoice",
+    "Obligation",
+    "Organization",
+    "Payment",
+    "Person",
+    "ProofOfPayment",
+    "Risk",
+    "Role",
+    "Rule",
+    "Supplier",
+    "Task",
+    "Transaction",
+    "Workflow"
+  ],
+  "identity_fields": {
+    "Account": [
+      "account_number"
+    ],
+    "Amount": [
+      "label"
+    ],
+    "Approval": [
+      "reference"
+    ],
+    "Contract": [
+      "contract_id"
+    ],
+    "Counterparty": [
+      "name"
+    ],
+    "Customer": [
+      "name"
+    ],
+    "Decision": [
+      "reference"
+    ],
+    "Department": [
+      "name"
+    ],
+    "Document": [
+      "source_document"
+    ],
+    "Exception": [
+      "reference"
+    ],
+    "Invoice": [
+      "invoice_number"
+    ],
+    "Obligation": [
+      "name"
+    ],
+    "Organization": [
+      "name"
+    ],
+    "Payment": [
+      "payment_reference"
+    ],
+    "Person": [
+      "name"
+    ],
+    "ProofOfPayment": [
+      "reference_number"
+    ],
+    "Risk": [
+      "name"
+    ],
+    "Role": [
+      "title"
+    ],
+    "Rule": [
+      "name"
+    ],
+    "Supplier": [
+      "name"
+    ],
+    "Task": [
+      "name"
+    ],
+    "Transaction": [
+      "transaction_id"
+    ],
+    "Workflow": [
+      "name"
+    ]
+  },
+  "relationship_constraints": {
+    "APPROVES": {
+      "allowed_source_types": [
+        "Person",
+        "Role"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Decision",
+        "Invoice",
+        "Task"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "ASSIGNED_TO": {
+      "allowed_source_types": [
+        "Approval",
+        "Decision",
+        "Task"
+      ],
+      "allowed_target_types": [
+        "Department",
+        "Person",
+        "Role"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "BELONGS_TO": {
+      "allowed_source_types": [
+        "Account",
+        "Department",
+        "Person",
+        "Role"
+      ],
+      "allowed_target_types": [
+        "Department",
+        "Organization"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "BILLS": {
+      "allowed_source_types": [
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Customer"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "CREATED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice",
+        "ProofOfPayment"
+      ],
+      "allowed_target_types": [
+        "Organization",
+        "Person",
+        "Supplier"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "CREATES_EXCEPTION": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Exception"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "DERIVED_FROM": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Document"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "GOVERNED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Rule"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "HAS_ROLE": {
+      "allowed_source_types": [
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Role"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "ISSUED_TO": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Counterparty",
+        "Customer",
+        "Organization",
+        "Person"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "PARTY_TO": {
+      "allowed_source_types": [
+        "Customer",
+        "Organization",
+        "Supplier"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Obligation"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "PAYS": {
+      "allowed_source_types": [
+        "Customer",
+        "Organization",
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Counterparty",
+        "Supplier"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "REPORTS_TO": {
+      "allowed_source_types": [
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Person"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "REQUIRES": {
+      "allowed_source_types": [
+        "Workflow"
+      ],
+      "allowed_target_types": [
+        "Approval"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "SETTLES": {
+      "allowed_source_types": [
+        "Payment",
+        "ProofOfPayment"
+      ],
+      "allowed_target_types": [
+        "Invoice"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null
+    },
+    "SUPPORTED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "ProofOfPayment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Document",
+        "ProofOfPayment"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "TRIGGERS": {
+      "allowed_source_types": [
+        "Contract",
+        "Decision",
+        "Rule",
+        "Task",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Exception",
+        "Task",
+        "Workflow"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    },
+    "VIOLATES": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Obligation",
+        "Rule"
+      ],
+      "max_per_source": null,
+      "max_per_target": null
+    }
+  },
+  "relationship_types": [
+    "APPROVES",
+    "ASSIGNED_TO",
+    "BELONGS_TO",
+    "BILLS",
+    "CREATED_BY",
+    "CREATES_EXCEPTION",
+    "DERIVED_FROM",
+    "GOVERNED_BY",
+    "HAS_ROLE",
+    "ISSUED_TO",
+    "PARTY_TO",
+    "PAYS",
+    "REPORTS_TO",
+    "REQUIRES",
+    "SETTLES",
+    "SUPPORTED_BY",
+    "TRIGGERS",
+    "VIOLATES"
+  ],
+  "required_fields": {
+    "AttributeAssertion": [
+      "attribute_name",
+      "entity_id",
+      "provenance",
+      "value"
+    ],
+    "Entity": [
+      "provenance",
+      "type"
+    ],
+    "Provenance": [
+      "confidence",
+      "extraction_method",
+      "source_id",
+      "source_type"
+    ],
+    "Relationship": [
+      "provenance",
+      "relationship_type",
+      "source_id",
+      "source_type",
+      "target_id",
+      "target_type"
+    ]
+  },
+  "schema_major_version": 2
+}

@@ -1,0 +1,6 @@
+{
+  "payment_reference": "PAY-001",
+  "invoice_number": "INV-001",
+  "amount": 50000,
+  "proof_of_payment_reference": "POP-9911"
+}

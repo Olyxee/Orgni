@@ -1,0 +1,31 @@
+site_name: Orgni Organizational Ontology
+site_description: Phase 1 — Invoice, Contract, and Proof of Payment semantic layer
+theme:
+  name: material
+  palette:
+    scheme: slate
+  features:
+    - navigation.sections
+    - content.code.copy
+
+nav:
+  - Overview: index.md
+  - Architecture: architecture.md
+  - Entities: entities.md
+  - Relationships: relationships.md
+  - Validation Rules: validation-rules.md
+  - Contract Stability Policy: contract-stability.md
+  - Extending the Ontology: extending-the-ontology.md
+  - Architecture Decision Records:
+      - Overview: adr/README.md
+      - "0001 Identity vs Asserted Attributes": adr/0001-identity-vs-asserted-attributes.md
+      - "0002 In-Memory FactStore": adr/0002-in-memory-fact-store.md
+      - "0003 Data-Driven Relationship Constraints": adr/0003-data-driven-relationship-constraints.md
+      - "0004 Provenance v2 Field Rename": adr/0004-provenance-v2-field-rename.md
+      - "0005 Cardinality Model": adr/0005-cardinality-model.md
+      - "0006 REQUIRES/TRIGGERS Conflict": adr/0006-requires-and-triggers-conflict.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.highlight
