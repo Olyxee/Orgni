@@ -1,0 +1,836 @@
+# The Business Context Thesis
+
+## Why increasingly intelligent machines will require a living understanding of the organisations they serve
+
+### Olyxee Research Thesis for Orgni
+
+## Abstract
+
+Artificial intelligence is becoming more capable, accessible and economically important. Models can already generate software, analyse documents, reason across complex questions and interact with digital tools. Future systems may become substantially more autonomous and general, potentially approaching forms of artificial general intelligence.
+
+However, greater model intelligence does not automatically produce greater business value.
+
+A model may understand accounting, law, logistics, engineering and management in general, while knowing almost nothing about the specific organisation in which it must operate. It does not automatically know the organisation’s customers, responsibilities, policies, contracts, dependencies, exceptions, current operational state or history of decisions.
+
+This creates a growing separation between **general machine intelligence** and **organisational understanding**.
+
+Olyxee’s thesis is that business context will become a foundational infrastructure layer for the intelligent economy. As AI systems become more capable, organisations will require a continuously updated representation of how they operate so that those systems can reason and act within the reality of the business.
+
+Orgni is Olyxee’s proposed solution: a live business-context system that continuously learns how an organisation operates, connects its fragmented operational knowledge, preserves its evolving memory and makes that understanding available to humans, software and intelligent agents.
+
+Orgni is not designed to replace the organisation’s existing systems or provide another general-purpose chatbot. It is designed to become the contextual intelligence layer that allows present and future AI systems to produce reliable, organisation-specific outcomes.
+
+---
+
+## 1. The central problem
+
+Modern organisations generate enormous amounts of data, but data is not the same as understanding.
+
+An invoice may contain a supplier, an amount and a due date. It does not independently explain whether the goods were delivered, which contract applies, why the purchase was made, who authorised it, whether the approval was valid or whether the supplier is connected to an unresolved investigation.
+
+A customer record may contain a name, contact information and transaction history. It may not explain that the customer is strategically important, has complained repeatedly, was promised special treatment and is at risk of cancelling a major contract.
+
+A task-management system may show that a project is delayed. It may not explain that development is waiting for design approval, the approver is unavailable, the client changed the requirements and the contractual deadline is now at risk.
+
+The information required to understand these situations often exists, but it is distributed across:
+
+* enterprise resource planning systems;
+* customer relationship management platforms;
+* accounting software;
+* email and messaging platforms;
+* documents and spreadsheets;
+* workflow applications;
+* employee knowledge;
+* policies and contracts;
+* meeting discussions;
+* historical decisions;
+* informal organisational practices.
+
+Each source contains part of the truth. Few systems maintain the complete situation.
+
+The result is an organisation that possesses information but must repeatedly reconstruct its own understanding.
+
+---
+
+## 2. Business context
+
+Business context is the connected understanding of what is happening inside an organisation and what that situation means.
+
+It includes:
+
+* the entities involved;
+* the relationships between them;
+* the events that occurred;
+* the sequence in which they occurred;
+* the people responsible;
+* the policies and constraints that apply;
+* the current state of work;
+* the decisions previously made;
+* the reasons behind those decisions;
+* the exceptions that have been permitted;
+* the risks and dependencies present;
+* the next actions that are available.
+
+Business context is therefore more than an explanation of business data.
+
+It is the structure that connects data to operational meaning.
+
+Consider the following statement:
+
+> Invoice 481 has a value of R800,000.
+
+This is data.
+
+A contextual representation might state:
+
+> Invoice 481 was submitted by Supplier A under Contract 14. It relates to equipment delivered to Facility B. The delivery confirmation is incomplete. The invoice exceeds the assigned manager’s approval authority. The supplier’s banking information changed two days before submission. A previous payment to the same supplier is under investigation. Finance policy requires director approval and independent verification before payment.
+
+The contextual representation does not merely describe the invoice. It identifies the relationships, history, rules, risks and required actions surrounding it.
+
+That is the difference between storing a transaction and understanding a business situation.
+
+---
+
+## 3. The organisational context gap
+
+Businesses already use systems that store customer records, transactions, documents, employees, projects and communications. The problem is that these systems are usually organised around individual functions rather than the organisation as a connected whole.
+
+A CRM understands part of the customer relationship.
+
+An ERP understands part of the organisation’s financial and operational transactions.
+
+A document-management system stores files.
+
+A workflow platform stores tasks and approvals.
+
+A communication platform stores conversations.
+
+A data warehouse aggregates selected historical data.
+
+None of these systems necessarily maintains a continuously updated model of how all these elements relate within the organisation’s present operating reality.
+
+This creates the organisational context gap.
+
+The gap exists between:
+
+1. what the organisation has recorded;
+2. what employees collectively know;
+3. what its systems can connect;
+4. what an intelligent system needs to understand before it can act correctly.
+
+Today, employees frequently close this gap manually.
+
+They search systems, read documents, inspect email threads, call colleagues, interpret policies and reconstruct the history of a situation before deciding what to do.
+
+This process is expensive, slow and difficult to scale. It also creates dependency on experienced individuals whose knowledge may be incomplete, inaccessible or lost when they leave.
+
+---
+
+## 4. Why existing AI does not solve the problem
+
+Large language models contain broad knowledge acquired during training. They can interpret language, recognise patterns and reason across many domains.
+
+However, they do not automatically possess current knowledge of a particular organisation.
+
+They may know how procurement generally works, but they do not inherently know:
+
+* the organisation’s approval limits;
+* which employee currently holds a specific authority;
+* which supplier contract is active;
+* which operational exception was approved;
+* why a previous decision was reversed;
+* whether an order is currently delayed;
+* which policy version applies;
+* what changed within the company this morning.
+
+Retrieval-augmented generation can provide models with relevant documents and text. This improves access to stored knowledge, but retrieving similar passages is not always equivalent to reconstructing the complete operational situation.
+
+The model may retrieve the procurement policy but miss the contract amendment.
+
+It may retrieve the invoice but not the delivery dispute.
+
+It may retrieve the customer record but not the verbal commitment made during yesterday’s meeting.
+
+It may retrieve the current rule but fail to recognise that an approved exception applies.
+
+Business context is relational, temporal and stateful. It requires understanding not only documents, but also entities, events, dependencies, permissions, changes and consequences.
+
+Knowledge graphs are useful because they represent entities and the relationships between them. Graph-based retrieval can also provide models with relational information that ordinary semantic retrieval may overlook.
+
+However, a static knowledge graph alone is not sufficient. The organisation continuously changes. Customers place orders, employees change roles, contracts expire, policies evolve, tasks move, approvals occur and exceptions emerge.
+
+The context layer must therefore remain alive.
+
+---
+
+## 5. The future intelligence problem
+
+It is uncertain when, or whether, artificial general intelligence will be achieved. Orgni’s thesis does not depend on a particular AGI arrival date.
+
+The thesis is based on a simpler observation:
+
+> As models become more intelligent and autonomous, the value and risk of the actions they perform will increase.
+
+A weak system with incomplete context may produce an irrelevant answer.
+
+A powerful autonomous system with incomplete context may execute the wrong payment, contact the wrong customer, violate a policy, expose confidential information or optimise the wrong objective.
+
+Therefore, increasing model intelligence does not reduce the need for business context. It increases it.
+
+The more capable the intelligence, the more important it becomes to specify:
+
+* where it is operating;
+* what the organisation is trying to achieve;
+* which constraints apply;
+* what has already happened;
+* what authority it possesses;
+* whose interests must be protected;
+* which actions are permitted;
+* how success should be measured.
+
+The next generation of AI will not create business value merely by knowing more about the world. It will create value by acting correctly within the specific organisation.
+
+This leads to a central distinction:
+
+> General intelligence determines what a system is capable of doing.
+> Business context determines what it should do for this organisation, in this situation, at this moment.
+
+---
+
+## 6. Intelligence is becoming abundant, but organisational understanding remains scarce
+
+Frontier models are improving quickly, AI investment is expanding and adoption is spreading across the economy. Stanford’s 2026 AI Index describes a widening gap between rapidly advancing capabilities and society’s ability to measure, manage and govern those capabilities.
+
+As foundation models become broadly available, access to raw model intelligence may become less differentiating.
+
+Several companies may use models with similar reasoning, language and tool-use capabilities. The competitive difference will increasingly depend on what each system knows about the organisation and how effectively it can apply that knowledge.
+
+The organisation with stronger context will be able to make the same underlying model:
+
+* more accurate;
+* more relevant;
+* more personalised;
+* more compliant;
+* more operationally useful;
+* safer to automate;
+* easier to evaluate;
+* more closely aligned with business outcomes.
+
+The economic moat may therefore move from model access toward proprietary organisational understanding.
+
+This understanding cannot be downloaded from a public model. It must be developed from the organisation’s own operations, relationships, decisions and history.
+
+---
+
+## 7. Why static context is insufficient
+
+An organisation is not a fixed dataset.
+
+It is a changing system.
+
+Employees join and leave.
+
+Responsibilities shift.
+
+Customers change behaviour.
+
+Policies are revised.
+
+Suppliers fail.
+
+Contracts expire.
+
+Projects encounter delays.
+
+New exceptions become accepted practices.
+
+Managers make decisions that change future operations.
+
+A static organisational map begins becoming outdated as soon as it is created.
+
+Traditional consulting exercises often document processes at a particular moment. By the time the final report is delivered, parts of the organisation may already have changed.
+
+A future context system must therefore learn continuously from operational activity.
+
+Continual learning research recognises that intelligent systems operating in changing environments need to acquire, update and retain knowledge over time. It also identifies catastrophic forgetting as a major challenge, where learning new information can degrade previously acquired knowledge.
+
+Orgni’s interpretation of this problem extends beyond model weights.
+
+An organisation needs a contextual memory that can:
+
+* absorb new evidence;
+* preserve relevant historical knowledge;
+* distinguish current truth from previous truth;
+* record when and why something changed;
+* represent conflicting evidence;
+* maintain confidence levels;
+* allow human verification;
+* prevent unverified information from silently becoming organisational fact.
+
+The objective is not merely to train a model continuously. It is to maintain a continuously evolving representation of the business.
+
+---
+
+## 8. Organisational memory is more than document storage
+
+Most organisations already store documents.
+
+Storage, however, does not guarantee memory.
+
+A folder may preserve a contract without preserving the decision that produced it.
+
+An email archive may preserve a conversation without identifying the commitment that resulted from it.
+
+A workflow system may preserve an approval without recording why the exception was allowed.
+
+A project tool may preserve completed tasks without explaining the dependencies discovered during delivery.
+
+True organisational memory must preserve the meaning of operational history.
+
+It should be able to answer:
+
+* What happened?
+* Who was involved?
+* What evidence supports this?
+* Which rule applied at the time?
+* What decision was made?
+* Why was it made?
+* What changed afterward?
+* Is the decision still valid?
+* What should future employees or agents learn from it?
+
+Without this memory, the organisation repeatedly rediscovers itself.
+
+Every new employee, consultant, system and AI agent must reconstruct the same understanding.
+
+---
+
+## 9. The cost of missing context
+
+Weak business context creates direct and indirect costs.
+
+### 9.1 Decision latency
+
+Employees spend time searching for information, identifying owners, requesting clarification and validating records before making decisions.
+
+### 9.2 Repeated organisational discovery
+
+Projects begin with interviews, document reviews and process-mapping exercises because the organisation does not maintain a reusable representation of itself.
+
+### 9.3 Operational errors
+
+Actions are taken using incomplete information, outdated policies or misunderstood responsibilities.
+
+### 9.4 Knowledge loss
+
+When experienced employees leave, undocumented exceptions, relationships and decision histories may leave with them.
+
+### 9.5 Weak automation
+
+Automation works for predictable paths but fails when a case requires history, judgement, cross-system evidence or exception handling.
+
+### 9.6 AI hallucination and irrelevance
+
+A model fills missing organisational information with assumptions, general patterns or outdated evidence.
+
+### 9.7 Governance risk
+
+The organisation cannot reliably demonstrate which evidence, rule, approval or authority informed an automated decision.
+
+NIST’s AI Risk Management Framework emphasises governance, contextual mapping, measurement and ongoing management as important elements of trustworthy AI deployment.
+
+### 9.8 Lost return on AI investment
+
+The company purchases powerful models but uses employees to manually provide the same background information for every interaction. AI remains an assistant at the edge of the business rather than an integrated participant in operations.
+
+---
+
+## 10. The proposed solution
+
+Olyxee proposes Orgni as a live business-context system.
+
+Orgni continuously develops and maintains a connected representation of how an organisation operates.
+
+It learns from sources such as:
+
+* operational systems;
+* business documents;
+* workflows;
+* transactions;
+* policies;
+* communications;
+* user corrections;
+* approvals;
+* exceptions;
+* decisions;
+* system events;
+* integrations.
+
+Orgni transforms these sources into an evolving model of:
+
+* people;
+* roles;
+* departments;
+* customers;
+* suppliers;
+* products;
+* services;
+* documents;
+* contracts;
+* processes;
+* tasks;
+* events;
+* rules;
+* permissions;
+* decisions;
+* risks;
+* dependencies;
+* exceptions;
+* outcomes.
+
+The purpose of this model is not simply to visualise the organisation.
+
+Its purpose is to make organisational understanding machine-readable, queryable, verifiable and reusable.
+
+---
+
+## 11. Orgni as a living system
+
+Orgni is intended to operate through a continuous contextual cycle.
+
+### 11.1 Observe
+
+Orgni receives events and evidence from connected systems, uploaded documents, workflows and human input.
+
+### 11.2 Interpret
+
+It identifies relevant entities, relationships, rules, events, responsibilities and operational states.
+
+### 11.3 Connect
+
+It links new information to existing organisational knowledge.
+
+An invoice becomes connected to a supplier, purchase order, contract, delivery, approval process, policy and payment.
+
+### 11.4 Verify
+
+Orgni assigns confidence, identifies contradictions and requests human confirmation where necessary.
+
+### 11.5 Remember
+
+It preserves validated knowledge, history and decision rationale.
+
+### 11.6 Adapt
+
+When the organisation changes, Orgni updates the relevant representation without erasing the history of what existed before.
+
+### 11.7 Serve
+
+It makes contextual understanding available to employees, applications, analytics systems and AI agents.
+
+This cycle allows the business model to evolve alongside the business itself.
+
+---
+
+## 12. What Orgni is not
+
+Orgni is not merely:
+
+* a chatbot;
+* a document parser;
+* a vector database;
+* a static knowledge graph;
+* a workflow tool;
+* an ERP replacement;
+* a CRM replacement;
+* an AI model;
+* a process diagram;
+* an enterprise search engine.
+
+Orgni may use elements of extraction, retrieval, graphs, workflows and machine learning, but its purpose is broader.
+
+It is the layer that maintains the operational meaning connecting these systems.
+
+Existing applications remain systems of record for their specialised domains. Orgni becomes a system of organisational context.
+
+---
+
+## 13. The contextual architecture
+
+Orgni’s proposed contextual model contains several connected layers.
+
+### 13.1 Entity layer
+
+Represents people, organisations, customers, suppliers, assets, documents, products and other business objects.
+
+### 13.2 Relationship layer
+
+Represents ownership, responsibility, dependency, reporting, supply, approval and contractual relationships.
+
+### 13.3 Event layer
+
+Represents what happened, when it happened and which entities were involved.
+
+### 13.4 State layer
+
+Represents the current operational condition of orders, projects, cases, contracts and processes.
+
+### 13.5 Rule layer
+
+Represents policies, permissions, constraints, approval thresholds and regulatory requirements.
+
+### 13.6 Decision layer
+
+Represents decisions, supporting evidence, participants, rationale and outcomes.
+
+### 13.7 Temporal layer
+
+Represents how facts, roles, rules and relationships change over time.
+
+### 13.8 Confidence and provenance layer
+
+Represents where information came from, how reliable it is, who verified it and which evidence supports it.
+
+### 13.9 Learning layer
+
+Identifies recurring patterns, exceptions, bottlenecks and changes in organisational behaviour.
+
+Together, these layers form a living contextual representation rather than a collection of disconnected records.
+
+---
+
+## 14. Context should not be hidden inside one model
+
+A company should not depend on a single AI model to remember its organisation.
+
+Models change.
+
+Providers change.
+
+Costs change.
+
+Capabilities improve.
+
+Regulations evolve.
+
+A company may use several models for different tasks.
+
+If organisational context is trapped inside prompts, fine-tuned weights or one vendor’s proprietary memory, the organisation risks losing control of its own understanding.
+
+Orgni separates organisational context from the intelligence consuming it.
+
+This allows the context to remain:
+
+* owned by the organisation;
+* portable across models;
+* inspectable by humans;
+* governed independently;
+* updated continuously;
+* reusable across applications;
+* protected by access controls;
+* available to future systems that do not yet exist.
+
+Orgni is therefore designed to be model-independent infrastructure.
+
+The underlying model may be replaced while the organisation’s contextual memory remains.
+
+---
+
+## 15. Context as the control surface for intelligent agents
+
+Future businesses may operate with many specialised agents.
+
+One agent may handle procurement.
+
+Another may support customers.
+
+Another may monitor compliance.
+
+Another may coordinate projects.
+
+Another may analyse financial risk.
+
+Without shared context, each agent develops a partial and potentially contradictory understanding of the organisation.
+
+The procurement agent may know a supplier is approved.
+
+The compliance agent may know the supplier is under investigation.
+
+The finance agent may know an invoice is ready for payment.
+
+The operations agent may know the goods were never delivered.
+
+If these systems cannot access a connected organisational context, each may act correctly according to its local data while the organisation produces an incorrect overall outcome.
+
+Orgni provides a shared contextual foundation through which agents can understand:
+
+* the same entities;
+* the same organisational state;
+* the same active rules;
+* the same decision history;
+* the same verified evidence;
+* the boundaries of their authority.
+
+This does not mean every agent receives all company information. Context must be filtered according to identity, role, permission, purpose and risk.
+
+The goal is shared truth with controlled access.
+
+---
+
+## 16. Context as a source of return on intelligence
+
+Companies do not receive ROI simply because an AI model is powerful.
+
+ROI appears when intelligence produces measurable improvements such as:
+
+* increased revenue;
+* reduced operating cost;
+* faster completion times;
+* fewer errors;
+* lower risk;
+* stronger compliance;
+* improved customer retention;
+* better resource allocation;
+* reduced dependency on manual investigation.
+
+Business context provides the connection between model capability and these operational outcomes.
+
+A model with general intelligence can propose an efficient procurement process.
+
+A context-aware system can identify the organisation’s actual procurement bottleneck, understand the current suppliers and policies, determine which approvals are delaying purchases and recommend a change compatible with the company’s authority structure.
+
+A general model can explain customer retention.
+
+A context-aware system can identify which specific customers are at risk, what unresolved events contributed to that risk and which intervention is allowed under the organisation’s policies.
+
+A general model can explain project management.
+
+A context-aware system can recognise that a particular milestone is blocked by an unresolved dependency, identify the responsible person and estimate the impact on the client commitment.
+
+The return comes from applying intelligence to the correct situation.
+
+---
+
+## 17. The long-term hypothesis
+
+Olyxee’s long-term hypothesis is that every organisation deploying advanced AI will eventually require a persistent business-context layer.
+
+The progression may resemble the following:
+
+### Stage 1: Systems store business data
+
+Applications record transactions, documents, customers and tasks.
+
+### Stage 2: Analytics systems describe the business
+
+Dashboards aggregate historical data and reveal trends.
+
+### Stage 3: AI systems explain the business
+
+Models summarise information, answer questions and generate recommendations.
+
+### Stage 4: Agents perform business work
+
+AI systems coordinate workflows, communicate, approve, escalate and execute tasks.
+
+### Stage 5: General intelligence participates in organisational decision-making
+
+Increasingly capable systems reason across functions and help manage complex operations.
+
+At each stage, the need for context increases.
+
+The system must move from knowing isolated records to understanding the organisation as a changing, interconnected environment.
+
+---
+
+## 18. The Orgni thesis
+
+The Orgni thesis can be stated directly:
+
+> The future of enterprise AI will not be determined only by how intelligent models become. It will also be determined by how deeply those models understand the organisations they serve.
+
+> Organisations are dynamic systems whose knowledge is fragmented across software, documents, communications, workflows and people.
+
+> Static databases and occasional retrieval cannot fully represent the relationships, history, rules, decisions and changing operational states required for reliable intelligent action.
+
+> As AI systems become more autonomous, incomplete context becomes a greater economic and governance risk.
+
+> Organisations will therefore require a live, governed and model-independent business-context layer that continuously learns, preserves memory, tracks change and supplies relevant understanding to humans and machines.
+
+> Orgni is Olyxee’s proposed implementation of that layer.
+
+---
+
+## 19. The strategic position of Orgni
+
+Orgni is positioned between the organisation and the intelligence operating on its behalf.
+
+It sits above fragmented operational systems and below the applications, employees and agents that require organisational understanding.
+
+Its strategic purpose is to ensure that intelligence does not repeatedly approach the company as an unfamiliar environment.
+
+Instead, every authorised system can begin with a relevant understanding of:
+
+* how the business operates;
+* what is currently happening;
+* what happened previously;
+* which rules apply;
+* who is responsible;
+* what evidence is available;
+* what actions are possible;
+* what outcomes the organisation values.
+
+This transforms AI from a general external tool into an informed participant in the organisation.
+
+---
+
+## 20. Research and engineering challenges
+
+Building Orgni requires solving difficult problems.
+
+These include:
+
+* extracting reliable structure from unstructured information;
+* resolving different references to the same entity;
+* recognising processes from incomplete evidence;
+* representing time and changing truth;
+* distinguishing formal policy from informal practice;
+* preserving historical state;
+* managing conflicting information;
+* calculating confidence;
+* enforcing permissions;
+* protecting confidential information;
+* preventing context poisoning;
+* evaluating whether the system’s understanding is correct;
+* supporting continuous updates without uncontrolled forgetting;
+* explaining why a conclusion or recommendation was produced.
+
+Current research confirms that continually adapting models face knowledge-retention challenges. It also shows that constructing reliable knowledge graphs from natural language remains difficult.
+
+Orgni should therefore not present itself as a solved intelligence problem.
+
+It is a long-term research and infrastructure programme focused on building reliable organisational understanding.
+
+---
+
+## 21. Principles
+
+Orgni should be developed according to the following principles.
+
+### Evidence before assumption
+
+Context should be grounded in identifiable sources.
+
+### History before overwrite
+
+When knowledge changes, previous states should remain traceable.
+
+### Verification before authority
+
+Uncertain interpretations should not silently become operational truth.
+
+### Permission before access
+
+Relevant context must be constrained by role, identity and purpose.
+
+### Explanation before automation
+
+Important actions should be linked to the evidence, rules and reasoning that supported them.
+
+### Adaptation without amnesia
+
+The system must learn what changed while preserving what remains historically important.
+
+### Model independence
+
+The organisation’s understanding should survive changes in AI models and providers.
+
+### Human correction as learning
+
+Employees should be able to correct, confirm and improve the contextual model.
+
+### Operational usefulness
+
+Context should support real decisions and actions, not merely produce an impressive visual map.
+
+---
+
+## 22. Measuring success
+
+Orgni should not be judged only by extraction accuracy or the number of entities stored.
+
+It should be judged by whether it improves organisational performance.
+
+Possible measures include:
+
+* time required to understand a business case;
+* time required to onboard employees or systems;
+* reduction in repeated information requests;
+* reduction in policy violations;
+* percentage of decisions linked to supporting evidence;
+* speed of identifying responsible parties;
+* accuracy of workflow-state reconstruction;
+* reduction in duplicated organisational discovery;
+* quality of AI recommendations with and without Orgni context;
+* number of operational exceptions identified;
+* ability to explain why an event occurred;
+* ability to preserve knowledge through organisational change;
+* measurable ROI created by context-enabled automation.
+
+Orgni succeeds when the organisation can prove that it understands and preserves how it operates over time.
+
+---
+
+## 23. Conclusion
+
+The first era of enterprise software focused on recording business activity.
+
+The next era focused on analysing it.
+
+The emerging era will focus on allowing intelligent systems to participate in it.
+
+That participation requires more than access to documents and databases. It requires a living understanding of the organisation’s entities, relationships, rules, responsibilities, history, decisions and current operational state.
+
+AI may become increasingly general.
+
+Business value will remain specific.
+
+The organisation’s goals will be specific.
+
+Its customers will be specific.
+
+Its contracts, policies, risks and responsibilities will be specific.
+
+Its present situation will be specific.
+
+This specificity is business context.
+
+Olyxee’s position is that business context will become essential infrastructure for organisations operating in an age of advanced artificial intelligence.
+
+Orgni exists to build, maintain and serve that context.
+
+Its purpose is to ensure that as machines become more intelligent, they also become more informed about the businesses they are expected to support.
+
+The future enterprise will not only need intelligent models.
+
+It will need an intelligence layer that knows the organisation.
+
+That is the problem Orgni is being built to solve.
+
+## References
+
+1. Stanford Institute for Human-Centered Artificial Intelligence. *The 2026 AI Index Report*. The report documents accelerating AI capability, investment and adoption, alongside gaps in governance, evaluation and preparedness.
+
+2. National Institute of Standards and Technology. *Artificial Intelligence Risk Management Framework*. The framework identifies governance, contextual mapping, measurement and ongoing management as core elements of responsible AI deployment.
+
+3. Wang, L., Zhang, X., Su, H. and Zhu, J. *A Comprehensive Survey of Continual Learning: Theory, Method and Application*. The paper describes continual learning as the ability to acquire, update, accumulate and use knowledge throughout a system’s lifetime.
+
+4. Shi, H. et al. *Continual Learning of Large Language Models*. The survey examines continual learning in LLMs and the problem of catastrophic forgetting.
+
+5. Luo, Y. et al. *An Empirical Study of Catastrophic Forgetting in Large Language Models During Continual Fine-Tuning*. The research reports degradation of previously acquired capabilities during sequential model adaptation.
+
+6. IBM. *What Is a Knowledge Graph?* The resource describes knowledge graphs as networks of entities and their relationships.
+
+7. IBM. *What Is GraphRAG?* The resource explains how graph-structured retrieval can provide relational context beyond ordinary semantic similarity.
+
+8. Mihindukulasooriya, N. et al. *The State of the Art: Large Language Models for Knowledge Graph Construction from Text*. The work discusses current methods and unresolved challenges in constructing knowledge graphs from natural language.
