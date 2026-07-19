@@ -49,7 +49,7 @@ export function HeroSection() {
           className="max-w-4xl w-full mb-8 relative z-20"
         >
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-6">
-            Your organisation already has intelligence. <br className="hidden md:block" />
+            Your business already has intelligence. <br className="hidden md:block" />
             <span className="text-primary">Orgni makes it usable.</span>
           </h1>
           <div className="flex items-center justify-center mt-4">
