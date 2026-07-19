@@ -14,7 +14,7 @@ function handleHashNav(e: React.MouseEvent, hash: string) {
   }
 }
 
-export function SiteHeader({ dark = false }: { dark?: boolean }) {
+export function SiteHeader({ dark }: { dark?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
@@ -26,77 +26,71 @@ export function SiteHeader({ dark = false }: { dark?: boolean }) {
   }, [location]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isDark = dark && !scrolled;
+  const headerClass = `sticky top-0 z-50 w-full transition-all duration-500 ${
+    scrolled
+      ? "bg-background/80 backdrop-blur-xl border-b border-white/5 py-3 shadow-[0_4_24px_rgba(0,0,0,0.4)]"
+      : "bg-transparent border-b border-transparent py-6"
+  }`;
 
-  const headerClass = isDark
-    ? "sticky top-0 z-50 w-full bg-black text-white transition-colors duration-300"
-    : "sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-colors duration-300";
-  const navLink = isDark
-    ? "px-3 py-2 text-white/70 hover:text-white hover:bg-white/10 transition-colors rounded-sm"
-    : "px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors rounded-sm";
-  const mobileToggle = isDark
-    ? "lg:hidden inline-flex items-center justify-center h-8 w-8 -mr-1 rounded-sm text-white hover:bg-white/10 transition-colors"
-    : "lg:hidden inline-flex items-center justify-center h-8 w-8 -mr-1 rounded-sm text-foreground hover:bg-muted transition-colors";
-  const mobilePanel = isDark
-    ? "lg:hidden border-t border-white/10 bg-black text-white"
-    : "lg:hidden border-t border-border bg-background";
-  const mobileLink = isDark ? "py-3 text-white" : "py-3 text-foreground";
-  const mobileLinkBorder = isDark
-    ? "border-b border-white/10"
-    : "border-b border-border/60";
+  const navLink = "text-xs font-mono uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors relative group py-1";
+  
+  const mobileLink = "block py-4 text-sm font-mono uppercase tracking-widest text-foreground/80 hover:text-foreground border-b border-white/5";
 
   return (
     <header className={headerClass}>
-      <div className="flex h-16 items-center px-4 md:px-6 w-full justify-between max-w-screen-2xl mx-auto">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <img
-              src={`${import.meta.env.BASE_URL}orgni-logo.png`}
-              alt="Orgni logo"
-              className="h-6 w-6 rounded object-cover"
-            />
+      <div className="flex items-center justify-between px-6 md:px-12 max-w-screen-2xl mx-auto">
+        
+        {/* Logo area */}
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative flex items-center justify-center h-8 w-8 rounded-sm bg-white/5 border border-white/10 group-hover:border-white/20 group-hover:bg-white/10 transition-colors">
+              <img
+                src={`${import.meta.env.BASE_URL}orgni-logo.png`}
+                alt="Orgni logo"
+                className="h-4 w-4 object-cover"
+              />
+            </div>
             <div className="flex flex-col">
-              <span className="font-mono font-bold tracking-tight text-base leading-none">
+              <span className="font-mono font-bold tracking-tight text-sm leading-none text-foreground">
                 ORGNI
               </span>
-              <span className="text-[10px] text-muted-foreground font-mono leading-none mt-0.5">
+              <span className="text-[9px] text-foreground/40 font-mono leading-none mt-1 tracking-widest uppercase">
                 by Olyxee
               </span>
             </div>
           </Link>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-2 text-sm font-medium">
-          <Link href="/#product" onClick={(e) => handleHashNav(e, "#product")} className={navLink}>
-            Product
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-10">
+          <Link href="/#thesis" onClick={(e) => handleHashNav(e, "#thesis")} className={navLink}>
+            Thesis
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
           </Link>
-          <Link href="/#how-it-works" onClick={(e) => handleHashNav(e, "#how-it-works")} className={navLink}>
-            How it works
+          <Link href="/api-reference" className={navLink}>
+            API
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
           </Link>
-          <Link href="/#enterprise" onClick={(e) => handleHashNav(e, "#enterprise")} className={navLink}>
-            For enterprise
-          </Link>
-          <Link href="/docs" className={navLink}>
-            Developers
-          </Link>
-          <a href={SIGNUP_URL} className={navLink}>
-            Sign in
+          <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" className={navLink}>
+            Contact
+            <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
           </a>
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Actions */}
+        <div className="flex items-center gap-4">
           <a href={SIGNUP_URL} className="hidden sm:inline-flex">
             <Button
               size="sm"
-              className="rounded-sm text-xs h-9 px-5 font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+              className="rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
             >
-              Request access
+              Request Access
             </Button>
           </a>
 
@@ -104,48 +98,36 @@ export function SiteHeader({ dark = false }: { dark?: boolean }) {
           <button
             type="button"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
             onClick={() => setMobileOpen((v) => !v)}
-            className={mobileToggle}
+            className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-sm text-foreground/70 hover:text-foreground hover:bg-white/5 transition-colors"
           >
-            {mobileOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
 
       {/* Mobile menu panel */}
       {mobileOpen && (
-        <nav id="mobile-menu" className={mobilePanel}>
-          <div className="flex flex-col px-4 py-3 text-sm font-medium">
-            <Link href="/#product" onClick={(e) => { handleHashNav(e, "#product"); closeMobile(); }} className={`${mobileLink} ${mobileLinkBorder}`}>
-              Product
+        <div className="md:hidden absolute top-full left-0 w-full border-t border-white/5 bg-background/95 backdrop-blur-xl shadow-2xl">
+          <nav className="flex flex-col px-6 py-4">
+            <Link href="/#thesis" onClick={(e) => { handleHashNav(e, "#thesis"); closeMobile(); }} className={mobileLink}>
+              Thesis
             </Link>
-            <Link href="/#how-it-works" onClick={(e) => { handleHashNav(e, "#how-it-works"); closeMobile(); }} className={`${mobileLink} ${mobileLinkBorder}`}>
-              How it works
+            <Link href="/api-reference" onClick={closeMobile} className={mobileLink}>
+              API
             </Link>
-            <Link href="/#enterprise" onClick={(e) => { handleHashNav(e, "#enterprise"); closeMobile(); }} className={`${mobileLink} ${mobileLinkBorder}`}>
-              For enterprise
-            </Link>
-            <Link href="/docs" onClick={closeMobile} className={`${mobileLink} ${mobileLinkBorder}`}>
-              Developers
-            </Link>
-            <a href={SIGNUP_URL} onClick={closeMobile} className={`${mobileLink} ${mobileLinkBorder}`}>
-              Sign in
+            <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>
+              Contact
             </a>
-            <div className="pt-4 pb-2">
+            <div className="pt-6 pb-4">
               <a href={SIGNUP_URL}>
-                <Button className="w-full rounded-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90">
-                  Request access
+                <Button className="w-full rounded-sm h-12 font-mono text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90">
+                  Request Access
                 </Button>
               </a>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
       )}
     </header>
   );

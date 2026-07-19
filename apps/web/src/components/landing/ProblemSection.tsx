@@ -14,7 +14,7 @@ export function ProblemSection() {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section id="product" className="py-24 md:py-32 border-t border-white/10 bg-background">
+    <section id="thesis" className="py-24 md:py-32 border-t border-white/10 bg-background">
       <div className="container max-w-screen-xl px-4 md:px-8 mx-auto">
         <div className="max-w-3xl mb-16 md:mb-24">
           <motion.h2 
