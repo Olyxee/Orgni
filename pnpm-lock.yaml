@@ -436,6 +436,9 @@ importers:
       '@workspace/observability':
         specifier: workspace:*
         version: link:../../packages/observability
+      '@workspace/organizational-tokenizer':
+        specifier: workspace:*
+        version: link:../../packages/organizational-tokenizer
       pino:
         specifier: ^10.3.1
         version: 10.3.1
@@ -461,6 +464,9 @@ importers:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 2.1.9(@types/node@25.9.5)(lightningcss@1.32.0)
 
   artifacts/mockup-sandbox:
     devDependencies:

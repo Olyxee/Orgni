@@ -228,4 +228,22 @@ def extract_contract(text: str, pages: list[dict]) -> ExtractionOutcome:
     else:
         out.missing.append("executionStatus")
 
+    # A signing date is only meaningful once execution is evidenced. Extracting
+    # it for an unsigned draft would hand downstream code a date it could
+    # mistake for proof the agreement is in force.
+    if status is not None and status.value == "EXECUTED":
+        signed = find(
+            text,
+            [r"\b(?:executed\s+(?:on|as\s+of)|signed\s+on|dated)"
+             r"[^\S\n]*[:\-]?[^\S\n]*([0-9A-Za-z ,/\.\-]{6,20})",
+             r"\bsignature\s+date[^\S\n]*[:\-]?[^\S\n]*([0-9A-Za-z ,/\.\-]{6,20})"],
+            pages, confidence=0.85, section="execution", transform=normalise_date,
+        )
+        if signed is not None:
+            out.fields["signedDate"] = signed
+        else:
+            out.warnings.append(
+                "contract_signed_date_absent: execution evidenced but no date stated"
+            )
+
     return out

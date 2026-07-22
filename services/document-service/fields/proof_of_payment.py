@@ -55,9 +55,11 @@ def extract_proof_of_payment(text: str, pages: list[dict]) -> ExtractionOutcome:
 
     out.add("paymentReference", find(
         text,
-        [r"\b(?:payment\s+reference|transaction\s+(?:ref|reference|id)|reference\s+(?:no\.?|number))"
-         r"[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})",
-         r"\bref\b[^\S\n]*[:\-][^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})"],
+        # Longest alternatives first: "reference" must win over "ref", or the
+        # trailing "erence" gets captured as the value.
+        [r"\b(?:payment\s+reference|transaction\s+(?:reference|ref|id)|reference\s+(?:no\.?|number))"
+         r"[^\S\n]*[:\-]+[^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})",
+         r"\bref(?:erence)?\b[^\S\n]*[:\-]+[^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})"],
         pages, confidence=0.9, section="payment",
     ))
 
