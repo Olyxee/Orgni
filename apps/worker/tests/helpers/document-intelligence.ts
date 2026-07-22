@@ -3,7 +3,7 @@
  *
  * Rather than reimplementing classification and extraction in TypeScript (which
  * would duplicate logic and let the two drift), these tests invoke the actual
- * Python `analyze_document` in `services/document-service`. The end-to-end
+ * Python `analyze_document` in `intelligence/document-intelligence`. The end-to-end
  * tests therefore exercise the genuine pipeline: real extraction feeding the
  * real tokenizer, with no mocks anywhere in the chain.
  */
@@ -21,7 +21,7 @@ import type {
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const SERVICE_DIR = path.resolve(
   here,
-  "../../../../services/document-service",
+  "../../../../intelligence/document-intelligence",
 );
 
 function pythonCommand(): string | null {

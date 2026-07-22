@@ -52,7 +52,7 @@ Producers must supply the envelopes in `src/envelopes/` at `schemaVersion
 `method` and optional `page` / `section` / `raw`. Absent optional fields must be
 omitted, never defaulted — the tokenizer treats what it receives as observed.
 
-In Phase 1 these envelopes are produced by `services/document-service` and
+In Phase 1 these envelopes are produced by `intelligence/document-intelligence` and
 adapted in `apps/worker/src/envelope/adapter.ts`. See
 [`docs/phase1/README.md`](../../docs/phase1/README.md).
 

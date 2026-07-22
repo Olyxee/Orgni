@@ -16,7 +16,7 @@
       "path": "./packages/contracts"
     },
     {
-      "path": "./packages/organizational-tokenizer"
+      "path": "./intelligence/organizational-tokenizer"
     },
     {
       "path": "./packages/config"

@@ -1,6 +1,6 @@
 # Orgni Docs — Document Intelligence
 
-> **Status:** live in the workspace at `services/document-service`. Runs as a
+> **Status:** live in the workspace at `intelligence/document-intelligence`. Runs as a
 > standalone Python/FastAPI service; deploy to any Python host. It calls
 > Anthropic's hosted API for optional LLM extraction — no models are
 > self-hosted; the only local processing is Tesseract OCR.

@@ -6,11 +6,11 @@ evidence-backed `OrganizationalToken[]`.
 ```
 upload
   → ingestion pipeline            apps/worker/src/ingestion/pipeline.ts
-  → Document Intelligence         services/document-service (Python)
+  → Document Intelligence         intelligence/document-intelligence (Python)
   → normalized envelope v0.1.0    apps/worker/src/envelope/types.ts
   → envelope validation           apps/worker/src/envelope/validate.ts
   → extraction adapter            apps/worker/src/envelope/adapter.ts
-  → real tokenizeDocument         packages/organizational-tokenizer
+  → real tokenizeDocument         intelligence/organizational-tokenizer
   → OrganizationalToken[]         packages/contracts
 ```
 
@@ -40,10 +40,10 @@ Obtain it with `processDocument(...)` followed by `toHandoff(result)`.
 pnpm install
 
 # 2. Document Intelligence dependencies (OCR needs the Tesseract binary)
-pip install -r services/document-service/requirements.txt
+pip install -r intelligence/document-intelligence/requirements.txt
 
 # 3. Run the service
-cd services/document-service && uvicorn main:app --port 8000
+cd intelligence/document-intelligence && uvicorn main:app --port 8000
 ```
 
 Then drive the pipeline from the worker:
@@ -92,7 +92,7 @@ Current results: **69 tests passing** (16 tokenizer + 53 pipeline).
 | `apps/worker/tests/ingestion.test.ts` | validation, checksums, identity, duplicates, state machine, retries, failure isolation, access metadata, log redaction |
 | `apps/worker/tests/envelope.test.ts` | envelope schema validation, adapter behaviour, refusal to fabricate |
 | `apps/worker/tests/e2e.test.ts` | all three document types end to end, controlled failures, handoff shape |
-| `packages/organizational-tokenizer/tests/` | the tokenizer's own mapper contracts |
+| `intelligence/organizational-tokenizer/tests/` | the tokenizer's own mapper contracts |
 
 ## Supported inputs
 

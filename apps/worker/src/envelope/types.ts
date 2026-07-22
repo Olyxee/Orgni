@@ -2,7 +2,7 @@
  * Normalized extraction envelope — schema_version 0.1.0.
  *
  * This is the contract Document Intelligence produces and the ingestion
- * pipeline consumes. It mirrors `services/document-service/envelope/builder.py`
+ * pipeline consumes. It mirrors `intelligence/document-intelligence/envelope/builder.py`
  * exactly; the two must be changed together.
  *
  * Field names are snake_case because the envelope crosses a service boundary

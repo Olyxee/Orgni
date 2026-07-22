@@ -38,6 +38,9 @@ packages:
   - artifacts/*
   - apps/*
   - packages/*
+  # Python intelligence plane packages live here too (§4 of
+  # ORGNI_TECHNOLOGY_STACK.md); only the TypeScript ones are pnpm workspaces.
+  - intelligence/*
   - lib/*
   - lib/integrations/*
   - scripts

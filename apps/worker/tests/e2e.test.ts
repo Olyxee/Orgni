@@ -56,7 +56,7 @@ beforeAll(() => {
   if (!documentIntelligenceAvailable) {
     throw new Error(
       "Python is required to run the end-to-end tests against the real " +
-        "Document Intelligence service (services/document-service).",
+        "Document Intelligence service (intelligence/document-intelligence).",
     );
   }
 });

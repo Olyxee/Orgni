@@ -1,6 +1,6 @@
 # Orgni Document Intelligence — production image (Azure Container Apps ready)
 # Build from the repo root:
-#   docker build -f infrastructure/docker/document-service.Dockerfile -t orgni-document-service .
+#   docker build -f infrastructure/docker/document-intelligence.Dockerfile -t orgni-document-intelligence .
 
 FROM python:3.12-slim AS runtime
 
@@ -18,10 +18,10 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-COPY services/document-service/requirements.txt ./requirements.txt
+COPY intelligence/document-intelligence/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY services/document-service/ ./
+COPY intelligence/document-intelligence/ ./
 
 # Uploads are written to a writable scratch dir; the service is otherwise
 # stateless, so replicas can run side by side.

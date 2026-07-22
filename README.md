@@ -13,12 +13,11 @@ apps/
   api/       Main backend API (Express)            → Azure Container Apps
   worker/    Background & async processing         → Azure Container Apps
              (ingestion pipeline + Phase 1 orchestration)
-services/
-  document-service/    Document Intelligence: OCR, classification,
-                       field extraction (Python/FastAPI)
+intelligence/
+  document-intelligence/     OCR, classification, field extraction (Python/FastAPI)
+  organizational-tokenizer/  Extractions → OrganizationalToken[] (TypeScript)
 packages/
-  contracts/                 Shared domain types & canonical events
-  organizational-tokenizer/  Events & document extractions → OrganizationalToken[]
+  contracts/                 Canonical contracts — the only OrganizationalToken
   ui/                        Shared frontend components (shadcn-based)
   auth/                      Shared auth types & permission logic
   config/                    Validated environment configuration (zod)
@@ -36,6 +35,11 @@ infrastructure/
 docs/        Architecture, API, deployment and Phase 1 documentation
 .migration-backup/   Archived original repo (unported product app & services)
 ```
+
+The authoritative baseline is [`ORGNI_TECHNOLOGY_STACK.md`](ORGNI_TECHNOLOGY_STACK.md)
+(TypeScript control plane, Python intelligence plane, one canonical contract).
+Current conformance and gaps are tracked in
+[`docs/architecture/stack-compliance.md`](docs/architecture/stack-compliance.md).
 
 > Replit note: `artifacts/web` and `artifacts/api` contain only Replit
 > platform config (`.replit-artifact/`) so the dev preview keeps working;
