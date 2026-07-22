@@ -2,9 +2,9 @@ name: Python Tests & CI Validation
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, feature/clean-ontology-pr ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, feature/clean-ontology-pr ]
 
 jobs:
   test:
@@ -18,7 +18,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
         with:
           python-version: "3.12"
-          enable-cache: true
+          enable-cache: false
 
       - name: Install Monorepo Packages
         run: |
