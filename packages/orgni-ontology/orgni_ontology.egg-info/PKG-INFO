@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: orgni-ontology
+Version: 1.0.0
+Summary: Orgni Organizational Ontology — Phase 1 (Invoice, Contract, Proof of Payment)
+Requires-Python: >=3.11
+Requires-Dist: pydantic>=2.12.0
+Requires-Dist: anyio==4.12.1
+Requires-Dist: Faker==40.15.0
+Requires-Dist: langsmith==0.7.3
+Requires-Dist: structlog>=24.1.0
+Requires-Dist: opentelemetry-api>=1.20.0
+Requires-Dist: opentelemetry-sdk>=1.20.0
+Provides-Extra: dev
+Requires-Dist: pytest==9.1.1; extra == "dev"

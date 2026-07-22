@@ -1,0 +1,36 @@
+name: Python Tests & CI Validation
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install Dependencies
+        run: |
+          uv pip install --system -e "packages/contracts"
+          uv pip install --system -e "packages/orgni-ontology"
+
+      - name: Run Pytest
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m pytest packages/orgni-ontology/tests/

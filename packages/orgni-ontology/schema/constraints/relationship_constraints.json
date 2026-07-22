@@ -1,0 +1,256 @@
+{
+  "$id": "https://schema.orgni.internal/ontology/2.0.0/relationship_constraints.json",
+  "x-schema-version": "2.0.0",
+  "constraints": {
+    "BELONGS_TO": {
+      "allowed_source_types": [
+        "Account",
+        "Department",
+        "Person",
+        "Role"
+      ],
+      "allowed_target_types": [
+        "Department",
+        "Organization"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A department, person, account, or role belongs to an organization or department."
+    },
+    "HAS_ROLE": {
+      "allowed_source_types": [
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Role"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A person holds a role."
+    },
+    "REPORTS_TO": {
+      "allowed_source_types": [
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Person"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A person reports to another person."
+    },
+    "CREATED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice",
+        "ProofOfPayment"
+      ],
+      "allowed_target_types": [
+        "Organization",
+        "Person",
+        "Supplier"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A document/invoice/contract/proof-of-payment was created by an org, person, or supplier."
+    },
+    "ISSUED_TO": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Counterparty",
+        "Customer",
+        "Organization",
+        "Person"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A document/invoice/contract is issued to a receiving party."
+    },
+    "SUPPORTED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "ProofOfPayment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Document",
+        "ProofOfPayment"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A business fact is supported by an underlying evidentiary document."
+    },
+    "DERIVED_FROM": {
+      "allowed_source_types": [
+        "Contract",
+        "Document",
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Document"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A document/invoice is derived from an earlier document or governing contract."
+    },
+    "BILLS": {
+      "allowed_source_types": [
+        "Invoice"
+      ],
+      "allowed_target_types": [
+        "Customer"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "An invoice bills a customer."
+    },
+    "PAYS": {
+      "allowed_source_types": [
+        "Customer",
+        "Organization",
+        "Person"
+      ],
+      "allowed_target_types": [
+        "Counterparty",
+        "Supplier"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A paying party pays a supplier or counterparty."
+    },
+    "SETTLES": {
+      "allowed_source_types": [
+        "Payment",
+        "ProofOfPayment"
+      ],
+      "allowed_target_types": [
+        "Invoice"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A payment / proof of payment settles an invoice."
+    },
+    "GOVERNED_BY": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Rule"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A contract, invoice, or transaction is governed by a rule."
+    },
+    "REQUIRES": {
+      "allowed_source_types": [
+        "Workflow"
+      ],
+      "allowed_target_types": [
+        "Approval"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A workflow requires an approval before it can proceed."
+    },
+    "PARTY_TO": {
+      "allowed_source_types": [
+        "Customer",
+        "Organization",
+        "Supplier"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Obligation"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A supplier, customer, or organization is a party to a contract or obligation."
+    },
+    "APPROVES": {
+      "allowed_source_types": [
+        "Person",
+        "Role"
+      ],
+      "allowed_target_types": [
+        "Contract",
+        "Decision",
+        "Invoice",
+        "Task"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A person/role approves a decision, task, contract, or invoice."
+    },
+    "ASSIGNED_TO": {
+      "allowed_source_types": [
+        "Approval",
+        "Decision",
+        "Task"
+      ],
+      "allowed_target_types": [
+        "Department",
+        "Person",
+        "Role"
+      ],
+      "max_per_source": 1,
+      "max_per_target": null,
+      "description": "A task/approval/decision is assigned to a person, role, or department."
+    },
+    "TRIGGERS": {
+      "allowed_source_types": [
+        "Contract",
+        "Decision",
+        "Rule",
+        "Task",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Exception",
+        "Task",
+        "Workflow"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A rule/task/decision/transaction/contract triggers a task, workflow, or exception."
+    },
+    "VIOLATES": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Obligation",
+        "Rule"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A transaction/invoice/contract/payment violates a rule or obligation."
+    },
+    "CREATES_EXCEPTION": {
+      "allowed_source_types": [
+        "Contract",
+        "Invoice",
+        "Payment",
+        "Transaction"
+      ],
+      "allowed_target_types": [
+        "Exception"
+      ],
+      "max_per_source": null,
+      "max_per_target": null,
+      "description": "A violating fact creates an exception record."
+    }
+  }
+}

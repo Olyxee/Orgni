@@ -1,0 +1,14 @@
+{
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/packages",
+    "${workspaceFolder}/packages/orgni-ontology",
+    "${workspaceFolder}/packages/contracts"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}",
+    "${workspaceFolder}/packages",
+    "${workspaceFolder}/packages/orgni-ontology",
+    "${workspaceFolder}/packages/contracts"
+  ]
+}
