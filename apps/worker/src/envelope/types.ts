@@ -13,19 +13,13 @@
 export const ENVELOPE_SCHEMA_VERSION = "0.1.0" as const;
 
 export type EnvelopeDocumentType =
-  | "INVOICE"
-  | "PROOF_OF_PAYMENT"
-  | "CONTRACT"
-  | "UNKNOWN";
+  "INVOICE" | "PROOF_OF_PAYMENT" | "CONTRACT" | "UNKNOWN";
 
-export type EnvelopeExtractionStatus = "COMPLETE" | "PARTIAL" | "LOW_CONFIDENCE";
+export type EnvelopeExtractionStatus =
+  "COMPLETE" | "PARTIAL" | "LOW_CONFIDENCE";
 
 export type ConfidenceMethod =
-  | "OCR_EXTRACTION"
-  | "RULE_MATCH"
-  | "ML_MODEL"
-  | "MANUAL"
-  | "INFERRED";
+  "OCR_EXTRACTION" | "RULE_MATCH" | "ML_MODEL" | "MANUAL" | "INFERRED";
 
 /** A single extracted value with its confidence and provenance. */
 export interface EnvelopeField<T = unknown> {

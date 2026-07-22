@@ -4,7 +4,9 @@ import { validateEnvelope } from "../src/envelope/validate.js";
 import { adaptEnvelope } from "../src/envelope/adapter.js";
 import type { NormalizedEnvelope } from "../src/envelope/types.js";
 
-function baseEnvelope(overrides: Partial<NormalizedEnvelope> = {}): NormalizedEnvelope {
+function baseEnvelope(
+  overrides: Partial<NormalizedEnvelope> = {},
+): NormalizedEnvelope {
   return {
     source_id: "src_1",
     source_type: "UPLOAD",
@@ -44,7 +46,9 @@ describe("envelope schema validation", () => {
   });
 
   it("rejects a wrong schema version", () => {
-    const result = validateEnvelope(baseEnvelope({ schema_version: "0.2.0" as never }));
+    const result = validateEnvelope(
+      baseEnvelope({ schema_version: "0.2.0" as never }),
+    );
     expect(result.valid).toBe(false);
     expect(result.errors.join()).toContain("schema_version");
   });
@@ -88,9 +92,15 @@ describe("envelope schema validation", () => {
   });
 
   it("rejects a confidence outside 0..1", () => {
-    expect(validateEnvelope(baseEnvelope({ confidence: 1.5 })).valid).toBe(false);
-    expect(validateEnvelope(baseEnvelope({ confidence: -0.1 })).valid).toBe(false);
-    expect(validateEnvelope(baseEnvelope({ confidence: Number.NaN })).valid).toBe(false);
+    expect(validateEnvelope(baseEnvelope({ confidence: 1.5 })).valid).toBe(
+      false,
+    );
+    expect(validateEnvelope(baseEnvelope({ confidence: -0.1 })).valid).toBe(
+      false,
+    );
+    expect(
+      validateEnvelope(baseEnvelope({ confidence: Number.NaN })).valid,
+    ).toBe(false);
   });
 
   it("warns that an UNKNOWN document cannot be tokenized", () => {
@@ -111,14 +121,18 @@ describe("envelope → extraction adapter", () => {
   };
 
   it("builds an invoice extraction from complete fields", () => {
-    const result = adaptEnvelope(baseEnvelope({ extracted_fields: invoiceFields }));
+    const result = adaptEnvelope(
+      baseEnvelope({ extracted_fields: invoiceFields }),
+    );
     expect(result.ok).toBe(true);
     expect(result.extraction?.documentType).toBe("INVOICE");
   });
 
   it("refuses to fabricate a missing required amount", () => {
     const { totalAmount, ...withoutTotal } = invoiceFields;
-    const result = adaptEnvelope(baseEnvelope({ extracted_fields: withoutTotal }));
+    const result = adaptEnvelope(
+      baseEnvelope({ extracted_fields: withoutTotal }),
+    );
 
     expect(result.ok).toBe(false);
     expect(result.errors.join()).toContain("totalAmount");
@@ -184,7 +198,9 @@ describe("envelope → extraction adapter", () => {
     expect(result.ok).toBe(true);
     expect(result.warnings.join()).toContain("not evidenced as executed");
     // signedDate must not be carried through for an unsigned agreement.
-    expect((result.extraction as { signedDate?: unknown }).signedDate).toBeUndefined();
+    expect(
+      (result.extraction as { signedDate?: unknown }).signedDate,
+    ).toBeUndefined();
   });
 
   it("requires two parties before building a contract extraction", () => {

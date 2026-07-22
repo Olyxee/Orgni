@@ -113,10 +113,14 @@ export function checksumOf(content: Uint8Array | string): string {
 }
 
 function byteLength(content: Uint8Array | string): number {
-  return typeof content === "string" ? Buffer.byteLength(content, "utf8") : content.byteLength;
+  return typeof content === "string"
+    ? Buffer.byteLength(content, "utf8")
+    : content.byteLength;
 }
 
-export function isSupportedMimeType(mimeType: string): mimeType is SupportedMimeType {
+export function isSupportedMimeType(
+  mimeType: string,
+): mimeType is SupportedMimeType {
   return (SUPPORTED_MIME_TYPES as readonly string[]).includes(mimeType);
 }
 
@@ -179,7 +183,12 @@ export async function ingestDocument(
 
   // Identifiers and sizes only — never filename contents or document text.
   log.info(
-    { sourceId: record.sourceId, tenantId: record.tenantId, mimeType: record.mimeType, byteSize },
+    {
+      sourceId: record.sourceId,
+      tenantId: record.tenantId,
+      mimeType: record.mimeType,
+      byteSize,
+    },
     "document received",
   );
 
@@ -187,7 +196,10 @@ export async function ingestDocument(
   if (!isSupportedMimeType(input.mimeType)) {
     record.state = "FAILED";
     record.errors.push(`unsupported_mime_type: ${input.mimeType}`);
-    log.warn({ sourceId: record.sourceId, mimeType: input.mimeType }, "unsupported type rejected");
+    log.warn(
+      { sourceId: record.sourceId, mimeType: input.mimeType },
+      "unsupported type rejected",
+    );
     return record;
   }
 
@@ -200,7 +212,10 @@ export async function ingestDocument(
   if (byteSize > limits.maxBytes) {
     record.state = "FAILED";
     record.errors.push(`document_too_large: ${byteSize} > ${limits.maxBytes}`);
-    log.warn({ sourceId: record.sourceId, byteSize, maxBytes: limits.maxBytes }, "oversize rejected");
+    log.warn(
+      { sourceId: record.sourceId, byteSize, maxBytes: limits.maxBytes },
+      "oversize rejected",
+    );
     return record;
   }
 
@@ -210,7 +225,10 @@ export async function ingestDocument(
     record.state = "COMPLETED";
     record.duplicateOf = previous;
     record.warnings.push(`duplicate_of: ${previous}`);
-    log.info({ sourceId: record.sourceId, duplicateOf: previous }, "duplicate detected, skipping");
+    log.info(
+      { sourceId: record.sourceId, duplicateOf: previous },
+      "duplicate detected, skipping",
+    );
     return record;
   }
 
@@ -279,7 +297,9 @@ export async function ingestBatch(
   const seen = options.seen ?? createMemorySeenStore();
   const records: IngestionRecord[] = [];
   for (const input of inputs) {
-    records.push(await ingestDocument(input, documentIntelligence, { ...options, seen }));
+    records.push(
+      await ingestDocument(input, documentIntelligence, { ...options, seen }),
+    );
   }
   return records;
 }

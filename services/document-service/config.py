@@ -30,5 +30,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://orgni:orgni@localhos
 
 # Upload limits
 MAX_FILE_SIZE_BYTES = int(os.environ.get("MAX_FILE_SIZE_BYTES", 20 * 1024 * 1024))  # 20MB
+
+# Legacy /run integrity pipeline: OCR-based, so binary document formats only.
 ALLOWED_CONTENT_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/jpg"}
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
+
+# Phase 1 /v1/analyze additionally accepts plain text, which is a supported
+# Phase 1 input and needs no OCR round-trip.
+ANALYZE_CONTENT_TYPES = ALLOWED_CONTENT_TYPES | {"text/plain"}
+ANALYZE_EXTENSIONS = ALLOWED_EXTENSIONS | {".txt"}

@@ -13,10 +13,16 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 import type { NormalizedEnvelope } from "../../src/envelope/types.js";
-import type { DocumentIntelligence, IngestionRecord } from "../../src/ingestion/pipeline.js";
+import type {
+  DocumentIntelligence,
+  IngestionRecord,
+} from "../../src/ingestion/pipeline.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-export const SERVICE_DIR = path.resolve(here, "../../../../services/document-service");
+export const SERVICE_DIR = path.resolve(
+  here,
+  "../../../../services/document-service",
+);
 
 function pythonCommand(): string | null {
   for (const candidate of ["python", "python3", "py"]) {
@@ -65,7 +71,9 @@ export function analyzeWithRealService(payload: {
   });
 
   if (result.status !== 0) {
-    throw new Error(`document intelligence failed: ${result.stderr?.slice(0, 500)}`);
+    throw new Error(
+      `document intelligence failed: ${result.stderr?.slice(0, 500)}`,
+    );
   }
   return JSON.parse(result.stdout) as NormalizedEnvelope;
 }

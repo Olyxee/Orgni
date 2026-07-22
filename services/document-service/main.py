@@ -10,7 +10,14 @@ import uuid
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 
-from config import UPLOAD_DIR, MAX_FILE_SIZE_BYTES, ALLOWED_CONTENT_TYPES, ALLOWED_EXTENSIONS
+from config import (
+    ALLOWED_CONTENT_TYPES,
+    ALLOWED_EXTENSIONS,
+    ANALYZE_CONTENT_TYPES,
+    ANALYZE_EXTENSIONS,
+    MAX_FILE_SIZE_BYTES,
+    UPLOAD_DIR,
+)
 from envelope.builder import SCHEMA_VERSION, analyze_document
 from pipeline.runner import run as run_pipeline
 
@@ -86,7 +93,7 @@ async def analyze(
     ext = os.path.splitext(filename)[-1].lower()
 
     unsupported = (
-        content_type not in ALLOWED_CONTENT_TYPES and ext not in ALLOWED_EXTENSIONS
+        content_type not in ANALYZE_CONTENT_TYPES and ext not in ANALYZE_EXTENSIONS
     )
     if unsupported or len(contents) == 0:
         reason = "empty_file" if len(contents) == 0 else f"unsupported_type: {content_type}"

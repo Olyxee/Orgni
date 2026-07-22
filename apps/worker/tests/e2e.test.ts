@@ -92,7 +92,9 @@ describe("E2E — invoice", () => {
     const { tokens } = await run("invoice.txt", INVOICE);
     const serialised = JSON.stringify(tokens);
 
-    expect(tokens.some((t: OrganizationalToken) => t.tokenKind === "EVENT")).toBe(true);
+    expect(
+      tokens.some((t: OrganizationalToken) => t.tokenKind === "EVENT"),
+    ).toBe(true);
     expect(serialised).toContain("Olyxee AI (Pty) Ltd");
     expect(serialised).toContain("13225");
   });

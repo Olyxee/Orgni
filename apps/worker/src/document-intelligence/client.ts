@@ -8,7 +8,10 @@
  */
 
 import type { NormalizedEnvelope } from "../envelope/types.js";
-import type { DocumentIntelligence, IngestionRecord } from "../ingestion/pipeline.js";
+import type {
+  DocumentIntelligence,
+  IngestionRecord,
+} from "../ingestion/pipeline.js";
 
 export interface DocumentIntelligenceConfig {
   /** Base URL of the document service, e.g. http://127.0.0.1:8000 */
@@ -30,10 +33,15 @@ export function createDocumentIntelligenceClient(
     const body = new FormData();
     // Copy into a plain ArrayBuffer: a Uint8Array may be backed by a
     // SharedArrayBuffer, which Blob does not accept.
-    const source = typeof content === "string" ? new TextEncoder().encode(content) : content;
+    const source =
+      typeof content === "string" ? new TextEncoder().encode(content) : content;
     const bytes = new Uint8Array(source.byteLength);
     bytes.set(source);
-    body.append("file", new Blob([bytes], { type: record.mimeType }), record.filename);
+    body.append(
+      "file",
+      new Blob([bytes], { type: record.mimeType }),
+      record.filename,
+    );
     body.append("source_id", record.sourceId);
     body.append("tenant_id", record.tenantId);
 

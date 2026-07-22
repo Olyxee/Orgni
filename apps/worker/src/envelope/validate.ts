@@ -46,12 +46,17 @@ export function validateEnvelope(input: unknown): EnvelopeValidationResult {
     );
   }
 
-  if (typeof envelope.source_id !== "string" || envelope.source_id.length === 0) {
+  if (
+    typeof envelope.source_id !== "string" ||
+    envelope.source_id.length === 0
+  ) {
     errors.push("source_id must be a non-empty string");
   }
 
   if (envelope.source_type !== "UPLOAD") {
-    errors.push(`source_type must be "UPLOAD", received ${JSON.stringify(envelope.source_type)}`);
+    errors.push(
+      `source_type must be "UPLOAD", received ${JSON.stringify(envelope.source_type)}`,
+    );
   }
 
   if (
@@ -64,7 +69,10 @@ export function validateEnvelope(input: unknown): EnvelopeValidationResult {
     );
   }
 
-  if (!isRecord(envelope.content) || typeof envelope.content["text"] !== "string") {
+  if (
+    !isRecord(envelope.content) ||
+    typeof envelope.content["text"] !== "string"
+  ) {
     errors.push("content.text must be a string");
   }
 
@@ -97,8 +105,16 @@ export function validateEnvelope(input: unknown): EnvelopeValidationResult {
   if (!isRecord(metadata)) {
     errors.push("metadata must be an object");
   } else {
-    for (const key of ["filename", "mime_type", "checksum", "tenant_id"] as const) {
-      if (typeof metadata[key] !== "string" || (metadata[key] as string).length === 0) {
+    for (const key of [
+      "filename",
+      "mime_type",
+      "checksum",
+      "tenant_id",
+    ] as const) {
+      if (
+        typeof metadata[key] !== "string" ||
+        (metadata[key] as string).length === 0
+      ) {
         errors.push(`metadata.${key} must be a non-empty string`);
       }
     }
@@ -114,7 +130,9 @@ export function validateEnvelope(input: unknown): EnvelopeValidationResult {
 }
 
 /** Type guard form, for use after a successful validation. */
-export function assertEnvelope(input: unknown): asserts input is NormalizedEnvelope {
+export function assertEnvelope(
+  input: unknown,
+): asserts input is NormalizedEnvelope {
   const result = validateEnvelope(input);
   if (!result.valid) {
     throw new Error(`Invalid envelope: ${result.errors.join("; ")}`);

@@ -62,7 +62,11 @@ export function tokenizeEnvelope(envelope: NormalizedEnvelope): {
 } {
   const validation = validateEnvelope(envelope);
   if (!validation.valid) {
-    return { tokens: [], warnings: validation.warnings, errors: validation.errors };
+    return {
+      tokens: [],
+      warnings: validation.warnings,
+      errors: validation.errors,
+    };
   }
 
   const adapted = adaptEnvelope(envelope);
@@ -78,7 +82,11 @@ export function tokenizeEnvelope(envelope: NormalizedEnvelope): {
     const result = tokenizeDocument(adapted.extraction);
     return {
       tokens: result.tokens,
-      warnings: [...validation.warnings, ...adapted.warnings, ...result.warnings],
+      warnings: [
+        ...validation.warnings,
+        ...adapted.warnings,
+        ...result.warnings,
+      ],
       errors: result.errors,
     };
   } catch (error) {

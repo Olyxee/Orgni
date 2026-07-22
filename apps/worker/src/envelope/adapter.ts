@@ -49,8 +49,10 @@ function field<T>(
   return raw as EnvelopeField<T>;
 }
 
-const str = (f: Record<string, unknown>, n: string) => field<string>(f, n, "string");
-const num = (f: Record<string, unknown>, n: string) => field<number>(f, n, "number");
+const str = (f: Record<string, unknown>, n: string) =>
+  field<string>(f, n, "string");
+const num = (f: Record<string, unknown>, n: string) =>
+  field<number>(f, n, "number");
 
 /** Collect indexed fields such as party1Name, party2Name, … in order. */
 function indexed(
@@ -61,7 +63,10 @@ function indexed(
   const pattern = new RegExp(`^${prefix}(\\d+)${suffix}$`);
   return Object.keys(fields)
     .map((key) => ({ key, match: pattern.exec(key) }))
-    .filter((entry): entry is { key: string; match: RegExpExecArray } => entry.match !== null)
+    .filter(
+      (entry): entry is { key: string; match: RegExpExecArray } =>
+        entry.match !== null,
+    )
     .sort((a, b) => Number(a.match[1]) - Number(b.match[1]))
     .map((entry) => str(fields, entry.key))
     .filter((value): value is EnvelopeField<string> => value !== undefined);
@@ -96,7 +101,8 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
     currency: str(f, "currency"),
   };
   for (const [name, value] of Object.entries(required)) {
-    if (value === undefined) errors.push(`invoice is missing required field: ${name}`);
+    if (value === undefined)
+      errors.push(`invoice is missing required field: ${name}`);
   }
   if (errors.length > 0) return { ok: false, errors, warnings };
 
@@ -127,11 +133,15 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
     currency,
     lineItems,
     ...(str(f, "dueDate") && { dueDate: str(f, "dueDate")! }),
-    ...(str(f, "vendorVatNumber") && { vendorVatNumber: str(f, "vendorVatNumber")! }),
+    ...(str(f, "vendorVatNumber") && {
+      vendorVatNumber: str(f, "vendorVatNumber")!,
+    }),
     ...(num(f, "subtotal") && { subtotal: num(f, "subtotal")! }),
     ...(num(f, "taxAmount") && { taxAmount: num(f, "taxAmount")! }),
     ...(str(f, "paymentTerms") && { paymentTerms: str(f, "paymentTerms")! }),
-    ...(str(f, "purchaseOrderRef") && { purchaseOrderRef: str(f, "purchaseOrderRef")! }),
+    ...(str(f, "purchaseOrderRef") && {
+      purchaseOrderRef: str(f, "purchaseOrderRef")!,
+    }),
   };
 
   return { ok: true, extraction, errors, warnings };
@@ -140,7 +150,10 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
 // ── Proof of payment ──────────────────────────────────────────────────────────
 
 /** Map extractor method names onto the tokenizer's PaymentMethod union. */
-const PAYMENT_METHODS: Record<string, ProofOfPaymentExtraction["paymentMethod"]["value"]> = {
+const PAYMENT_METHODS: Record<
+  string,
+  ProofOfPaymentExtraction["paymentMethod"]["value"]
+> = {
   EFT: "EFT",
   WIRE: "SWIFT",
   SWIFT: "SWIFT",
@@ -218,13 +231,18 @@ function contractType(
   title: EnvelopeField<string> | undefined,
 ): ContractExtraction["contractType"] {
   const text = (title?.value ?? "").toUpperCase();
-  const value = text.includes("NON-DISCLOSURE") || text.includes("NONDISCLOSURE") || text.includes("NDA")
-    ? "NDA"
-    : text.includes("EMPLOYMENT")
-      ? "EMPLOYMENT"
-      : text.includes("SERVICE") || text.includes("MASTER") || text.includes("SUPPLY")
-        ? "SERVICE_AGREEMENT"
-        : "OTHER";
+  const value =
+    text.includes("NON-DISCLOSURE") ||
+    text.includes("NONDISCLOSURE") ||
+    text.includes("NDA")
+      ? "NDA"
+      : text.includes("EMPLOYMENT")
+        ? "EMPLOYMENT"
+        : text.includes("SERVICE") ||
+            text.includes("MASTER") ||
+            text.includes("SUPPLY")
+          ? "SERVICE_AGREEMENT"
+          : "OTHER";
 
   return {
     value,
@@ -245,25 +263,30 @@ function adaptContract(envelope: NormalizedEnvelope): AdaptResult {
   const effectiveDate = str(f, "effectiveDate");
   const partyFields = indexed(f, "party", "Name");
 
-  if (!effectiveDate) errors.push("contract is missing required field: effectiveDate");
-  if (partyFields.length < 2) errors.push("contract requires at least two parties");
+  if (!effectiveDate)
+    errors.push("contract is missing required field: effectiveDate");
+  if (partyFields.length < 2)
+    errors.push("contract requires at least two parties");
   if (errors.length > 0) return { ok: false, errors, warnings };
 
-  const parties: ContractExtraction["parties"] = partyFields.map((party, index) => ({
-    name: party,
-    role: {
-      value: index === 0 ? "PARTY_A" : "PARTY_B",
-      confidence: 0.6,
-      method: "INFERRED" as const,
-      section: "parties",
-    },
-  }));
+  const parties: ContractExtraction["parties"] = partyFields.map(
+    (party, index) => ({
+      name: party,
+      role: {
+        value: index === 0 ? "PARTY_A" : "PARTY_B",
+        confidence: 0.6,
+        method: "INFERRED" as const,
+        section: "parties",
+      },
+    }),
+  );
 
   // `signedDate` is the tokenizer's only execution signal. We set it solely
   // from explicit signature evidence, so an unsigned or draft agreement can
   // never tokenize as executed.
   const execution = str(f, "executionStatus");
-  const signedDate = execution?.value === "EXECUTED" ? str(f, "signedDate") : undefined;
+  const signedDate =
+    execution?.value === "EXECUTED" ? str(f, "signedDate") : undefined;
   if (execution?.value !== "EXECUTED") {
     warnings.push(
       "contract is not evidenced as executed; no execution date asserted",

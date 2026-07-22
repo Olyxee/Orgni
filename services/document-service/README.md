@@ -1,13 +1,56 @@
-# Orgni Docs — Document Integrity Pipeline
+# Orgni Docs — Document Intelligence
 
-> **Status:** Not yet ported to the live Replit workspace — this backup copy is the current source. Runs as a standalone Python/FastAPI service; deploy to any Python host (e.g. Azure App Service). It calls Anthropic's hosted API for LLM extraction — no models or tokenizers are self-hosted; the only local processing is Tesseract OCR.
+> **Status:** live in the workspace at `services/document-service`. Runs as a
+> standalone Python/FastAPI service; deploy to any Python host. It calls
+> Anthropic's hosted API for optional LLM extraction — no models are
+> self-hosted; the only local processing is Tesseract OCR.
 
 ## Overview
 
-Orgni Docs is the document understanding and integrity layer inside the Orgni platform.
-It focuses on document extraction, validation, classification, and integrity checking.
+Orgni Docs is the document understanding layer inside the Orgni platform: text
+extraction, OCR, classification, field extraction with evidence, validation and
+integrity checking.
 
 It answers one question: **Did truth survive the transformation?**
+
+## Phase 1 role
+
+This service is the **Document Intelligence** stage of the Phase 1 pipeline
+(see [`docs/phase1/README.md`](../../docs/phase1/README.md)). It receives a
+document and returns a normalized envelope at `schema_version 0.1.0`, which the
+worker validates and hands to the organizational tokenizer.
+
+```
+POST /v1/analyze   (multipart: file, source_id, tenant_id)
+  → { source_id, document_type, content, extracted_fields, tables,
+      metadata, evidence_locations, confidence, warnings, schema_version }
+```
+
+`document_type` is `INVOICE`, `PROOF_OF_PAYMENT`, `CONTRACT` or `UNKNOWN`.
+Unsupported, empty and unreadable documents return a well-formed `UNKNOWN`
+envelope with warnings and HTTP 200 — never an exception — so one bad document
+cannot break a batch.
+
+### Phase 1 modules
+
+| Module | Purpose |
+|--------|---------|
+| `classification/` | Weighted-signal document classifier. Withholds a decision (UNKNOWN) when the score is below threshold or too close to the runner-up. |
+| `fields/` | Per-type extractors (`invoice`, `proof_of_payment`, `contract`) over shared primitives in `fields/base.py`. |
+| `envelope/` | Builds the normalized envelope; `analyze_document()` is the entry point. |
+
+Every extracted field carries a value, confidence, extraction method and an
+evidence location (page + character span + verbatim excerpt). A field that
+cannot be located is **absent**, never defaulted; a value that cannot be parsed
+is rejected rather than stored wrong.
+
+### What it refuses to assert
+
+- An invoice with no stated status yields no status field.
+- A proof of payment records a referenced invoice as a *reference*, and warns
+  explicitly that settlement is not asserted.
+- An unsigned or draft contract is reported `UNSIGNED`; with no signature
+  evidence at all, no execution status is emitted.
 
 ## Part of the Orgni Platform
 

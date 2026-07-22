@@ -75,9 +75,13 @@ describe("ingestion — validation", () => {
   });
 
   it("enforces the configured size limit", async () => {
-    const record = await ingestDocument(input({ content: "x".repeat(500) }), ok, {
-      limits: { maxBytes: 100 },
-    });
+    const record = await ingestDocument(
+      input({ content: "x".repeat(500) }),
+      ok,
+      {
+        limits: { maxBytes: 100 },
+      },
+    );
     expect(record.state).toBe("FAILED");
     expect(record.errors[0]).toContain("document_too_large");
   });
@@ -124,7 +128,9 @@ describe("ingestion — duplicate handling", () => {
   it("treats different content as distinct documents", async () => {
     const seen = createMemorySeenStore();
     const first = await ingestDocument(input(), ok, { seen });
-    const second = await ingestDocument(input({ content: "OTHER" }), ok, { seen });
+    const second = await ingestDocument(input({ content: "OTHER" }), ok, {
+      seen,
+    });
     expect(second.duplicateOf).toBeUndefined();
     expect(second.checksum).not.toBe(first.checksum);
   });
@@ -223,7 +229,11 @@ describe("ingestion — failure isolation", () => {
     );
 
     expect(records).toHaveLength(3);
-    expect(records.map((r) => r.state)).toEqual(["COMPLETED", "FAILED", "COMPLETED"]);
+    expect(records.map((r) => r.state)).toEqual([
+      "COMPLETED",
+      "FAILED",
+      "COMPLETED",
+    ]);
   });
 
   it("keeps processing when one document is an unsupported type", async () => {
@@ -235,7 +245,11 @@ describe("ingestion — failure isolation", () => {
       ],
       ok,
     );
-    expect(records.map((r) => r.state)).toEqual(["COMPLETED", "FAILED", "COMPLETED"]);
+    expect(records.map((r) => r.state)).toEqual([
+      "COMPLETED",
+      "FAILED",
+      "COMPLETED",
+    ]);
   });
 });
 
