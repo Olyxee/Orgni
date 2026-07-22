@@ -6,8 +6,8 @@
  *   2. tokenizeDocument — document-sourced tokenization (Phase 1 addition)
  */
 
-import type { CanonicalEvent, OrganizationalToken, PrincipalRule } from "@workspace/schemas";
-import { clampConfidence } from "@workspace/schemas";
+import type { CanonicalEvent, OrganizationalToken, PrincipalRule } from "@workspace/contracts";
+import { clampConfidence } from "@workspace/contracts";
 
 export const TOKENIZER_VERSION = "orgni.organizational-tokenizer.v1";
 

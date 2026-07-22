@@ -2,8 +2,8 @@
  * Orgni Organizational Tokenizer — Contract Mapper
  * schema_version: "0.1.0"
  */
-import type { OrganizationalToken } from "@workspace/schemas";
-import { clampConfidence } from "@workspace/schemas";
+import type { OrganizationalToken } from "@workspace/contracts";
+import { clampConfidence } from "@workspace/contracts";
 import type { ContractExtraction } from "../envelopes/contract.js";
 import { minConfidence, buildSourceRef, getStableTimestamp } from "./helpers.js";
 

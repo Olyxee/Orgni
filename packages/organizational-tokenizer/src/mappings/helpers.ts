@@ -1,7 +1,7 @@
 /**
  * Shared mapping utilities used by all document mappers.
  */
-import type { EvidenceReference } from "@workspace/schemas";
+import type { EvidenceReference } from "@workspace/contracts";
 import type { ExtractionEnvelopeBase } from "../envelopes/types.js";
 
 /**

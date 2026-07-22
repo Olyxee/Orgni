@@ -7,7 +7,7 @@
  * WARNING = token emitted but flagged for human review
  */
 
-import type { OrganizationalToken } from "@workspace/schemas";
+import type { OrganizationalToken } from "@workspace/contracts";
 
 export interface TokenValidationResult {
     valid: boolean;

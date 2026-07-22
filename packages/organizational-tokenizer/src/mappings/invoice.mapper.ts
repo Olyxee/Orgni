@@ -2,8 +2,8 @@
  * Orgni Organizational Tokenizer — Invoice Mapper
  * schema_version: "0.1.0"
  */
-import type { OrganizationalToken } from "@workspace/schemas";
-import { clampConfidence } from "@workspace/schemas";
+import type { OrganizationalToken } from "@workspace/contracts";
+import { clampConfidence } from "@workspace/contracts";
 import type { InvoiceExtraction } from "../envelopes/invoice.js";
 import { minConfidence, avgConfidence, buildSourceRef, getStableTimestamp } from "./helpers.js";
 

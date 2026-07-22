@@ -2,8 +2,8 @@
  * Orgni Organizational Tokenizer — Proof of Payment Mapper
  * schema_version: "0.1.0"
  */
-import type { OrganizationalToken } from "@workspace/schemas";
-import { clampConfidence } from "@workspace/schemas";
+import type { OrganizationalToken } from "@workspace/contracts";
+import { clampConfidence } from "@workspace/contracts";
 import type { ProofOfPaymentExtraction } from "../envelopes/proof_of_payment.js";
 import { minConfidence, buildSourceRef, getStableTimestamp } from "./helpers.js";
 

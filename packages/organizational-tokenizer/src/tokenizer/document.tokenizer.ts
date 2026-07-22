@@ -2,7 +2,7 @@
  * Orgni Organizational Tokenizer — Document Tokenizer (main dispatcher)
  * schema_version: "0.1.0"
  */
-import type { OrganizationalToken } from "@workspace/schemas";
+import type { OrganizationalToken } from "@workspace/contracts";
 import type { InvoiceExtraction } from "../envelopes/invoice.js";
 import type { ProofOfPaymentExtraction } from "../envelopes/proof_of_payment.js";
 import type { ContractExtraction } from "../envelopes/contract.js";
