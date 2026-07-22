@@ -14,23 +14,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv
+      - name: Set up uv and Python 3.12
         uses: astral-sh/setup-uv@v3
         with:
+          python-version: "3.12"
           enable-cache: true
 
-      - name: Install Dependencies
+      - name: Install Monorepo Packages
         run: |
           uv pip install --system -e "packages/contracts"
           uv pip install --system -e "packages/orgni-ontology"
+          uv pip install --system pytest
 
       - name: Run Pytest
-        env:
-          PYTHONPATH: .
         run: |
           python -m pytest packages/orgni-ontology/tests/
