@@ -7,7 +7,7 @@ export function ProductShowcaseSection() {
             Orgni in action
           </h2>
           <p className="text-lg text-white/85 leading-relaxed">
-            One question — a role transfer — answered with entitlements, systems and
+            One question, a role transfer, answered with entitlements, systems and
             approvals resolved across the organisation, with every step traceable.
           </p>
         </div>
