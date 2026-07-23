@@ -66,6 +66,8 @@ const INVOICE_ENVELOPE = {
 // Records the last multipart body the stub received, so tests can assert what
 // the API forwarded to Document Intelligence.
 let lastDiBody = "";
+// Records the tokens the API forwarded to the ontology.
+let lastOntologyTokens: unknown[] = [];
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve) => {
@@ -76,6 +78,7 @@ function readBody(req: IncomingMessage): Promise<string> {
 }
 
 let diServer: Server;
+let ontologyServer: Server;
 let apiServer: Server;
 let baseUrl: string;
 
@@ -91,20 +94,48 @@ beforeAll(async () => {
   });
   const diPort = (diServer.address() as AddressInfo).port;
 
-  // 2. Point config at the stub BEFORE importing the app (config loads at import).
+  // 2. Stub Ontology: echoes a minimal reviewable-facts result and records the
+  //    tokens it was given (to prove the API forwards real tokenizer output).
+  await new Promise<void>((resolve) => {
+    ontologyServer = createServer(async (req, res) => {
+      const body = await readBody(req);
+      lastOntologyTokens = JSON.parse(body || "{}").tokens ?? [];
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(
+        JSON.stringify({
+          tenant_id: "tenant_olyxee",
+          schema_version: "0.1.0",
+          entities: [{ name: "Olyxee AI (Pty) Ltd" }],
+          relationships: [],
+          facts: lastOntologyTokens.map((t) => ({
+            fact_id: `fact_${(t as { tokenId: string }).tokenId}`,
+          })),
+          conflicts: [],
+          warnings: [],
+          rejected: [],
+        }),
+      );
+    });
+    ontologyServer.listen(0, resolve);
+  });
+  const ontPort = (ontologyServer.address() as AddressInfo).port;
+
+  // 3. Point config at the stubs BEFORE importing the app (config loads at import).
   process.env["NODE_ENV"] = "test";
   process.env["DOCUMENT_INTELLIGENCE_URL"] = `http://127.0.0.1:${diPort}`;
+  process.env["ONTOLOGY_URL"] = `http://127.0.0.1:${ontPort}`;
 
   const { default: app } = await import("../src/app.js");
   await new Promise<void>((resolve) => {
     apiServer = app.listen(0, resolve);
   });
   baseUrl = `http://127.0.0.1:${(apiServer.address() as AddressInfo).port}`;
-});
+}, 30_000);
 
 afterAll(() => {
   apiServer?.close();
   diServer?.close();
+  ontologyServer?.close();
 });
 
 function form(bytes: Uint8Array, filename: string, type: string): FormData {
@@ -172,6 +203,26 @@ describe("POST /api/documents", () => {
     expect(body.state).toBe("FAILED");
     expect(body.tokens).toHaveLength(0);
     expect(JSON.stringify(body.errors)).toContain("unsupported_mime_type");
+  });
+
+  it("maps tokens into reviewable facts via the ontology", async () => {
+    const res = await fetch(`${baseUrl}/api/documents`, {
+      method: "POST",
+      headers: { "x-tenant-id": "tenant_olyxee" },
+      body: form(
+        new TextEncoder().encode("%PDF-1.4 fake"),
+        "invoice.pdf",
+        "application/pdf",
+      ),
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    // Facts are present and the ontology received the real tokenizer tokens.
+    expect(body.facts).not.toBeNull();
+    expect(body.facts.schema_version).toBe("0.1.0");
+    expect(Array.isArray(body.facts.facts)).toBe(true);
+    expect(lastOntologyTokens.length).toBe(body.tokens.length);
+    expect(lastOntologyTokens.length).toBeGreaterThan(0);
   });
 
   it("forwards the tenant to Document Intelligence", async () => {
