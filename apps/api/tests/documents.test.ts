@@ -83,12 +83,28 @@ let apiServer: Server;
 let baseUrl: string;
 
 beforeAll(async () => {
-  // 1. Stub Document Intelligence.
+  // 1. Stub Document Intelligence. Faithfully echoes the source_id/tenant_id it
+  //    was given (as the real service does), so token ids are unique per upload.
   await new Promise<void>((resolve) => {
     diServer = createServer(async (req, res) => {
       lastDiBody = await readBody(req);
+      const sourceId =
+        /name="source_id"\r?\n\r?\n([^\r\n]+)/.exec(lastDiBody)?.[1] ??
+        "src_test";
+      const tenantId =
+        /name="tenant_id"\r?\n\r?\n([^\r\n]+)/.exec(lastDiBody)?.[1] ??
+        "tenant_olyxee";
+      const envelope = {
+        ...INVOICE_ENVELOPE,
+        source_id: sourceId,
+        metadata: {
+          ...INVOICE_ENVELOPE.metadata,
+          tenant_id: tenantId,
+          checksum: sourceId,
+        },
+      };
       res.writeHead(200, { "content-type": "application/json" });
-      res.end(JSON.stringify(INVOICE_ENVELOPE));
+      res.end(JSON.stringify(envelope));
     });
     diServer.listen(0, resolve);
   });
@@ -124,6 +140,7 @@ beforeAll(async () => {
   process.env["NODE_ENV"] = "test";
   process.env["DOCUMENT_INTELLIGENCE_URL"] = `http://127.0.0.1:${diPort}`;
   process.env["ONTOLOGY_URL"] = `http://127.0.0.1:${ontPort}`;
+  // DATABASE_URL, when present, enables persistence + retrieval assertions.
 
   const { default: app } = await import("../src/app.js");
   await new Promise<void>((resolve) => {
@@ -224,6 +241,64 @@ describe("POST /api/documents", () => {
     expect(lastOntologyTokens.length).toBe(body.tokens.length);
     expect(lastOntologyTokens.length).toBeGreaterThan(0);
   });
+
+  it.runIf(process.env["DATABASE_URL"])(
+    "persists the result and serves it back for review",
+    async () => {
+      const up = await fetch(`${baseUrl}/api/documents`, {
+        method: "POST",
+        headers: { "x-tenant-id": "tenant_persist" },
+        body: form(
+          new TextEncoder().encode(`%PDF-1.4 unique-${Date.now()}`),
+          "invoice.pdf",
+          "application/pdf",
+        ),
+      });
+      const uploaded = await up.json();
+      expect(up.status).toBe(200);
+      expect(uploaded.warnings.join()).not.toContain("persistence_unavailable");
+      const sourceId = uploaded.sourceId;
+
+      // Retrieve it back through the API — proves it survived the request.
+      const get = await fetch(`${baseUrl}/api/documents/${sourceId}`, {
+        headers: { "x-tenant-id": "tenant_persist" },
+      });
+      expect(get.status).toBe(200);
+      const doc = await get.json();
+      expect(doc.source.sourceId).toBe(sourceId);
+      expect(doc.tokens.length).toBeGreaterThan(0);
+      expect(doc.facts).not.toBeNull();
+
+      // A different tenant must not see it.
+      const cross = await fetch(`${baseUrl}/api/documents/${sourceId}`, {
+        headers: { "x-tenant-id": "tenant_other" },
+      });
+      expect(cross.status).toBe(404);
+    },
+  );
+
+  it.runIf(process.env["DATABASE_URL"])(
+    "is idempotent: re-uploading the same bytes returns the stored source",
+    async () => {
+      const bytes = new TextEncoder().encode(`%PDF-1.4 idem-${Date.now()}`);
+      const first = await (
+        await fetch(`${baseUrl}/api/documents`, {
+          method: "POST",
+          headers: { "x-tenant-id": "tenant_idem" },
+          body: form(bytes, "invoice.pdf", "application/pdf"),
+        })
+      ).json();
+      const second = await (
+        await fetch(`${baseUrl}/api/documents`, {
+          method: "POST",
+          headers: { "x-tenant-id": "tenant_idem" },
+          body: form(bytes, "invoice.pdf", "application/pdf"),
+        })
+      ).json();
+      expect(second.sourceId).toBe(first.sourceId);
+      expect(second.warnings.join()).toContain("idempotent_replay");
+    },
+  );
 
   it("forwards the tenant to Document Intelligence", async () => {
     await fetch(`${baseUrl}/api/documents`, {
