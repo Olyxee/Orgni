@@ -3,7 +3,22 @@ import { SIGNUP_URL } from "@/lib/links";
 
 export function HeroSection() {
   return (
-    <section className="pt-24 md:pt-32 pb-20 md:pb-32 px-6 md:px-12 max-w-screen-xl mx-auto">
+    <section className="relative overflow-hidden">
+      {/* Background video */}
+      <video
+        className="absolute inset-0 h-full w-full object-cover pointer-events-none"
+        src={`${import.meta.env.BASE_URL}hero-bg.mp4`}
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
+      />
+      {/* Readability overlay — keeps the light enterprise look */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/60 pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+
+      <div className="relative pt-24 md:pt-32 pb-20 md:pb-32 px-6 md:px-12 max-w-screen-xl mx-auto">
       <div className="max-w-4xl">
         <div className="inline-flex items-center px-3 py-1 mb-8 rounded-full bg-secondary text-secondary-foreground text-xs font-medium tracking-wide">
           Organisational intelligence infrastructure developed by Olyxee.
@@ -65,6 +80,7 @@ export function HeroSection() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </section>
   );
