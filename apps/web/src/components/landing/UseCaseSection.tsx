@@ -25,10 +25,10 @@ export function UseCaseSection() {
           
           <div className="space-y-6 text-lg text-muted-foreground leading-relaxed mb-16 pl-6 border-l-2 border-border">
             <p>
-              Orgni connects contracts, obligations, invoices, payments and counterparties into one traceable operational model.
+              Orgni connects contracts, obligations, invoices, payments and counterparties into one operational model.
             </p>
             <p>
-              See what is active, outstanding, matched, disputed or missing, and review the evidence behind every conclusion.
+              See what is active, outstanding, matched, disputed or missing at any moment.
             </p>
           </div>
           

@@ -26,7 +26,7 @@ export function VideoSection() {
             One shared understanding of your organisation
           </h2>
           <p className="text-lg md:text-xl text-white/90 leading-relaxed pl-6 border-l-2 border-primary/50">
-            Built once. Trusted everywhere by people, applications and AI agents.
+            Built once. The reference point for every decision, workflow and automation.
           </p>
         </div>
       </div>

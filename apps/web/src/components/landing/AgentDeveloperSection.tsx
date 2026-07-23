@@ -32,7 +32,7 @@ export function AgentDeveloperSection() {
               Agent developers should not have to rebuild organisational identity, memory, permissions, relationships and operational state inside every application.
             </p>
             <p>
-              Orgni provides governed, evidence-backed context through APIs, SDKs, events and MCP.
+              Orgni provides it ready-made through APIs, SDKs, events and MCP.
             </p>
           </div>
           

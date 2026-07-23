@@ -19,7 +19,7 @@ export function WhatItDoesSection() {
               Orgni connects organisational evidence into a continuously updated model of entities, relationships, responsibilities, rules, decisions, workflows and events.
             </p>
             <p className="pl-6 border-l-2 border-border">
-              Every conclusion remains linked to its source, confidence, history and permissions.
+              The model stays current as the organisation changes, without manual upkeep.
             </p>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function WhatItDoesSection() {
             </div>
 
             <div className="w-full p-5 border border-border bg-foreground text-center relative z-10 shadow-md">
-              <span className="text-sm font-mono uppercase tracking-wider text-background">Context for teams, applications and AI agents</span>
+              <span className="text-sm font-mono uppercase tracking-wider text-background">Live organisational context</span>
             </div>
           </div>
         </div>
