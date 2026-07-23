@@ -9,6 +9,7 @@ import {
 } from "@workspace/worker/pipeline";
 import { config } from "../lib/config";
 import { logger } from "../lib/logger";
+import { createOntologyClient } from "../lib/ontology-client";
 
 const router: IRouter = Router();
 
@@ -27,6 +28,12 @@ const documentIntelligence: DocumentIntelligence | null =
         baseUrl: config.DOCUMENT_INTELLIGENCE_URL,
       })
     : null;
+
+// Optional: when configured, tokens are mapped into reviewable facts. When not,
+// the endpoint still returns tokens (facts: null) rather than failing.
+const ontology = config.ONTOLOGY_URL
+  ? createOntologyClient({ baseUrl: config.ONTOLOGY_URL })
+  : null;
 
 /**
  * Resolve the caller's tenant.
@@ -114,9 +121,29 @@ router.post(
         "document processed",
       );
 
+      // Map tokens → reviewable facts when the ontology is configured and there
+      // are tokens. An ontology failure degrades to tokens-only with a warning
+      // rather than failing the whole request.
+      let facts: unknown = null;
+      const handoff = toHandoff(result);
+      if (ontology && handoff.tokens.length > 0) {
+        try {
+          facts = await ontology.toFacts(handoff.tokens);
+        } catch (ontErr) {
+          handoff.warnings.push(
+            `ontology_unavailable: ${ontErr instanceof Error ? ontErr.message : "error"}`,
+          );
+          logger.warn(
+            { sourceId: result.sourceId, tenantId },
+            "ontology mapping failed; returning tokens only",
+          );
+        }
+      }
+
       const status = result.state === "FAILED" ? 422 : 200;
       res.status(status).json({
-        ...toHandoff(result),
+        ...handoff,
+        facts,
         state: result.state,
         documentType: result.documentType,
         errors: result.errors,

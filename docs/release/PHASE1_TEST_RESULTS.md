@@ -5,10 +5,32 @@
 
 ---
 
+## Update (feature/phase1-ontology-and-fixes)
+
+Since the original NO-GO, two blockers have been genuinely closed on the working
+branch (real code + tests, not claims):
+
+- **Organizational Ontology built and wired.** `intelligence/organizational-ontology`
+  consumes the tokenizer's real `OrganizationalToken[]`, validates them against
+  the single canonical schema (`packages/contracts/schemas/organizational-token.schema.json`),
+  and produces reviewable facts (entities, relationships, events/states/policies,
+  conflicts) with provenance/evidence/confidence/epistemic status. 17 pytest
+  tests incl. 4 that run the **real** tokenizer → real ontology. The API now
+  returns `facts` alongside `tokens` (`ONTOLOGY_URL`); 6 API tests green.
+- **Build blocker fixed** — root `packageManager`/`engines` added; `turbo run build` works.
+
+Remaining critical blockers (still NO-GO for pilot): persistence, queue/DLQ,
+authentication + tenant isolation, web review UI, staging/CD. These need cloud
+resources and larger builds and cannot be honestly completed in a code session.
+The overall decision below is unchanged until those close.
+
+---
+
 ## Final decision
 
 ```
-Decision:        NO-GO
+Decision:        NO-GO  (core pipeline now reaches reviewable facts; infra/security
+                 blockers remain — see "Update" above)
 
 Scope tested:    Phase 1 document → token → (ontology) → reviewable facts pipeline,
                  for Invoice, Proof of Payment, Contract.

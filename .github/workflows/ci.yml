@@ -37,7 +37,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr poppler-utils
 
       - name: Install Python dependencies
-        run: pip install -r intelligence/document-intelligence/requirements.txt
+        run: |
+          pip install -r intelligence/document-intelligence/requirements.txt
+          pip install -r intelligence/organizational-ontology/requirements.txt
 
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
@@ -68,6 +70,12 @@ jobs:
         working-directory: intelligence/document-intelligence
         run: python -m pytest -q
 
+      # The ontology integration tests run the REAL tokenizer (Node) against the
+      # REAL ontology (Python), so both runtimes must be present (they are).
+      - name: Ontology tests (real tokenizer → real ontology)
+        working-directory: intelligence/organizational-ontology
+        run: python -m pytest -q
+
   docker:
     name: Build images
     runs-on: ubuntu-latest
@@ -83,3 +91,6 @@ jobs:
 
       - name: Build document service image
         run: docker build -f infrastructure/docker/document-intelligence.Dockerfile -t orgni-document-intelligence .
+
+      - name: Build ontology image
+        run: docker build -f infrastructure/docker/organizational-ontology.Dockerfile -t orgni-ontology .

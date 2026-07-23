@@ -42,6 +42,12 @@ export const apiEnvSchema = baseEnvSchema.extend({
    * endpoint; unset disables it with a clear 503.
    */
   DOCUMENT_INTELLIGENCE_URL: z.string().url().optional(),
+  /**
+   * Base URL of the Python Organizational Ontology service
+   * (intelligence/organizational-ontology). When set, the upload endpoint maps
+   * tokens into reviewable facts; when unset, it returns tokens only.
+   */
+  ONTOLOGY_URL: z.string().url().optional(),
   /** Max upload size in bytes for the document endpoint (default 20 MB). */
   MAX_UPLOAD_BYTES: z.coerce
     .number()
