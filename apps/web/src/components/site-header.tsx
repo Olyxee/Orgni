@@ -54,7 +54,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             <img
               src={`${import.meta.env.BASE_URL}orgni-logo.png`}
               alt="Orgni logo"
-              className="h-8 w-8 object-cover filter brightness-0 dark:invert opacity-90"
+              className="h-8 w-8 object-cover"
             />
             <div className="flex flex-col">
               <span className="font-bold tracking-tight text-lg leading-none text-foreground">

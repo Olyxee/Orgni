@@ -68,10 +68,10 @@
   --popover-foreground: 222 47% 11%;
   --popover-border: 214 32% 91%;
   
-  /* Primary Blue */
-  --primary: 221 83% 53%;
+  /* Primary Orange — from the Orgni logo */
+  --primary: 16 88% 54%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: hsl(221 83% 47%);
+  --primary-border: hsl(16 88% 48%);
   
   --secondary: 214 32% 91%;
   --secondary-foreground: 222 47% 11%;
@@ -87,7 +87,7 @@
   --destructive-foreground: 0 0% 100%;
   
   --input: 214 32% 91%;
-  --ring: 221 83% 53%;
+  --ring: 16 88% 54%;
   
   --app-font-sans: "Geist", system-ui, sans-serif;
   --app-font-serif: Georgia, serif;
@@ -116,9 +116,9 @@
   --popover-foreground: 210 40% 98%;
   --popover-border: 217 32% 17%;
   
-  --primary: 217 91% 60%;
+  --primary: 16 88% 58%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: hsl(217 91% 55%);
+  --primary-border: hsl(16 88% 52%);
   
   --secondary: 217 32% 17%;
   --secondary-foreground: 210 40% 98%;
@@ -134,7 +134,7 @@
   --destructive-foreground: 210 40% 98%;
   
   --input: 217 32% 17%;
-  --ring: 217 91% 60%;
+  --ring: 16 88% 58%;
 }
 
 @layer base {

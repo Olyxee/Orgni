@@ -25,7 +25,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
               <img
                 src={`${import.meta.env.BASE_URL}orgni-logo.png`}
                 alt="Orgni logo"
-                className="h-6 w-6 object-cover filter brightness-0 dark:invert opacity-80"
+                className="h-6 w-6 object-cover"
               />
               <span className="font-bold tracking-tight text-lg text-foreground">Orgni</span>
             </div>
