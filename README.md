@@ -12,13 +12,17 @@ apps/
   web/       Marketing site (React + Vite)         → Vercel
   api/       Main backend API (Express)            → Azure Container Apps
   worker/    Background & async processing         → Azure Container Apps
+             (ingestion pipeline + Phase 1 orchestration)
+intelligence/
+  document-intelligence/     OCR, classification, field extraction (Python/FastAPI)
+  organizational-tokenizer/  Extractions → OrganizationalToken[] (TypeScript)
 packages/
-  contracts/       Shared domain types & canonical events
-  ui/              Shared frontend components (shadcn-based)
-  auth/            Shared auth types & permission logic
-  config/          Validated environment configuration (zod)
-  observability/   Structured logging (pino)
-  testing/         Shared test utilities
+  contracts/                 Canonical contracts — the only OrganizationalToken
+  ui/                        Shared frontend components (shadcn-based)
+  auth/                      Shared auth types & permission logic
+  config/                    Validated environment configuration (zod)
+  observability/             Structured logging (pino)
+  testing/                   Shared test utilities
 lib/
   api-spec/            OpenAPI contract (source of truth)
   api-client-react/    Generated React Query client
@@ -28,14 +32,31 @@ infrastructure/
   docker/    Dockerfiles + docker-compose (API, worker, Postgres, Redis)
   azure/     Azure Container Apps deployment guide
   scripts/   Build & deploy scripts
-docs/        Architecture, API and development documentation
-.github/     CI workflows (PR validation, frontend build, Docker validation)
+docs/        Architecture, API, deployment and Phase 1 documentation
 .migration-backup/   Archived original repo (unported product app & services)
 ```
+
+The authoritative baseline is [`ORGNI_TECHNOLOGY_STACK.md`](ORGNI_TECHNOLOGY_STACK.md)
+(TypeScript control plane, Python intelligence plane, one canonical contract).
+Current conformance and gaps are tracked in
+[`docs/architecture/stack-compliance.md`](docs/architecture/stack-compliance.md).
 
 > Replit note: `artifacts/web` and `artifacts/api` contain only Replit
 > platform config (`.replit-artifact/`) so the dev preview keeps working;
 > all application code lives in `apps/`.
+
+## Document pipeline (Phase 1)
+
+An uploaded Invoice, Proof of Payment or Contract becomes evidence-backed
+organizational tokens:
+
+```
+upload → ingestion → Document Intelligence → normalized envelope v0.1.0
+       → validation → tokenizer → OrganizationalToken[]
+```
+
+Full documentation, the ontology handoff interface and sample output per
+document type: [`docs/phase1/README.md`](docs/phase1/README.md).
 
 ## Getting started
 

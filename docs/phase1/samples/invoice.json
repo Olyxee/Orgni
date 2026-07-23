@@ -1,0 +1,460 @@
+{
+  "documentType": "INVOICE",
+  "envelope": {
+    "source_id": "src_5a616e3f-4f17-4b40-8954-d44f459e8114",
+    "source_type": "UPLOAD",
+    "document_type": "INVOICE",
+    "content": {
+      "text": "<omitted>",
+      "language": "und"
+    },
+    "extracted_fields": {
+      "invoiceNumber": {
+        "value": "INV-2024-0912",
+        "confidence": 0.92,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "INV-2024-0912"
+      },
+      "invoiceDate": {
+        "value": "2024-03-15",
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "2024-03-15"
+      },
+      "dueDate": {
+        "value": "2024-04-14",
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "2024-04-14"
+      },
+      "vendorName": {
+        "value": "Olyxee AI (Pty) Ltd",
+        "confidence": 0.8,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Olyxee AI (Pty) Ltd"
+      },
+      "vendorVatNumber": {
+        "value": "4123456789",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "4123456789"
+      },
+      "buyerName": {
+        "value": "Clover Retail Group",
+        "confidence": 0.8,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Clover Retail Group"
+      },
+      "subtotal": {
+        "value": 11500,
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "totals",
+        "raw": "11500.00"
+      },
+      "taxAmount": {
+        "value": 1725,
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "totals",
+        "raw": "1725.00"
+      },
+      "totalAmount": {
+        "value": 13225,
+        "confidence": 0.9,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "totals",
+        "raw": "13225.00"
+      },
+      "currency": {
+        "value": "ZAR",
+        "confidence": 0.9,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "ZAR"
+      },
+      "paymentTerms": {
+        "value": "Net 30",
+        "confidence": 0.8,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "terms",
+        "raw": "Net 30"
+      },
+      "purchaseOrderRef": {
+        "value": "PO-55841",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "PO-55841"
+      },
+      "lineItems": [
+        {
+          "description": {
+            "value": "Consulting services",
+            "confidence": 0.75,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "Consulting services"
+          },
+          "quantity": {
+            "value": 2,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "2"
+          },
+          "unitPrice": {
+            "value": 5000,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "5000.00"
+          },
+          "totalPrice": {
+            "value": 10000,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "10000.00"
+          }
+        },
+        {
+          "description": {
+            "value": "Support retainer",
+            "confidence": 0.75,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "Support retainer"
+          },
+          "quantity": {
+            "value": 1,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "1"
+          },
+          "unitPrice": {
+            "value": 1500,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "1500.00"
+          },
+          "totalPrice": {
+            "value": 1500,
+            "confidence": 0.8,
+            "method": "RULE_MATCH",
+            "page": 1,
+            "section": "line_items",
+            "raw": "1500.00"
+          }
+        }
+      ]
+    },
+    "tables": [
+      {
+        "name": "lineItems",
+        "rowCount": 2,
+        "columns": [
+          "description",
+          "quantity",
+          "unitPrice",
+          "totalPrice"
+        ],
+        "rows": [
+          {
+            "description": "Consulting services",
+            "quantity": 2,
+            "unitPrice": 5000,
+            "totalPrice": 10000
+          },
+          {
+            "description": "Support retainer",
+            "quantity": 1,
+            "unitPrice": 1500,
+            "totalPrice": 1500
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "filename": "invoice.txt",
+      "mime_type": "text/plain",
+      "checksum": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+      "tenant_id": "tenant_olyxee"
+    },
+    "evidence_locations": [
+      {
+        "field": "invoiceNumber",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 28,
+        "end": 41,
+        "excerpt": "INV-2024-0912"
+      },
+      {
+        "field": "invoiceDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 56,
+        "end": 66,
+        "excerpt": "2024-03-15"
+      },
+      {
+        "field": "dueDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 77,
+        "end": 87,
+        "excerpt": "2024-04-14"
+      },
+      {
+        "field": "vendorName",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 94,
+        "end": 113,
+        "excerpt": "Olyxee AI (Pty) Ltd"
+      },
+      {
+        "field": "vendorVatNumber",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 122,
+        "end": 132,
+        "excerpt": "4123456789"
+      },
+      {
+        "field": "buyerName",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 142,
+        "end": 161,
+        "excerpt": "Clover Retail Group"
+      },
+      {
+        "field": "subtotal",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 318,
+        "end": 326,
+        "excerpt": "11500.00"
+      },
+      {
+        "field": "taxAmount",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 332,
+        "end": 339,
+        "excerpt": "1725.00"
+      },
+      {
+        "field": "totalAmount",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 351,
+        "end": 359,
+        "excerpt": "13225.00"
+      },
+      {
+        "field": "currency",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 197,
+        "end": 200,
+        "excerpt": "ZAR"
+      },
+      {
+        "field": "paymentTerms",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 375,
+        "end": 381,
+        "excerpt": "Net 30"
+      },
+      {
+        "field": "purchaseOrderRef",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 178,
+        "end": 186,
+        "excerpt": "PO-55841"
+      }
+    ],
+    "confidence": 0.896,
+    "warnings": [
+      "invoice_status_not_stated: no payment status asserted from this document",
+      "fields_not_found: documentStatus"
+    ],
+    "schema_version": "0.1.0",
+    "extraction_status": "PARTIAL"
+  },
+  "handoff": {
+    "sourceId": "src_5a616e3f-4f17-4b40-8954-d44f459e8114",
+    "schemaVersion": "0.1.0",
+    "tokens": [
+      {
+        "tokenId": "tok_src_5a616e3f-4f17-4b40-8954-d44f459e8114_invoice_issued",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "EVENT",
+        "eventType": "INVOICE_ISSUED",
+        "subjectId": "Olyxee AI (Pty) Ltd",
+        "objectId": "Clover Retail Group",
+        "validTime": {
+          "from": "2024-03-15"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "invoiceNumber": "INV-2024-0912",
+          "totalAmount": 13225,
+          "currency": "ZAR",
+          "dueDate": "2024-04-14",
+          "purchaseOrderRef": "PO-55841",
+          "vendorVatNumber": "4123456789",
+          "paymentTerms": "Net 30"
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_5a616e3f-4f17-4b40-8954-d44f459e8114",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "checksum": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "locator": {
+              "page": 1,
+              "section": "header"
+            }
+          }
+        ],
+        "confidence": 0.8,
+        "epistemicStatus": "OBSERVED",
+        "visibility": [],
+        "actionScope": [
+          "finance",
+          "accounts-payable"
+        ],
+        "retentionClass": "financial",
+        "payloadRef": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8"
+      },
+      {
+        "tokenId": "tok_src_5a616e3f-4f17-4b40-8954-d44f459e8114_invoice_obligation",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "STATE",
+        "eventType": "INVOICE_OBLIGATION",
+        "subjectId": "Clover Retail Group",
+        "objectId": "Olyxee AI (Pty) Ltd",
+        "validTime": {
+          "from": "2024-03-15"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "amount": 13225,
+          "currency": "ZAR",
+          "invoiceNumber": "INV-2024-0912",
+          "status": "OVERDUE",
+          "subtotal": 11500,
+          "taxAmount": 1725
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_5a616e3f-4f17-4b40-8954-d44f459e8114",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "checksum": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "locator": {
+              "page": 1,
+              "section": "summary"
+            }
+          }
+        ],
+        "confidence": 0.9,
+        "epistemicStatus": "ASSERTED",
+        "visibility": [],
+        "actionScope": [
+          "finance",
+          "accounts-payable"
+        ],
+        "retentionClass": "financial",
+        "payloadRef": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8"
+      },
+      {
+        "tokenId": "tok_src_5a616e3f-4f17-4b40-8954-d44f459e8114_invoice_line_items",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "EVENT",
+        "eventType": "INVOICE_LINE_ITEMS",
+        "subjectId": "Olyxee AI (Pty) Ltd",
+        "objectId": "Clover Retail Group",
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "invoiceNumber": "INV-2024-0912",
+          "count": 2,
+          "items": [
+            {
+              "description": "Consulting services",
+              "quantity": 2,
+              "unitPrice": 5000,
+              "totalPrice": 10000,
+              "currency": "ZAR"
+            },
+            {
+              "description": "Support retainer",
+              "quantity": 1,
+              "unitPrice": 1500,
+              "totalPrice": 1500,
+              "currency": "ZAR"
+            }
+          ]
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_5a616e3f-4f17-4b40-8954-d44f459e8114",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "checksum": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8",
+            "locator": {
+              "page": 1,
+              "section": "line-items-table"
+            }
+          }
+        ],
+        "confidence": 0.75,
+        "epistemicStatus": "OBSERVED",
+        "visibility": [],
+        "actionScope": [
+          "finance"
+        ],
+        "retentionClass": "financial",
+        "payloadRef": "55a5c3201fdd8a88865e6a50cf9c168e496906e1a9b65b705d0c3b24b0e4a5f8"
+      }
+    ],
+    "warnings": [
+      "invoice_status_not_stated: no payment status asserted from this document",
+      "fields_not_found: documentStatus",
+      "[tok_src_5a616e3f-4f17-4b40-8954-d44f459e8114_invoice_line_items] validTime not set — no business date attached to this token"
+    ]
+  }
+}
