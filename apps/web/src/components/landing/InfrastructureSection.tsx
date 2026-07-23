@@ -1,68 +1,66 @@
 export function InfrastructureSection() {
   return (
-    <section id="infrastructure" className="py-24 md:py-32 px-6 md:px-12 max-w-screen-xl mx-auto scroll-mt-20">
-      <div className="max-w-3xl mb-16 md:mb-24">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-px w-8 bg-primary"></div>
-          <span className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
-            Architecture
-          </span>
-        </div>
-
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-foreground mb-8 leading-[1.1]">
-          Orgni works with the systems you already use
+    <section id="infrastructure" className="py-24 md:py-40 px-6 md:px-12 max-w-[1600px] mx-auto border-t border-border scroll-mt-20">
+      <div className="mb-20">
+        <h2 className="text-4xl md:text-5xl lg:text-7xl font-serif text-foreground leading-[1.05] max-w-4xl">
+          The connective tissue between systems and execution.
         </h2>
-        
-        <div className="space-y-6 text-lg text-muted-foreground leading-relaxed pl-6 border-l-2 border-border">
-          <p>
-            Orgni does not replace document stores, finance platforms, CRMs, workflow tools or collaboration systems.
-          </p>
-          <p>
-            It connects their evidence into a shared organisational model that other applications can use.
-          </p>
-        </div>
       </div>
 
-      <div className="bg-secondary/20 border border-border p-8 md:p-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-dot-pattern opacity-40 pointer-events-none"></div>
-        <div className="flex flex-col items-center relative z-10">
-          
-          <div className="text-xs font-mono text-muted-foreground uppercase tracking-widest mb-8 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-primary"></div> Existing Systems
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border-y border-border divide-y lg:divide-y-0 lg:divide-x divide-border">
+        
+        {/* Left Column: Input */}
+        <div className="p-8 lg:p-12 xl:p-16 flex flex-col justify-between min-h-[400px]">
+          <div>
+            <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest block mb-8">01 / Existing Systems</span>
+            <div className="space-y-4">
+              {['CRM', 'Finance', 'Documents', 'Email', 'Workflows'].map(sys => (
+                <div key={sys} className="text-xl md:text-2xl font-light text-foreground pb-4 border-b border-border/50">
+                  {sys}
+                </div>
+              ))}
+            </div>
           </div>
-          
-          <div className="flex flex-wrap justify-center gap-px bg-border mb-0 w-full max-w-4xl border border-border">
-            {['CRM', 'Finance', 'Documents', 'Email', 'Workflows'].map(sys => (
-              <div key={sys} className="flex-1 px-6 py-6 bg-background text-center min-w-[120px] hover:bg-secondary/30 transition-colors">
-                <span className="font-mono text-sm uppercase tracking-wider text-foreground">{sys}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-center py-0 h-16 w-px relative">
-            <div className="absolute top-0 w-px h-full bg-border"></div>
-            <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
-          </div>
-
-          <div className="w-full max-w-lg px-8 py-6 bg-foreground text-background text-center shadow-md relative border border-border hover:border-primary/50 transition-colors">
-            <div className="absolute left-0 top-0 w-1 h-full bg-primary"></div>
-            <span className="text-lg font-mono tracking-widest uppercase font-semibold">Orgni</span>
-          </div>
-
-          <div className="flex justify-center py-0 h-16 w-px relative">
-            <div className="absolute top-0 w-px h-full bg-border"></div>
-            <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-px bg-border mt-0 w-full max-w-4xl border border-border">
-            {['Teams', 'Applications', 'AI agents', 'Automation'].map(sys => (
-              <div key={sys} className="flex-1 px-6 py-6 bg-background text-center min-w-[140px] hover:bg-secondary/30 transition-colors">
-                <span className="font-mono text-sm uppercase tracking-wider text-foreground">{sys}</span>
-              </div>
-            ))}
-          </div>
-          
+          <p className="text-sm text-muted-foreground mt-12 max-w-xs">
+            Orgni ingests signals, documents and states from your current stack without requiring migration.
+          </p>
         </div>
+
+        {/* Center Column: Orgni */}
+        <div className="p-8 lg:p-12 xl:p-16 bg-foreground text-background flex flex-col justify-between min-h-[400px] relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+          <div>
+            <span className="font-mono text-xs text-background/60 uppercase tracking-widest block mb-8">02 / The Model</span>
+            <h3 className="text-5xl md:text-6xl font-serif mb-6">Orgni</h3>
+            <ul className="space-y-2 font-mono text-sm uppercase tracking-wider text-background/80">
+              <li>↳ Graph Resolution</li>
+              <li>↳ State Inference</li>
+              <li>↳ Policy Evaluation</li>
+              <li>↳ Evidence Linking</li>
+            </ul>
+          </div>
+          <p className="text-sm text-background/60 mt-12 max-w-xs">
+            Synthesizes raw inputs into a unified, live operational graph of your business reality.
+          </p>
+        </div>
+
+        {/* Right Column: Output */}
+        <div className="p-8 lg:p-12 xl:p-16 flex flex-col justify-between min-h-[400px] bg-secondary/30">
+          <div>
+            <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest block mb-8">03 / Execution Layer</span>
+            <div className="space-y-4">
+              {['Teams', 'Applications', 'AI agents', 'Automation'].map(sys => (
+                <div key={sys} className="text-xl md:text-2xl font-light text-foreground pb-4 border-b border-border/50">
+                  {sys}
+                </div>
+              ))}
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-12 max-w-xs">
+            Provides trusted context via API or interface so consumers act on reality, not assumptions.
+          </p>
+        </div>
+
       </div>
     </section>
   );

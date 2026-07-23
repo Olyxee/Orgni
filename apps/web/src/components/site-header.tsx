@@ -27,16 +27,16 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
   const headerClass = `sticky top-0 z-50 w-full transition-all duration-300 ${
     scrolled
-      ? "bg-background/90 backdrop-blur-md border-b border-border py-4 shadow-sm"
-      : "bg-transparent border-b border-transparent py-6"
-  }`;
+      ? "bg-background/90 backdrop-blur-md border-b border-border py-2 shadow-sm"
+      : "bg-transparent border-b border-transparent py-4"
+  } ${dark ? "dark" : ""}`;
 
-  const navLink = "whitespace-nowrap text-xs font-mono uppercase tracking-widest text-foreground/70 hover:text-primary transition-colors relative group py-1";
-  const mobileLink = "block py-4 text-xs font-mono uppercase tracking-widest text-foreground/80 hover:text-primary border-b border-border";
+  const navLink = "whitespace-nowrap text-sm font-medium tracking-wide text-foreground/70 hover:text-foreground transition-colors relative group py-1";
+  const mobileLink = "block py-4 text-sm font-medium tracking-wide text-foreground/80 hover:text-foreground border-b border-border";
 
   return (
     <header className={headerClass}>
-      <div className="flex items-center justify-between px-6 md:px-12 max-w-screen-2xl mx-auto">
+      <div className="flex items-center justify-between px-6 md:px-12 max-w-[1600px] mx-auto">
         
         {/* Left side: Logo & Nav */}
         <div className="flex items-center gap-12">
@@ -45,38 +45,19 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             <img
               src={`${import.meta.env.BASE_URL}orgni-logo.png`}
               alt="Orgni logo"
-              className="h-8 w-8 object-cover group-hover:scale-105 transition-transform"
+              className="h-8 w-8 object-cover"
             />
-            <div className="flex flex-col">
-              <span className="font-mono uppercase tracking-widest font-semibold text-lg leading-none text-foreground group-hover:text-primary transition-colors">
-                Orgni
-              </span>
-              <span className="text-[10px] text-foreground/50 font-mono leading-none mt-1 uppercase tracking-widest group-hover:text-primary/70 transition-colors">
-                by Olyxee
-              </span>
-            </div>
+            <span className="font-serif text-3xl font-bold tracking-tight text-foreground">Orgni</span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8 ml-8 border-l border-border pl-12 h-8">
-            <Link href="/platform" className={navLink}>
-              Platform
-            </Link>
-            <Link href="/use-cases" className={navLink}>
-              Use Cases
-            </Link>
-            <Link href="/infrastructure" className={navLink}>
-              Infrastructure
-            </Link>
-            <Link href="/developers" className={navLink}>
-              Developers
-            </Link>
-            <Link href="/thesis" className={navLink}>
-              Research
-            </Link>
-            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={navLink}>
-              Company
-            </a>
+          <nav className="hidden lg:flex items-center gap-8 ml-8 h-8">
+            <Link href="/platform" className={navLink}>Platform</Link>
+            <Link href="/use-cases" className={navLink}>Use Cases</Link>
+            <Link href="/infrastructure" className={navLink}>Infrastructure</Link>
+            <Link href="/developers" className={navLink}>Developers</Link>
+            <Link href="/thesis" className={navLink}>Research</Link>
+            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={navLink}>Company</a>
           </nav>
         </div>
 
@@ -105,7 +86,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           <Button
             asChild
             size="sm"
-            className="hidden lg:inline-flex h-9 px-5 font-mono text-xs uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors rounded-none"
+            className="hidden lg:inline-flex h-10 px-6 font-medium bg-foreground text-background hover:bg-foreground/90 shadow-none transition-colors rounded-none"
           >
             <a href={SIGNUP_URL}>
               Request a Demo
@@ -128,26 +109,14 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
       {mobileOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full border-t border-border bg-background shadow-xl">
           <nav className="flex flex-col px-6 py-4">
-            <Link href="/platform" onClick={closeMobile} className={mobileLink}>
-              Platform
-            </Link>
-            <Link href="/use-cases" onClick={closeMobile} className={mobileLink}>
-              Use Cases
-            </Link>
-            <Link href="/infrastructure" onClick={closeMobile} className={mobileLink}>
-              Infrastructure
-            </Link>
-            <Link href="/developers" onClick={closeMobile} className={mobileLink}>
-              Developers
-            </Link>
-            <Link href="/thesis" onClick={closeMobile} className={mobileLink}>
-              Research
-            </Link>
-            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>
-              Company
-            </a>
+            <Link href="/platform" onClick={closeMobile} className={mobileLink}>Platform</Link>
+            <Link href="/use-cases" onClick={closeMobile} className={mobileLink}>Use Cases</Link>
+            <Link href="/infrastructure" onClick={closeMobile} className={mobileLink}>Infrastructure</Link>
+            <Link href="/developers" onClick={closeMobile} className={mobileLink}>Developers</Link>
+            <Link href="/thesis" onClick={closeMobile} className={mobileLink}>Research</Link>
+            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>Company</a>
             <div className="pt-6 pb-4">
-              <Button asChild className="w-full h-12 font-mono text-xs uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none rounded-none">
+              <Button asChild className="w-full h-12 font-medium bg-foreground text-background hover:bg-foreground/90 shadow-none rounded-none">
                 <a href={SIGNUP_URL}>
                   Request a Demo
                 </a>

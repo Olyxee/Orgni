@@ -1,77 +1,79 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { SIGNUP_URL } from "@/lib/links";
+import { useEffect, useState } from "react";
 
 export function HeroSection() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <section className="relative pt-24 md:pt-32 pb-20 md:pb-32 px-6 md:px-12 max-w-screen-xl mx-auto overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern [mask-image:linear-gradient(to_bottom,white,transparent)] -z-10 pointer-events-none opacity-50" />
-      
-      <div className="max-w-4xl relative z-10">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-px w-8 bg-primary"></div>
-          <span className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
-            Organisational intelligence infrastructure developed by Olyxee.
-          </span>
-        </div>
-        
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight text-foreground leading-[1.05] mb-8">
-          Build AI on top of how your organisation <span className="relative inline-block"><span className="relative z-10">actually works</span><span className="absolute bottom-1 left-0 w-full h-3 bg-primary/20 -z-10"></span></span>
-        </h1>
-        
-        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mb-10 border-l-2 border-border pl-6">
-          A live, evidence-backed model of your people, processes, systems, policies and obligations: trusted context for teams, applications and AI agents.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 md:mb-32">
-          <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-none">
-            <a href={SIGNUP_URL}>
-              Request a demonstration
-            </a>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-border hover:bg-secondary rounded-none">
-            <Link href="/platform">
-              See how Orgni works
-            </Link>
-          </Button>
-        </div>
-        
-        {/* Architecture Visual */}
-        <div className="relative pt-16 mt-12 border-t border-border">
-          <div className="absolute top-0 left-0 -translate-y-1/2 flex items-center gap-3 bg-background pr-4">
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
-            <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase">
-              System Architecture
-            </span>
+    <section className="relative pt-24 pb-16 md:pt-40 md:pb-32 px-6 md:px-12 max-w-[1600px] mx-auto overflow-hidden">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="lg:col-span-7 relative z-10">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="h-[1px] w-12 bg-foreground"></div>
+            <p className="text-sm font-medium tracking-wide">Olyxee Infrastructure</p>
           </div>
           
-          <div className="flex flex-col items-center max-w-2xl mx-auto">
-            {/* Top Layer */}
-            <div className="w-full p-6 bg-background border border-border flex justify-center relative">
-              <div className="absolute top-0 left-0 w-1 h-full bg-border"></div>
-              <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Documents, systems and operational events</span>
+          <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif leading-[1.05] tracking-tight text-foreground mb-8">
+            Build AI on top of how your organisation <span className={`draw-underline ${mounted ? 'active' : ''}`}>actually works</span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-muted-foreground leading-snug max-w-2xl mb-12 font-light">
+            A live, evidence-backed model of your people, processes, systems, policies and obligations: trusted context for teams, applications and AI agents.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 font-medium shadow-none rounded-none text-base">
+              <a href={SIGNUP_URL}>
+                Request a demonstration
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none text-base transition-colors">
+              <Link href="/platform">
+                See how Orgni works
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 relative mt-12 lg:mt-0">
+          <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-[600px] bg-muted overflow-hidden flex items-center justify-center">
+            {/* Architectural structural lines */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute left-1/3 top-0 bottom-0 w-[1px] bg-border/60"></div>
+              <div className="absolute left-2/3 top-0 bottom-0 w-[1px] bg-border/60"></div>
+              <div className="absolute top-1/3 left-0 right-0 h-[1px] bg-border/60"></div>
+              <div className="absolute top-2/3 left-0 right-0 h-[1px] bg-border/60"></div>
             </div>
             
-            {/* Arrow/Connection */}
-            <div className="h-12 w-px bg-border my-0 relative flex justify-center">
-              <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
+            {/* We'll use the product screenshot as a texture */}
+            <div className="absolute inset-0 bg-[url('/orgni-product-ui.png')] bg-cover bg-left-top opacity-50 mix-blend-multiply filter grayscale contrast-125"></div>
+            
+            <div className="absolute bottom-6 right-6 bg-background/95 backdrop-blur-sm p-4 border border-border shadow-sm max-w-[240px]">
+              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 border-b border-border pb-2">Event Stream</div>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shrink-0"></div>
+                  <div className="text-xs font-mono">SUPPLIER_COMPLIANCE_STATUS_CHANGED</div>
+                </div>
+                <div className="flex items-start gap-2 opacity-50">
+                  <div className="w-1.5 h-1.5 rounded-full bg-foreground mt-1 shrink-0"></div>
+                  <div className="text-xs font-mono">INVOICE_MATCHED</div>
+                </div>
+                <div className="flex items-start gap-2 opacity-50">
+                  <div className="w-1.5 h-1.5 rounded-full bg-foreground mt-1 shrink-0"></div>
+                  <div className="text-xs font-mono">POLICY_VIOLATION_DETECTED</div>
+                </div>
+              </div>
             </div>
             
-            {/* Middle Layer (Orgni) */}
-            <div className="w-full sm:w-3/4 p-6 bg-foreground text-background flex justify-center relative shadow-xl">
-              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-              <span className="text-base font-mono uppercase tracking-widest font-semibold">Orgni</span>
-            </div>
-            
-            {/* Arrow/Connection */}
-            <div className="h-12 w-px bg-border my-0 relative flex justify-center">
-              <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
-            </div>
-            
-            {/* Bottom Layer */}
-            <div className="w-full p-6 bg-background border border-border flex justify-center relative">
-              <div className="absolute top-0 left-0 w-1 h-full bg-border"></div>
-              <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Teams, applications and AI agents</span>
+            <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-3 py-1 text-xs font-mono uppercase tracking-widest">
+              Live System
             </div>
           </div>
         </div>

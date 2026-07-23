@@ -1,49 +1,39 @@
 export function TrustSection() {
   const principles = [
-    "Every claim links to evidence",
-    "Uncertainty remains visible",
-    "Conflicts are preserved",
-    "Historical state is retained",
-    "Access permissions are enforced",
-    "Human review remains available"
+    "Evidence backs every assertion.",
+    "State is computed, never manually entered.",
+    "History is immutable and auditable.",
+    "Policies are explicit and computable."
   ];
 
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 bg-foreground text-background relative overflow-hidden">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40 pointer-events-none"></div>
-      
-      <div className="max-w-screen-xl mx-auto grid md:grid-cols-2 gap-16 md:gap-24 items-start relative z-10">
-        <div>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-px w-8 bg-primary"></div>
-            <span className="text-xs font-mono tracking-widest uppercase text-white/60">
+    <section className="py-24 md:py-40 px-6 md:px-12 bg-foreground text-background">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
+          <div className="lg:col-span-5">
+            <h2 className="text-4xl md:text-6xl font-serif leading-[1.05] mb-12">
               Confidence & Integrity
-            </span>
-          </div>
-
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-8 text-white leading-[1.1]">
-            Built for organisational truth, <span className="text-white/60">not plausible answers</span>
-          </h2>
-          
-          <div className="space-y-6 text-lg text-white/70 leading-relaxed pl-6 border-l-2 border-primary/40">
-            <p>
-              Orgni does not silently convert missing or uncertain information into fact.
-            </p>
-            <p>
-              Observed, inferred, disputed and superseded information remain distinguishable throughout the system.
+            </h2>
+            <div className="h-px w-full bg-background/20 mb-12"></div>
+            <p className="text-xl md:text-2xl font-light text-background/80 leading-snug">
+              An operational model is only valuable if it is trusted. Orgni is built on principles of verifiable truth.
             </p>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-10 gap-x-8">
-          {principles.map((principle, i) => (
-            <div key={i} className="border-l border-white/20 pl-6 py-2 relative group hover:border-primary transition-colors">
-              <div className="font-mono text-xs text-primary mb-2 opacity-60 group-hover:opacity-100 transition-opacity">0{i + 1}</div>
-              <p className="text-base font-medium text-white/90">
-                {principle}
-              </p>
+          <div className="lg:col-span-6 lg:col-start-7 pt-4 lg:pt-16">
+            <div className="space-y-0 border-t border-background/20">
+              {principles.map((principle, i) => (
+                <div key={i} className="flex items-start gap-8 py-8 border-b border-background/20 group">
+                  <span className="font-mono text-sm text-primary mt-1 shrink-0 group-hover:text-background transition-colors">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <p className="text-2xl md:text-3xl font-light tracking-tight text-background/90 group-hover:text-background transition-colors">
+                    {principle}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>

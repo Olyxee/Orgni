@@ -1,68 +1,46 @@
 export function WhatItDoesSection() {
-  return (
-    <section id="platform" className="py-24 md:py-32 px-6 md:px-12 max-w-screen-xl mx-auto scroll-mt-20">
-      <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-center">
-        <div>
-          <div className="flex items-center gap-3 mb-8">
-            <div className="h-px w-8 bg-primary"></div>
-            <span className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
-              The Engine
-            </span>
-          </div>
+  const steps = [
+    {
+      title: "Model the structure",
+      description: "Define the entities that matter: contracts, people, assets, policies. Map how they relate to one another."
+    },
+    {
+      title: "Stream the events",
+      description: "Connect systems to feed the model. State changes, document creations, and approvals become a timeline."
+    },
+    {
+      title: "Infer the state",
+      description: "Orgni calculates the current reality. If a payment is missing, the invoice is unpaid. If a policy is violated, the contract is breached."
+    },
+    {
+      title: "Expose the truth",
+      description: "Teams and AI agents query Orgni to know exactly what is happening, with full evidence trails."
+    }
+  ];
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-foreground mb-8 leading-[1.1]">
-            Orgni turns fragmented information into <span className="text-primary">organisational understanding</span>
+  return (
+    <section id="platform" className="py-24 md:py-40 px-6 md:px-12 bg-background border-t border-border scroll-mt-20">
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-24">
+          <h2 className="text-4xl md:text-6xl font-serif text-foreground leading-[1.05] max-w-2xl">
+            How Orgni constructs operational reality.
           </h2>
-          
-          <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-            <p>
-              Orgni connects organisational evidence into a continuously updated model of entities, relationships, responsibilities, rules, decisions, workflows and events.
-            </p>
-            <p className="pl-6 border-l-2 border-border">
-              The model stays current as the organisation changes, without manual upkeep.
-            </p>
-          </div>
         </div>
 
-        <div className="flex flex-col items-center">
-          <div className="w-full flex flex-col space-y-0 relative border border-border bg-white p-8">
-            <div className="absolute top-0 right-0 w-8 h-8 border-l border-b border-border bg-secondary/20"></div>
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-r border-t border-border bg-secondary/20"></div>
-            
-            <div className="w-full p-5 border border-border bg-background text-center relative z-10 hover:border-primary/30 transition-colors">
-              <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Documents and systems</span>
-            </div>
-            
-            <div className="flex justify-center py-4 relative z-0">
-              <div className="h-8 w-px bg-border relative">
-                <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+          {steps.map((step, i) => (
+            <div key={i} className="relative">
+              <div className="text-8xl font-serif text-secondary mb-6 leading-none tracking-tighter">
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div className="border-t border-border pt-6">
+                <h3 className="text-xl font-medium text-foreground mb-4">{step.title}</h3>
+                <p className="text-base text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
               </div>
             </div>
-
-            <div className="w-full p-5 border border-border bg-background text-center relative z-10 hover:border-primary/30 transition-colors">
-              <span className="text-sm font-mono uppercase tracking-wider text-muted-foreground">Evidence and organisational events</span>
-            </div>
-            
-            <div className="flex justify-center py-4 relative z-0">
-              <div className="h-8 w-px bg-border relative">
-                <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
-              </div>
-            </div>
-
-            <div className="w-full p-6 border-2 border-primary bg-primary/5 text-center relative z-10 shadow-sm">
-              <span className="text-base font-mono uppercase tracking-widest font-semibold text-primary">Live organisational model</span>
-            </div>
-            
-            <div className="flex justify-center py-4 relative z-0">
-              <div className="h-8 w-px bg-border relative">
-                <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
-              </div>
-            </div>
-
-            <div className="w-full p-5 border border-border bg-foreground text-center relative z-10 shadow-md">
-              <span className="text-sm font-mono uppercase tracking-wider text-background">Live organisational context</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
