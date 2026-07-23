@@ -3,6 +3,8 @@
 node_modules
 **/node_modules
 **/dist
+**/__pycache__
+**/*.pyc
 .git
 .migration-backup
 attached_assets

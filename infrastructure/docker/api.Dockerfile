@@ -10,6 +10,7 @@ FROM base AS build
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml tsconfig.json tsconfig.base.json ./
 COPY apps ./apps
 COPY packages ./packages
+COPY intelligence ./intelligence
 COPY lib ./lib
 COPY scripts ./scripts
 RUN pnpm install --frozen-lockfile
