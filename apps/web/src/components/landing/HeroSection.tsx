@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import { SIGNUP_URL } from "@/lib/links";
 
 export function HeroSection() {
@@ -29,9 +30,9 @@ export function HeroSection() {
             </a>
           </Button>
           <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-border hover:bg-secondary rounded-none">
-            <a href="#platform">
+            <Link href="/platform">
               See how Orgni works
-            </a>
+            </Link>
           </Button>
         </div>
         

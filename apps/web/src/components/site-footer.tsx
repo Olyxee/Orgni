@@ -1,14 +1,5 @@
 import { Link } from "wouter";
 
-function handleHashNav(e: React.MouseEvent, hash: string) {
-  const id = hash.replace(/^\/?#/, "");
-  const el = document.getElementById(id);
-  if (el) {
-    e.preventDefault();
-    el.scrollIntoView({ behavior: "smooth" });
-    history.replaceState(null, "", `#${id}`);
-  }
-}
 
 export function SiteFooter({ dark = false }: { dark?: boolean }) {
   const footerClass = "border-t border-border py-16 md:py-24 bg-background";
@@ -38,12 +29,17 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <h4 className="text-xs font-mono tracking-widest uppercase text-foreground mb-6">Product</h4>
             <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
-                <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={linkHover}>
+                <Link href="/platform" className={linkHover}>
                   Platform
                 </Link>
               </li>
               <li>
-                <Link href="/#infrastructure" onClick={(e) => handleHashNav(e, "#infrastructure")} className={linkHover}>
+                <Link href="/use-cases" className={linkHover}>
+                  Use Cases
+                </Link>
+              </li>
+              <li>
+                <Link href="/infrastructure" className={linkHover}>
                   Infrastructure
                 </Link>
               </li>

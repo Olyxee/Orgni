@@ -5,15 +5,6 @@ import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCommandPalette } from "@/components/command-palette";
 
-function handleHashNav(e: React.MouseEvent, hash: string) {
-  const id = hash.replace(/^\/?#/, "");
-  const el = document.getElementById(id);
-  if (el) {
-    e.preventDefault();
-    el.scrollIntoView({ behavior: "smooth" });
-    history.replaceState(null, "", `#${id}`);
-  }
-}
 
 export function SiteHeader({ dark }: { dark?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -68,13 +59,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8 ml-8 border-l border-border pl-12 h-8">
-            <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={navLink}>
+            <Link href="/platform" className={navLink}>
               Platform
             </Link>
-            <Link href="/#use-cases" onClick={(e) => handleHashNav(e, "#use-cases")} className={navLink}>
+            <Link href="/use-cases" className={navLink}>
               Use Cases
             </Link>
-            <Link href="/#infrastructure" onClick={(e) => handleHashNav(e, "#infrastructure")} className={navLink}>
+            <Link href="/infrastructure" className={navLink}>
               Infrastructure
             </Link>
             <Link href="/thesis" className={navLink}>
@@ -134,13 +125,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
       {mobileOpen && (
         <div className="lg:hidden absolute top-full left-0 w-full border-t border-border bg-background shadow-xl">
           <nav className="flex flex-col px-6 py-4">
-            <Link href="/#platform" onClick={(e) => { handleHashNav(e, "#platform"); closeMobile(); }} className={mobileLink}>
+            <Link href="/platform" onClick={closeMobile} className={mobileLink}>
               Platform
             </Link>
-            <Link href="/#use-cases" onClick={(e) => { handleHashNav(e, "#use-cases"); closeMobile(); }} className={mobileLink}>
+            <Link href="/use-cases" onClick={closeMobile} className={mobileLink}>
               Use Cases
             </Link>
-            <Link href="/#infrastructure" onClick={(e) => { handleHashNav(e, "#infrastructure"); closeMobile(); }} className={mobileLink}>
+            <Link href="/infrastructure" onClick={closeMobile} className={mobileLink}>
               Infrastructure
             </Link>
             <Link href="/thesis" onClick={closeMobile} className={mobileLink}>

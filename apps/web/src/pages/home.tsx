@@ -3,14 +3,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
-import { WhatItDoesSection } from "@/components/landing/WhatItDoesSection";
-import { ProductShowcaseSection } from "@/components/landing/ProductShowcaseSection";
 import { VideoSection } from "@/components/landing/VideoSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
-import { UseCaseSection } from "@/components/landing/UseCaseSection";
-import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
-import { AgentDeveloperSection } from "@/components/landing/AgentDeveloperSection";
-import { TrustSection } from "@/components/landing/TrustSection";
 import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
 
 export default function Home() {
@@ -28,13 +22,7 @@ export default function Home() {
         <HeroSection />
         <IntegrationsSection />
         <ProblemSection />
-        <WhatItDoesSection />
-        <ProductShowcaseSection />
-        <UseCaseSection />
         <VideoSection />
-        <InfrastructureSection />
-        <AgentDeveloperSection />
-        <TrustSection />
         <FinalCtaSection />
       </main>
 
