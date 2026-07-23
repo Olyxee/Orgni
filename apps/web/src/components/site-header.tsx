@@ -53,11 +53,9 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-8 ml-8 h-8">
             <Link href="/platform" className={navLink}>Platform</Link>
-            <Link href="/use-cases" className={navLink}>Use Cases</Link>
-            <Link href="/infrastructure" className={navLink}>Infrastructure</Link>
             <Link href="/developers" className={navLink}>Developers</Link>
+            <Link href="/pricing" className={navLink}>Pricing</Link>
             <Link href="/thesis" className={navLink}>Research</Link>
-            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={navLink}>Company</a>
           </nav>
         </div>
 
@@ -110,11 +108,9 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         <div className="lg:hidden absolute top-full left-0 w-full border-t border-border bg-background shadow-xl">
           <nav className="flex flex-col px-6 py-4">
             <Link href="/platform" onClick={closeMobile} className={mobileLink}>Platform</Link>
-            <Link href="/use-cases" onClick={closeMobile} className={mobileLink}>Use Cases</Link>
-            <Link href="/infrastructure" onClick={closeMobile} className={mobileLink}>Infrastructure</Link>
             <Link href="/developers" onClick={closeMobile} className={mobileLink}>Developers</Link>
+            <Link href="/pricing" onClick={closeMobile} className={mobileLink}>Pricing</Link>
             <Link href="/thesis" onClick={closeMobile} className={mobileLink}>Research</Link>
-            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>Company</a>
             <div className="pt-6 pb-4">
               <Button asChild className="w-full h-12 font-medium bg-foreground text-background hover:bg-foreground/90 shadow-none rounded-none">
                 <a href={SIGNUP_URL}>
