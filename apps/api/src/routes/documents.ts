@@ -2,16 +2,23 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import multer from "multer";
 import type { PrincipalRule } from "@workspace/contracts";
 import {
+  checksumOf,
   createDocumentIntelligenceClient,
   processDocument,
   toHandoff,
   type DocumentIntelligence,
 } from "@workspace/worker/pipeline";
+import { createDb } from "@workspace/db/connect";
 import { config } from "../lib/config";
 import { logger } from "../lib/logger";
 import { createOntologyClient } from "../lib/ontology-client";
 
 const router: IRouter = Router();
+
+// Persistence is optional: when DATABASE_URL is set, sources/tokens/facts are
+// stored and retrievable; when not, the endpoint still returns results inline
+// (nothing is persisted). This keeps the service runnable without a database.
+const store = config.DATABASE_URL ? createDb(config.DATABASE_URL) : null;
 
 // Files are held in memory and streamed straight to Document Intelligence; the
 // API never writes uploads to disk (§16 — stateless, no local document store).
@@ -86,6 +93,33 @@ router.post(
       return;
     }
 
+    // Idempotency: the same bytes re-uploaded by the same tenant returns the
+    // already-stored result instead of reprocessing or colliding on write.
+    if (store) {
+      const checksum = checksumOf(new Uint8Array(file.buffer));
+      const existing = await store.repository.findSourceByChecksum(
+        tenantId,
+        checksum,
+      );
+      if (existing) {
+        const doc = await store.repository.getDocument(
+          tenantId,
+          existing.sourceId,
+        );
+        res.status(200).json({
+          sourceId: existing.sourceId,
+          schemaVersion: "0.1.0",
+          tokens: doc?.tokens.map((t) => t.token) ?? [],
+          warnings: [`idempotent_replay: existing source ${existing.sourceId}`],
+          facts: doc?.facts?.result ?? null,
+          state: existing.state,
+          documentType: existing.documentType,
+          errors: [],
+        });
+        return;
+      }
+    }
+
     // A source ACL could be derived from the authenticated principal later; for
     // now default to tenant-scoped read.
     const sourceAcl: PrincipalRule[] = [
@@ -140,6 +174,50 @@ router.post(
         }
       }
 
+      // Persist the outcome so it survives the request and can be reviewed.
+      // A storage failure must not lose the result the caller already has, so
+      // it degrades to a warning rather than a 5xx.
+      if (store && !result.record.duplicateOf) {
+        try {
+          const factsResult = facts as { schema_version?: string } | null;
+          await store.repository.persistDocument({
+            source: {
+              sourceId: result.sourceId,
+              tenantId,
+              filename: file.originalname,
+              mimeType: file.mimetype,
+              checksum: result.record.checksum,
+              byteSize: result.record.byteSize,
+              state: result.state,
+              documentType:
+                result.documentType === "UNPROCESSED"
+                  ? null
+                  : result.documentType,
+              confidence: result.record.envelope?.confidence ?? null,
+              sourceAcl,
+              warnings: handoff.warnings,
+              errors: result.errors,
+              uploadedAt: new Date(result.record.uploadedAt),
+            },
+            tokens: handoff.tokens as unknown as Array<Record<string, unknown>>,
+            facts: factsResult
+              ? {
+                  schemaVersion: factsResult.schema_version ?? "0.1.0",
+                  result: factsResult as Record<string, unknown>,
+                }
+              : null,
+          });
+        } catch (persistErr) {
+          handoff.warnings.push(
+            `persistence_unavailable: ${persistErr instanceof Error ? persistErr.message : "error"}`,
+          );
+          logger.error(
+            { sourceId: result.sourceId, tenantId },
+            "failed to persist document result",
+          );
+        }
+      }
+
       const status = result.state === "FAILED" ? 422 : 200;
       res.status(status).json({
         ...handoff,
@@ -157,6 +235,108 @@ router.post(
         error: "processing_failed",
         message: "The document could not be processed.",
       });
+    }
+  },
+);
+
+/**
+ * GET /api/documents — list the caller's processed documents (tenant-scoped).
+ */
+router.get("/documents", async (req: Request, res: Response) => {
+  if (!store) {
+    res.status(503).json({ error: "persistence_unavailable" });
+    return;
+  }
+  const tenantId = resolveTenantId(req);
+  if (!tenantId) {
+    res.status(400).json({ error: "missing_tenant" });
+    return;
+  }
+  const rows = await store.repository.listSources(tenantId);
+  res.json({
+    documents: rows.map((r) => ({
+      sourceId: r.sourceId,
+      filename: r.filename,
+      documentType: r.documentType,
+      state: r.state,
+      confidence: r.confidence,
+      uploadedAt: r.uploadedAt,
+    })),
+  });
+});
+
+/**
+ * GET /api/documents/:sourceId — the full reviewable result: source, tokens,
+ * facts, and any review actions. Strictly tenant-scoped: a document belonging
+ * to another tenant returns 404, never its contents.
+ */
+router.get("/documents/:sourceId", async (req: Request, res: Response) => {
+  if (!store) {
+    res.status(503).json({ error: "persistence_unavailable" });
+    return;
+  }
+  const tenantId = resolveTenantId(req);
+  if (!tenantId) {
+    res.status(400).json({ error: "missing_tenant" });
+    return;
+  }
+  const doc = await store.repository.getDocument(
+    tenantId,
+    req.params["sourceId"] as string,
+  );
+  if (!doc) {
+    res.status(404).json({ error: "not_found" });
+    return;
+  }
+  res.json({
+    source: {
+      sourceId: doc.source.sourceId,
+      filename: doc.source.filename,
+      documentType: doc.source.documentType,
+      state: doc.source.state,
+      confidence: doc.source.confidence,
+      warnings: doc.source.warnings,
+      errors: doc.source.errors,
+      uploadedAt: doc.source.uploadedAt,
+    },
+    tokens: doc.tokens.map((t) => t.token),
+    facts: doc.facts?.result ?? null,
+    reviews: doc.reviews,
+  });
+});
+
+/**
+ * POST /api/documents/:sourceId/reviews — record a reviewer correction/reject.
+ */
+router.post(
+  "/documents/:sourceId/reviews",
+  async (req: Request, res: Response) => {
+    if (!store) {
+      res.status(503).json({ error: "persistence_unavailable" });
+      return;
+    }
+    const tenantId = resolveTenantId(req);
+    if (!tenantId) {
+      res.status(400).json({ error: "missing_tenant" });
+      return;
+    }
+    const { fieldPath, action, correctedValue, reviewer } = req.body ?? {};
+    if (!fieldPath || (action !== "CORRECT" && action !== "REJECT")) {
+      res.status(400).json({ error: "invalid_review" });
+      return;
+    }
+    try {
+      const review = await store.repository.addReview({
+        tenantId,
+        sourceId: req.params["sourceId"] as string,
+        fieldPath,
+        action,
+        correctedValue,
+        reviewer: reviewer ?? "unknown",
+      });
+      res.status(201).json(review);
+    } catch {
+      res.status(404).json({ error: "not_found" });
     }
   },
 );

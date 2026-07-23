@@ -29,4 +29,4 @@ export type {
   IngestionState,
 } from "./ingestion/pipeline.js";
 
-export { SUPPORTED_MIME_TYPES } from "./ingestion/pipeline.js";
+export { SUPPORTED_MIME_TYPES, checksumOf } from "./ingestion/pipeline.js";
