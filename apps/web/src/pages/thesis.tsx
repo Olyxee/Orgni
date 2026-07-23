@@ -21,9 +21,48 @@ function parseText(text: string) {
 function renderContent(content: string[]) {
   const elements: React.ReactNode[] = [];
   let currentList: string[] | null = null;
+  let inCode = false;
+  let codeLines: string[] = [];
+
+  const flushList = (key: string | number) => {
+    if (currentList) {
+      elements.push(
+        <ul key={`list-${key}`} className="my-8 space-y-3 pl-2 md:pl-4">
+          {currentList.map((item, j) => (
+            <li key={j} className="flex items-start">
+              <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-full shrink-0 bg-primary/80"></span>
+              <span className="text-foreground/90">{parseText(item)}</span>
+            </li>
+          ))}
+        </ul>
+      );
+      currentList = null;
+    }
+  };
 
   for (let i = 0; i < content.length; i++) {
     const line = content[i];
+
+    if (line === '```') {
+      if (inCode) {
+        elements.push(
+          <pre key={`code-${i}`} className="my-8 p-6 bg-white/[0.04] border border-white/10 rounded-sm font-mono text-sm md:text-base leading-relaxed text-white/80 overflow-x-auto whitespace-pre">
+            {codeLines.join('\n')}
+          </pre>
+        );
+        codeLines = [];
+        inCode = false;
+      } else {
+        flushList(i);
+        inCode = true;
+      }
+      continue;
+    }
+
+    if (inCode) {
+      codeLines.push(line);
+      continue;
+    }
 
     if (line.startsWith('* ')) {
       if (!currentList) currentList = [];
@@ -103,13 +142,13 @@ function renderContent(content: string[]) {
 
 export default function Thesis() {
   useSeo({
-    title: "The Business Context Thesis - Olyxee",
+    title: `${thesisData.title} - Olyxee`,
     description: thesisData.subtitle,
     path: "/thesis",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "ScholarlyArticle",
-      headline: "The Business Context Thesis",
+      headline: thesisData.title,
       description: thesisData.subtitle,
       author: [
         { "@type": "Person", name: "Lethabo Scofield", jobTitle: "Research Scientist" },
