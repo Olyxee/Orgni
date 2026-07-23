@@ -12,7 +12,7 @@ function parseText(text: string) {
   const parts = text.split(/(\*\*.*?\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-bold text-white">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
     }
     return part;
   });
@@ -30,7 +30,7 @@ function renderContent(content: string[]) {
         <ul key={`list-${key}`} className="my-8 space-y-3 pl-2 md:pl-4">
           {currentList.map((item, j) => (
             <li key={j} className="flex items-start">
-              <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-full shrink-0 bg-primary/80"></span>
+              <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-none shrink-0 bg-primary"></span>
               <span className="text-foreground/90">{parseText(item)}</span>
             </li>
           ))}
@@ -46,7 +46,7 @@ function renderContent(content: string[]) {
     if (line === '```') {
       if (inCode) {
         elements.push(
-          <pre key={`code-${i}`} className="my-8 p-6 bg-white/[0.04] border border-white/10 rounded-sm font-mono text-sm md:text-base leading-relaxed text-white/80 overflow-x-auto whitespace-pre">
+          <pre key={`code-${i}`} className="my-8 p-6 bg-muted/50 border border-border rounded-none font-mono text-sm md:text-base leading-relaxed text-foreground/90 overflow-x-auto whitespace-pre">
             {codeLines.join('\n')}
           </pre>
         );
@@ -73,7 +73,7 @@ function renderContent(content: string[]) {
           <ul key={`list-${i}`} className="my-8 space-y-3 pl-2 md:pl-4">
             {currentList.map((item, j) => (
               <li key={j} className="flex items-start">
-                <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-full shrink-0 bg-primary/80"></span>
+                <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-none shrink-0 bg-primary"></span>
                 <span className="text-foreground/90">{parseText(item)}</span>
               </li>
             ))}
@@ -104,19 +104,19 @@ function renderContent(content: string[]) {
         const text = line.slice(4);
         const subId = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         elements.push(
-          <h3 id={subId} key={`h3-${i}`} className="text-xl md:text-2xl font-bold mt-16 mb-6 text-white font-sans scroll-mt-32">
+          <h3 id={subId} key={`h3-${i}`} className="text-2xl md:text-3xl font-serif mt-16 mb-6 text-foreground scroll-mt-32">
             {text}
           </h3>
         );
       } else if (line.startsWith('> ')) {
         elements.push(
-          <blockquote key={`bq-${i}`} className="border-l-2 border-primary pl-6 md:pl-8 py-2 my-10 text-xl md:text-2xl font-serif italic text-white/90 bg-gradient-to-r from-primary/5 to-transparent">
+          <blockquote key={`bq-${i}`} className="border-l-2 border-primary pl-6 md:pl-8 py-2 my-10 text-xl md:text-2xl font-serif italic text-foreground/90 bg-primary/5">
             {parseText(line.slice(2))}
           </blockquote>
         );
       } else {
         elements.push(
-          <p key={`p-${i}`} className="mb-6">
+          <p key={`p-${i}`} className="mb-6 text-foreground/90">
             {parseText(line)}
           </p>
         );
@@ -129,7 +129,7 @@ function renderContent(content: string[]) {
       <ul key={`list-end`} className="my-8 space-y-3 pl-2 md:pl-4">
         {currentList.map((item, j) => (
           <li key={j} className="flex items-start">
-            <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-full shrink-0 bg-primary/80"></span>
+            <span className="text-primary mr-4 mt-2.5 h-1.5 w-1.5 rounded-none shrink-0 bg-primary"></span>
             <span className="text-foreground/90">{parseText(item)}</span>
           </li>
         ))}
@@ -176,10 +176,8 @@ export default function Thesis() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        // Find all intersecting entries and sort them by top position to find the topmost visible section
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length > 0) {
-          // Sort by rect.top to get the one highest on screen
           visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
           setActiveSection(visible[0].target.id);
         }
@@ -216,50 +214,54 @@ export default function Thesis() {
   };
 
   return (
-    <div className="dark min-h-screen bg-black text-white font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"
         style={{ scaleX: shouldReduceMotion ? scrollYProgress : scaleX }}
       />
       
-      <SiteHeader dark />
+      <SiteHeader />
 
       {/* Hero Header */}
-      <header className="pt-24 pb-16 md:pt-32 md:pb-24 px-4 md:px-8 max-w-screen-xl mx-auto border-b border-white/10">
+      <header className="pt-24 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto border-b border-border">
         <div className="max-w-4xl">
-          <p className="text-primary font-mono text-xs uppercase tracking-widest mb-6">
-            {thesisData.author}
-          </p>
-          <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-8 text-white leading-[1.1]">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="h-[1px] w-12 bg-foreground"></div>
+            <p className="text-xs font-mono tracking-widest uppercase">
+              {thesisData.author}
+            </p>
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif leading-[1.05] tracking-tight mb-8 text-foreground">
             {thesisData.title}
           </h1>
-          <p className="text-xl md:text-3xl text-white/60 leading-relaxed font-light">
+          <p className="text-xl md:text-3xl text-muted-foreground leading-snug font-light max-w-3xl">
             {thesisData.subtitle}
           </p>
-          <div className="mt-12 pt-8 md:pt-12 border-t border-white/10 grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div className="flex flex-col gap-1.5">
-              <span className="font-bold text-white">Lethabo Scofield</span>
-              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Research Scientist</span>
+          <div className="mt-16 pt-12 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-12">
+            <div className="flex flex-col gap-2">
+              <span className="font-serif text-2xl text-foreground">Lethabo Scofield</span>
+              <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">Research Scientist</span>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="font-bold text-white">Alisha Fatima</span>
-              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Founding AI<br/>Infrastructure Engineer</span>
+            <div className="flex flex-col gap-2">
+              <span className="font-serif text-2xl text-foreground">Alisha Fatima</span>
+              <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">Founding AI<br/>Infrastructure Engineer</span>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <span className="font-bold text-white">Mosa Maseko</span>
-              <span className="text-xs font-mono text-white/40 tracking-widest uppercase leading-relaxed">Founding Data Engineer</span>
+            <div className="flex flex-col gap-2">
+              <span className="font-serif text-2xl text-foreground">Mosa Maseko</span>
+              <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">Founding Data Engineer</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container max-w-screen-xl px-4 md:px-8 mx-auto py-12 md:py-24 relative flex flex-col lg:flex-row gap-12 lg:gap-24">
+      <div className="max-w-[1600px] px-6 md:px-12 mx-auto py-16 md:py-32 relative flex flex-col lg:flex-row gap-12 lg:gap-24">
         
         {/* Mobile TOC Toggle */}
         <button 
           onClick={() => setTocOpen(true)}
-          className="lg:hidden sticky top-[88px] z-40 bg-black/90 backdrop-blur border border-white/10 px-4 py-3 rounded-sm flex items-center justify-between w-full font-mono text-sm"
+          className="lg:hidden sticky top-[88px] z-40 bg-background/90 backdrop-blur border border-border px-4 py-4 rounded-none flex items-center justify-between w-full font-mono text-sm uppercase tracking-wider"
         >
           <span>Table of Contents</span>
           <List className="w-4 h-4" />
@@ -267,21 +269,21 @@ export default function Thesis() {
 
         {/* Desktop / Mobile TOC */}
         <aside className={`
-          fixed inset-0 z-50 bg-black/95 backdrop-blur-xl p-6 overflow-y-auto transition-transform duration-300
-          lg:static lg:block lg:w-1/4 lg:h-[calc(100vh-8rem)] lg:sticky lg:top-32 lg:bg-transparent lg:p-0 lg:z-0 lg:overflow-y-auto lg:scrollbar-none lg:translate-x-0
+          fixed inset-0 z-50 bg-background/95 backdrop-blur-xl p-6 overflow-y-auto transition-transform duration-300
+          lg:static lg:block lg:w-1/4 lg:max-w-[280px] lg:h-[calc(100vh-8rem)] lg:sticky lg:top-32 lg:bg-transparent lg:p-0 lg:z-0 lg:overflow-y-auto lg:scrollbar-none lg:translate-x-0
           ${tocOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
-          <div className="flex justify-between items-center lg:hidden mb-8">
+          <div className="flex justify-between items-center lg:hidden mb-12">
             <span className="font-mono font-bold tracking-widest uppercase text-sm">Contents</span>
-            <button onClick={() => setTocOpen(false)} className="p-2 border border-white/10 rounded-sm">
+            <button onClick={() => setTocOpen(false)} className="p-3 border border-border rounded-none">
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <nav className="flex flex-col gap-4 font-mono text-xs pb-12 lg:pb-0">
+          <nav className="flex flex-col gap-5 font-mono text-xs pb-12 lg:pb-0 tracking-widest uppercase">
             <button 
               onClick={() => scrollTo('abstract')}
-              className={`text-left hover:text-white transition-colors py-1 ${activeSection === 'abstract' || activeSection === '' ? 'text-primary font-bold' : 'text-white/40'}`}
+              className={`text-left transition-colors py-1 ${activeSection === 'abstract' || activeSection === '' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Abstract
             </button>
@@ -289,7 +291,7 @@ export default function Thesis() {
               <button
                 key={s.id}
                 onClick={() => scrollTo(s.id)}
-                className={`text-left hover:text-white transition-colors py-1 leading-relaxed ${activeSection === s.id ? 'text-primary font-bold' : 'text-white/40'}`}
+                className={`text-left transition-colors py-1 leading-relaxed ${activeSection === s.id ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 {s.title}
               </button>
@@ -297,7 +299,7 @@ export default function Thesis() {
             {thesisData.references.length > 0 && (
               <button 
                 onClick={() => scrollTo('references')}
-                className={`text-left hover:text-white transition-colors py-1 ${activeSection === 'references' ? 'text-primary font-bold' : 'text-white/40'}`}
+                className={`text-left transition-colors py-1 ${activeSection === 'references' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 References
               </button>
@@ -308,34 +310,38 @@ export default function Thesis() {
         {/* Content */}
         <main className="w-full lg:w-3/4 max-w-[70ch] pb-32">
           
-          <section id="abstract" className="mb-24 scroll-mt-32">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-primary mb-8 border-b border-white/10 pb-4">
-              Abstract
-            </h2>
-            <div className="text-xl md:text-2xl leading-relaxed font-serif text-white/90">
+          <section id="abstract" className="mb-32 scroll-mt-32">
+            <div className="mb-8 flex items-center gap-4 border-b border-border pb-4">
+              <div className="h-[1px] w-8 bg-primary"></div>
+              <h2 className="text-xs font-mono tracking-widest uppercase text-primary">
+                Abstract
+              </h2>
+            </div>
+            <div className="text-xl md:text-[1.65rem] leading-snug font-serif text-foreground">
               {renderContent(thesisData.abstract)}
             </div>
           </section>
 
           {thesisData.sections.map((s) => (
-            <section key={s.id} id={s.id} className="mb-24 scroll-mt-32">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-8 text-white pb-4 border-b border-white/10">
+            <section key={s.id} id={s.id} className="mb-32 scroll-mt-32">
+              <h2 className="text-3xl md:text-5xl font-serif leading-tight tracking-tight mb-8 text-foreground pb-6 border-b border-border">
                 {s.title}
               </h2>
-              <div className="text-lg md:text-xl leading-relaxed text-white/80">
+              <div className="text-lg md:text-xl leading-relaxed text-foreground font-light">
                 {renderContent(s.content)}
               </div>
             </section>
           ))}
 
           {thesisData.references.length > 0 && (
-            <section id="references" className="mb-24 scroll-mt-32 pt-12 border-t border-white/10">
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight mb-8 text-white">
+            <section id="references" className="mb-32 scroll-mt-32 pt-16 border-t border-border">
+              <h2 className="text-2xl md:text-3xl font-serif tracking-tight mb-10 text-foreground">
                 References
               </h2>
-              <div className="text-sm md:text-base leading-relaxed text-white/60 space-y-6">
+              <div className="text-sm leading-relaxed text-muted-foreground space-y-6">
                 {thesisData.references.map((r, i) => (
-                  <p key={i} id={`ref-${i+1}`}>
+                  <p key={i} id={`ref-${i+1}`} className="pl-6 relative">
+                    <span className="absolute left-0 top-0 font-mono text-xs">{i+1}.</span>
                     {parseText(r)}
                   </p>
                 ))}
@@ -344,14 +350,14 @@ export default function Thesis() {
           )}
 
           {/* CTA Footer */}
-          <div className="mt-32 pt-16 border-t border-white/10 flex flex-col items-start bg-white/[0.02] p-8 md:p-12 rounded-sm border-l-2 border-l-primary">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">
+          <div className="mt-32 pt-16 border-t border-border flex flex-col items-start bg-muted/30 p-8 md:p-16 rounded-none border-l-2 border-l-primary">
+            <h2 className="text-3xl md:text-4xl font-serif mb-6 text-foreground tracking-tight">
               Give your AI the context it needs.
             </h2>
-            <p className="text-lg text-white/60 mb-8 max-w-xl">
+            <p className="text-lg text-muted-foreground mb-10 max-w-xl font-light">
               Orgni continuously learns how your organisation operates, preserving your operational memory and making it available via API.
             </p>
-            <Button asChild size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-bold rounded-sm shadow-md transition-all group">
+            <Button asChild size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium rounded-none shadow-none transition-all group">
               <a href="https://www.olyxee.com/signup?tool=api">
                 Request access
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -362,7 +368,7 @@ export default function Thesis() {
         </main>
       </div>
 
-      <SiteFooter dark />
+      <SiteFooter />
     </div>
   );
 }
