@@ -88,7 +88,7 @@ contracts — PR #4 currently defines its own token model instead.
 
 | Requirement | Status |
 |-------------|--------|
-| TypeScript API and background worker | ⚠️ worker-side pipeline ✅; **no API upload endpoint yet** |
+| TypeScript API and background worker | ✅ `POST /api/documents` in `apps/api` drives the worker pipeline; worker owns processing per §5.3 |
 | SHA-256 integrity | ✅ |
 | Idempotency | ✅ checksum-based duplicate detection |
 | MIME validation | ✅ |

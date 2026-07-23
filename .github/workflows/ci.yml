@@ -56,7 +56,10 @@ jobs:
           "apps/worker/src/ingestion/pipeline.ts"
           "apps/worker/src/phase1/**/*.ts"
           "apps/worker/src/document-intelligence/**/*.ts"
+          "apps/worker/src/pipeline.ts"
           "apps/worker/tests/**/*.ts"
+          "apps/api/src/routes/documents.ts"
+          "apps/api/tests/**/*.ts"
 
       - name: Test
         run: pnpm run test

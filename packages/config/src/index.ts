@@ -36,6 +36,18 @@ export const apiEnvSchema = baseEnvSchema.extend({
   APP_VERSION: z.string().optional(),
   /** Populated by CI/CD for the /version endpoint. */
   GIT_SHA: z.string().optional(),
+  /**
+   * Base URL of the Python Document Intelligence service
+   * (intelligence/document-intelligence). Required for the document upload
+   * endpoint; unset disables it with a clear 503.
+   */
+  DOCUMENT_INTELLIGENCE_URL: z.string().url().optional(),
+  /** Max upload size in bytes for the document endpoint (default 20 MB). */
+  MAX_UPLOAD_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(20 * 1024 * 1024),
 });
 
 /** Worker service configuration. */

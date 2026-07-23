@@ -4,7 +4,7 @@ Phase 1 turns an uploaded Invoice, Proof of Payment or Contract into
 evidence-backed `OrganizationalToken[]`.
 
 ```
-upload
+POST /api/documents             apps/api/src/routes/documents.ts
   → ingestion pipeline            apps/worker/src/ingestion/pipeline.ts
   → Document Intelligence         intelligence/document-intelligence (Python)
   → normalized envelope v0.1.0    apps/worker/src/envelope/types.ts
@@ -42,15 +42,50 @@ pnpm install
 # 2. Document Intelligence dependencies (OCR needs the Tesseract binary)
 pip install -r intelligence/document-intelligence/requirements.txt
 
-# 3. Run the service
+# 3. Run Document Intelligence
 cd intelligence/document-intelligence && uvicorn main:app --port 8000
+
+# 4. Run the API, pointing it at Document Intelligence
+DOCUMENT_INTELLIGENCE_URL=http://127.0.0.1:8000 \
+  pnpm --filter @workspace/api run dev
 ```
 
-Then drive the pipeline from the worker:
+### Upload a document
+
+```bash
+curl -X POST http://localhost:8080/api/documents \
+  -H "X-Tenant-Id: tenant_olyxee" \
+  -F "file=@invoice.pdf"
+```
+
+Response is the ontology handoff plus pipeline detail:
+
+```json
+{
+  "sourceId": "src_…",
+  "schemaVersion": "0.1.0",
+  "tokens": [ /* OrganizationalToken[] */ ],
+  "warnings": [],
+  "state": "COMPLETED",
+  "documentType": "INVOICE",
+  "errors": []
+}
+```
+
+- `200` — processed (tokens may be empty for an `UNKNOWN` document, with warnings).
+- `422` — controlled failure (unsupported type, unreadable): `state: "FAILED"`, no tokens.
+- `400` — missing `X-Tenant-Id` header or missing `file`.
+- `503` — `DOCUMENT_INTELLIGENCE_URL` not configured.
+
+> Auth is not wired yet (§15), so the tenant comes from the `X-Tenant-Id`
+> header. `resolveTenantId` in the route is the single seam to replace with the
+> authenticated principal once Entra External ID lands.
+
+### Or drive the pipeline directly (no HTTP)
 
 ```ts
-import { createDocumentIntelligenceClient } from "./src/document-intelligence/client.js";
-import { processDocument, toHandoff } from "./src/phase1/index.js";
+import { createDocumentIntelligenceClient, processDocument, toHandoff }
+  from "@workspace/worker/pipeline";
 
 const documentIntelligence = createDocumentIntelligenceClient({
   baseUrl: "http://127.0.0.1:8000",
@@ -85,13 +120,14 @@ mocked. They require `python` on PATH and fail loudly if it is missing, rather
 than skipping — a green run that never exercised the pipeline would be worse
 than a red one.
 
-Current results: **69 tests passing** (16 tokenizer + 53 pipeline).
+Current results: **74 tests passing** (16 tokenizer + 53 pipeline + 5 API).
 
 | Suite | Covers |
 |-------|--------|
 | `apps/worker/tests/ingestion.test.ts` | validation, checksums, identity, duplicates, state machine, retries, failure isolation, access metadata, log redaction |
 | `apps/worker/tests/envelope.test.ts` | envelope schema validation, adapter behaviour, refusal to fabricate |
 | `apps/worker/tests/e2e.test.ts` | all three document types end to end, controlled failures, handoff shape |
+| `apps/api/tests/documents.test.ts` | the `POST /api/documents` endpoint end to end (real pipeline + tokenizer, stubbed Python) |
 | `intelligence/organizational-tokenizer/tests/` | the tokenizer's own mapper contracts |
 
 ## Supported inputs
