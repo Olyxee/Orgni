@@ -6,6 +6,7 @@ import { ProblemSection } from "@/components/landing/ProblemSection";
 import { WhatItDoesSection } from "@/components/landing/WhatItDoesSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { ProductShowcaseSection } from "@/components/landing/ProductShowcaseSection";
+import { VideoSection } from "@/components/landing/VideoSection";
 import { UseCaseSection } from "@/components/landing/UseCaseSection";
 import { BusinessValueSection } from "@/components/landing/BusinessValueSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
@@ -32,6 +33,7 @@ export default function Home() {
         <ProductShowcaseSection />
         <UseCaseSection />
         <BusinessValueSection />
+        <VideoSection />
         <InfrastructureSection />
         <AgentDeveloperSection />
         <TrustSection />
