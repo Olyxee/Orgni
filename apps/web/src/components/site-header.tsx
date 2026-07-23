@@ -34,15 +34,14 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const headerClass = `sticky top-0 z-50 w-full transition-all duration-500 ${
+  const headerClass = `sticky top-0 z-50 w-full transition-all duration-300 ${
     scrolled
-      ? "bg-background/80 backdrop-blur-xl border-b border-white/5 py-3 shadow-[0_4_24px_rgba(0,0,0,0.4)]"
+      ? "bg-background/90 backdrop-blur-md border-b border-border py-4 shadow-sm"
       : "bg-transparent border-b border-transparent py-6"
   }`;
 
-  const navLink = "text-xs font-mono uppercase tracking-widest text-foreground/50 hover:text-foreground transition-colors relative group py-1";
-  
-  const mobileLink = "block py-4 text-sm font-mono uppercase tracking-widest text-foreground/80 hover:text-foreground border-b border-white/5";
+  const navLink = "text-sm font-medium text-foreground/70 hover:text-foreground transition-colors relative group py-1";
+  const mobileLink = "block py-4 text-base font-medium text-foreground/80 hover:text-foreground border-b border-border";
 
   return (
     <header className={headerClass}>
@@ -50,36 +49,39 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         
         {/* Left side: Logo & Nav */}
         <div className="flex items-center gap-12">
-          {/* Logo area - no box/border */}
+          {/* Logo area */}
           <Link href="/" className="flex items-center gap-3 group">
             <img
               src={`${import.meta.env.BASE_URL}orgni-logo.png`}
               alt="Orgni logo"
-              className="h-9 w-9 object-cover"
+              className="h-8 w-8 object-cover filter brightness-0 dark:invert opacity-90"
             />
             <div className="flex flex-col">
-              <span className="font-mono font-bold tracking-tight text-base leading-none text-foreground">
-                ORGNI
+              <span className="font-bold tracking-tight text-lg leading-none text-foreground">
+                Orgni
               </span>
-              <span className="text-[10px] text-foreground/40 font-mono leading-none mt-1 tracking-widest uppercase">
+              <span className="text-[10px] text-foreground/50 font-medium leading-none mt-1 uppercase tracking-wider">
                 by Olyxee
               </span>
             </div>
           </Link>
 
-          {/* Desktop Nav - moved left */}
-          <nav className="hidden md:flex items-center gap-8">
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-8">
+            <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={navLink}>
+              Platform
+            </Link>
+            <Link href="/#use-cases" onClick={(e) => handleHashNav(e, "#use-cases")} className={navLink}>
+              Use Cases
+            </Link>
+            <Link href="/#infrastructure" onClick={(e) => handleHashNav(e, "#infrastructure")} className={navLink}>
+              Infrastructure
+            </Link>
             <Link href="/thesis" className={navLink}>
-              Thesis
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+              Research
             </Link>
-            <Link href="/api-reference" className={navLink}>
-              API
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
-            </Link>
-            <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" className={navLink}>
-              Contact
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-primary transition-all group-hover:w-full"></span>
+            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={navLink}>
+              Company
             </a>
           </nav>
         </div>
@@ -87,21 +89,17 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         {/* Right side: Actions */}
         <div className="flex items-center gap-4">
           
-          {/* Desktop Search Button */}
           <button
             onClick={() => commandPalette.open()}
-            className="hidden md:flex items-center gap-3 px-3 py-1.5 text-xs font-mono tracking-widest uppercase text-foreground/50 hover:text-foreground transition-colors group"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors group border border-transparent hover:border-border rounded-md"
           >
-            <span className="flex items-center gap-2">
-              <Search className="h-3.5 w-3.5" />
-              Search
-            </span>
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-sans font-medium bg-white/5 border border-white/10 rounded-[2px] group-hover:bg-white/10 transition-colors">
+            <Search className="h-4 w-4" />
+            <span>Search</span>
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-sans font-medium bg-muted text-muted-foreground rounded-[2px] ml-1">
               <span className="mr-0.5 text-[11px] leading-none">⌘</span>K
             </kbd>
           </button>
 
-          {/* Mobile Search Button */}
           <button
             onClick={() => commandPalette.open()}
             className="md:hidden inline-flex items-center justify-center h-10 w-10 text-foreground/70 hover:text-foreground transition-colors"
@@ -113,10 +111,10 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           <Button
             asChild
             size="sm"
-            className="hidden lg:inline-flex rounded-sm text-[11px] h-9 px-6 font-mono font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-all hover:scale-[1.02]"
+            className="hidden lg:inline-flex h-9 px-5 font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors"
           >
             <a href={SIGNUP_URL}>
-              Request Access
+              Request a Demo
             </a>
           </Button>
 
@@ -125,7 +123,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             type="button"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-sm text-foreground/70 hover:text-foreground hover:bg-white/5 transition-colors"
+            className="lg:hidden inline-flex items-center justify-center h-10 w-10 rounded-sm text-foreground/70 hover:text-foreground hover:bg-muted transition-colors"
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -134,21 +132,27 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
       {/* Mobile menu panel */}
       {mobileOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full border-t border-white/5 bg-background/95 backdrop-blur-xl shadow-2xl">
+        <div className="lg:hidden absolute top-full left-0 w-full border-t border-border bg-background shadow-xl">
           <nav className="flex flex-col px-6 py-4">
+            <Link href="/#platform" onClick={(e) => { handleHashNav(e, "#platform"); closeMobile(); }} className={mobileLink}>
+              Platform
+            </Link>
+            <Link href="/#use-cases" onClick={(e) => { handleHashNav(e, "#use-cases"); closeMobile(); }} className={mobileLink}>
+              Use Cases
+            </Link>
+            <Link href="/#infrastructure" onClick={(e) => { handleHashNav(e, "#infrastructure"); closeMobile(); }} className={mobileLink}>
+              Infrastructure
+            </Link>
             <Link href="/thesis" onClick={closeMobile} className={mobileLink}>
-              Thesis
+              Research
             </Link>
-            <Link href="/api-reference" onClick={closeMobile} className={mobileLink}>
-              API
-            </Link>
-            <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>
-              Contact
+            <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" onClick={closeMobile} className={mobileLink}>
+              Company
             </a>
             <div className="pt-6 pb-4">
-              <Button asChild className="w-full rounded-sm h-12 font-mono text-xs font-bold uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button asChild className="w-full h-12 font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-none">
                 <a href={SIGNUP_URL}>
-                  Request Access
+                  Request a Demo
                 </a>
               </Button>
             </div>

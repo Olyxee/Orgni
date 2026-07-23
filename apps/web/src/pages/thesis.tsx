@@ -177,7 +177,7 @@ export default function Thesis() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
+    <div className="dark min-h-screen bg-black text-white font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"

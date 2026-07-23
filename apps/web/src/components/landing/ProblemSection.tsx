@@ -1,67 +1,36 @@
-import { motion, useReducedMotion } from "framer-motion";
-import { FileText, Database, Users, ShieldAlert, KanbanSquare, Sparkles } from "lucide-react";
-
-const columns = [
-  { name: "Documents", icon: FileText, items: ["Invoices", "Contracts", "SOPs"] },
-  { name: "Business systems", icon: Database, items: ["ERP", "CRM", "HRIS"] },
-  { name: "People", icon: Users, items: ["Roles", "Teams", "Approvers"] },
-  { name: "Policies", icon: ShieldAlert, items: ["Rules", "Limits", "Compliance"] },
-  { name: "Projects", icon: KanbanSquare, items: ["Status", "Tasks", "Milestones"] },
-  { name: "AI tools", icon: Sparkles, items: ["Prompts", "Agents", "Copilots"] },
-];
-
 export function ProblemSection() {
-  const shouldReduceMotion = useReducedMotion();
-
   return (
-    <section id="thesis" className="relative z-10 pt-32 pb-24 md:pt-48 md:pb-32 bg-black">
-      <div className="container max-w-screen-xl px-4 md:px-8 mx-auto">
+    <section className="py-20 md:py-32 px-6 md:px-12 bg-secondary/20">
+      <div className="max-w-screen-xl mx-auto">
         <div className="max-w-3xl mb-16 md:mb-24">
-          <motion.h2 
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.6 }}
-            className="text-3xl md:text-5xl font-bold tracking-tight mb-6"
-          >
-            Most organisations store information.<br />
-            <span className="text-foreground/50">Very few preserve understanding.</span>
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.1 }}
-            className="text-lg md:text-xl text-foreground/70 leading-relaxed max-w-2xl"
-          >
-            Every new project begins with interviews, document reviews, system discovery and process mapping. The organisation repeatedly pays to reconstruct knowledge it already possesses.
-          </motion.p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-foreground mb-8">
+            Your organisation has data.<br />It does not have shared understanding.
+          </h2>
+          
+          <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+            <p>
+              Important operational knowledge is spread across documents, emails, business systems, workflows and people.
+            </p>
+            <p>
+              Every new transformation project, application or AI agent must rebuild that context from the beginning.
+            </p>
+            <p>
+              This leads to repeated process discovery, conflicting information, unclear ownership, missed obligations and AI systems that cannot act safely.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 relative">
-          {columns.map((col, i) => (
-            <motion.div
-              key={col.name}
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.5, delay: shouldReduceMotion ? 0 : i * 0.1 }}
-              className="flex flex-col items-center p-6 border border-white/10 bg-black shadow-sm rounded-sm"
-            >
-              <div className="w-12 h-12 bg-white/5 rounded-sm flex items-center justify-center mb-6">
-                <col.icon className="h-5 w-5 text-foreground/70" />
-              </div>
-              <h3 className="font-mono text-sm font-bold text-foreground mb-4 uppercase text-center">{col.name}</h3>
-              <div className="flex flex-col gap-2 w-full">
-                {col.items.map((item, j) => (
-                  <div key={j} className="h-8 border border-white/10 bg-white/[0.02] flex items-center justify-center text-xs text-foreground/60 font-mono rounded-sm">
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+          {[
+            "Fragmented organisational knowledge",
+            "Repeated process discovery",
+            "Unclear operational state",
+            "AI without trusted context"
+          ].map((problem, i) => (
+            <div key={i} className="p-8 border border-border bg-background rounded-sm">
+              <h3 className="text-xl font-medium text-foreground">{problem}</h3>
+            </div>
           ))}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-black/50 hidden md:block"></div>
         </div>
       </div>
     </section>

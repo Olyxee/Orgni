@@ -11,86 +11,51 @@ function handleHashNav(e: React.MouseEvent, hash: string) {
 }
 
 export function SiteFooter({ dark = false }: { dark?: boolean }) {
-  const footerClass = dark
-    ? "border-t border-white/10 py-12 md:py-16 bg-black text-white"
-    : "border-t border-border py-12 md:py-16 bg-background";
-  const muted = dark ? "text-white/60" : "text-muted-foreground";
-  const linkHover = "hover:text-primary transition-colors";
-  const innerBorder = dark ? "border-white/10" : "border-border";
+  const footerClass = "border-t border-border py-16 md:py-24 bg-background";
+  const muted = "text-muted-foreground";
+  const linkHover = "hover:text-foreground transition-colors";
+  const innerBorder = "border-border";
 
   return (
     <footer className={footerClass}>
-      <div className="container max-w-screen-xl px-4 md:px-8 mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
-          <div className="sm:col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2.5 mb-4">
+      <div className="container max-w-screen-xl px-6 md:px-12 mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 md:gap-16 mb-16">
+          <div className="sm:col-span-2 md:col-span-2">
+            <div className="flex items-center gap-3 mb-6">
               <img
                 src={`${import.meta.env.BASE_URL}orgni-logo.png`}
                 alt="Orgni logo"
-                className="h-6 w-6 rounded-sm object-cover"
+                className="h-6 w-6 object-cover filter brightness-0 dark:invert opacity-80"
               />
-              <span className="font-mono font-bold tracking-tight">ORGNI</span>
+              <span className="font-bold tracking-tight text-lg text-foreground">Orgni</span>
             </div>
-            <p className={`text-sm ${muted} mb-4 max-w-xs`}>
-              Live business context for modern operations.
-            </p>
-            <p className={`text-xs ${muted} max-w-xs`}>
-              A product by Olyxee, a research and infrastructure company for
-              operational intelligence.
+            <p className={`text-base ${muted} max-w-md leading-relaxed`}>
+              Orgni is organisational intelligence infrastructure developed by Olyxee.
             </p>
           </div>
+          
           <div>
-            <h4 className="font-mono text-xs font-bold uppercase mb-4 tracking-wider">
-              Product
-            </h4>
-            <ul className={`space-y-3 text-sm ${muted}`}>
+            <h4 className="text-sm font-semibold text-foreground mb-6">Product</h4>
+            <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
-                <Link
-                  href="/#what"
-                  onClick={(e) => handleHashNav(e, "#product")}
-                  className={linkHover}
-                >
-                  Product
+                <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={linkHover}>
+                  Platform
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/#modules"
-                  onClick={(e) => handleHashNav(e, "#layers")}
-                  className={linkHover}
-                >
-                  Layers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#use-cases"
-                  onClick={(e) => handleHashNav(e, "#how-it-works")}
-                  className={linkHover}
-                >
-                  How it works
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing" className={linkHover}>
-                  Pricing
+                <Link href="/#infrastructure" onClick={(e) => handleHashNav(e, "#infrastructure")} className={linkHover}>
+                  Infrastructure
                 </Link>
               </li>
             </ul>
           </div>
+          
           <div>
-            <h4 className="font-mono text-xs font-bold uppercase mb-4 tracking-wider">
-              Resources
-            </h4>
-            <ul className={`space-y-3 text-sm ${muted}`}>
+            <h4 className="text-sm font-semibold text-foreground mb-6">Resources</h4>
+            <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
                 <Link href="/thesis" className={linkHover}>
-                  Research Thesis
-                </Link>
-              </li>
-              <li>
-                <Link href="/docs" className={linkHover}>
-                  Documentation
+                  Research
                 </Link>
               </li>
               <li>
@@ -98,38 +63,49 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
                   API Reference
                 </Link>
               </li>
+              <li>
+                <Link href="/docs" className={linkHover}>
+                  Documentation
+                </Link>
+              </li>
             </ul>
           </div>
+          
           <div>
-            <h4 className="font-mono text-xs font-bold uppercase mb-4 tracking-wider">
-              Company
-            </h4>
-            <ul className={`space-y-3 text-sm ${muted}`}>
-              
+            <h4 className="text-sm font-semibold text-foreground mb-6">Company</h4>
+            <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
-                <a
-                  href="https://www.olyxee.com/contact"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkHover}
-                >
+                <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={linkHover}>
+                  Olyxee
+                </a>
+              </li>
+              <li>
+                <a href="https://www.olyxee.com/careers" target="_blank" rel="noopener noreferrer" className={linkHover}>
+                  Careers
+                </a>
+              </li>
+              <li>
+                <a href="https://www.olyxee.com/contact" target="_blank" rel="noopener noreferrer" className={linkHover}>
                   Contact
                 </a>
               </li>
-              
+              <li>
+                <a href="https://www.olyxee.com/privacy" target="_blank" rel="noopener noreferrer" className={linkHover}>
+                  Privacy
+                </a>
+              </li>
+              <li>
+                <a href="https://www.olyxee.com/terms" target="_blank" rel="noopener noreferrer" className={linkHover}>
+                  Terms
+                </a>
+              </li>
             </ul>
           </div>
         </div>
-        <div
-          className={`pt-8 border-t ${innerBorder} flex flex-col md:flex-row justify-between items-center gap-4`}
-        >
-          <div className={`text-sm ${muted} text-center md:text-left`}>
+        
+        <div className={`pt-8 border-t ${innerBorder} flex flex-col md:flex-row justify-between items-center gap-4`}>
+          <div className={`text-sm ${muted}`}>
             © {new Date().getFullYear()} Olyxee. All rights reserved.
-          </div>
-          <div className="flex gap-4">
-            <div className="h-2 w-2 rounded-full bg-primary/20"></div>
-            <div className="h-2 w-2 rounded-full bg-primary/40"></div>
-            <div className="h-2 w-2 rounded-full bg-primary"></div>
           </div>
         </div>
       </div>

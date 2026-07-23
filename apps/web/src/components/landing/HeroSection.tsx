@@ -1,108 +1,70 @@
-import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SIGNUP_URL } from "@/lib/links";
 
 export function HeroSection() {
-  const shouldReduceMotion = useReducedMotion();
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  const earthOpacity = useTransform(scrollYProgress, [0, 0.85, 1], [1, 1, 0.6]);
-  const videoScale = useTransform(scrollYProgress, [0, 0.6], [1.3, 1]);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    const keepPlaying = () => {
-      if (document.visibilityState === "visible" && v.paused) {
-        v.play().catch(() => {});
-      }
-    };
-    keepPlaying();
-    v.addEventListener("pause", keepPlaying);
-    v.addEventListener("canplay", keepPlaying);
-    v.addEventListener("loadeddata", keepPlaying);
-    document.addEventListener("visibilitychange", keepPlaying);
-    return () => {
-      v.removeEventListener("pause", keepPlaying);
-      v.removeEventListener("canplay", keepPlaying);
-      v.removeEventListener("loadeddata", keepPlaying);
-      document.removeEventListener("visibilitychange", keepPlaying);
-    };
-  }, []);
-
   return (
-    <section ref={heroRef} className="relative z-20 min-h-[90vh] bg-black text-white flex flex-col pt-16 lg:pt-24 pb-0">
-      <div className="container max-w-screen-xl px-4 md:px-8 mx-auto relative z-10 flex flex-col items-center text-center">
+    <section className="pt-24 md:pt-32 pb-20 md:pb-32 px-6 md:px-12 max-w-screen-xl mx-auto">
+      <div className="max-w-4xl">
+        <div className="inline-flex items-center px-3 py-1 mb-8 rounded-full bg-secondary text-secondary-foreground text-xs font-medium tracking-wide">
+          Organisational intelligence infrastructure developed by Olyxee.
+        </div>
         
-        {/* Text Content */}
-        <motion.div
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.8 }}
-          className="max-w-4xl w-full mb-8 relative z-20"
-        >
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-6">
-            Your business already has intelligence. <br className="hidden md:block" />
-            <span className="text-primary">Orgni makes it usable.</span>
-          </h1>
-          <div className="flex items-center justify-center mt-4">
-            <Button
-              asChild
-              className={`
-                group relative h-[60px] px-10 rounded-sm bg-primary text-primary-foreground 
-                font-mono text-sm font-bold uppercase tracking-widest overflow-hidden
-                transition-all duration-500 ease-out
-                ${!shouldReduceMotion ? 'hover:shadow-[0_0_40px_-10px_hsl(var(--primary)/0.6)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]' : ''}
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-black
-              `}
-            >
-              <a href={SIGNUP_URL}>
-                <span className="relative z-10 flex items-center">
-                  Explore Orgni
-                  <ArrowRight className={`ml-4 h-5 w-5 transition-transform duration-500 ease-out ${!shouldReduceMotion ? 'group-hover:translate-x-2' : ''}`} />
-                </span>
-                {!shouldReduceMotion && (
-                  <div className="absolute inset-0 z-0 bg-white/0 transition-colors duration-500 ease-out group-hover:bg-white/20 pointer-events-none" />
-                )}
-              </a>
-            </Button>
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-foreground leading-[1.1] mb-8">
+          Build AI on top of how your organisation actually works
+        </h1>
+        
+        <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mb-10">
+          Orgni creates a live, evidence-backed model of your organisation’s people, processes, systems, policies, obligations and operational state.
+          <br /><br />
+          Give teams, applications and AI agents the trusted context they need to understand work, make better decisions and act reliably.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 md:mb-32">
+          <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none">
+            <a href={SIGNUP_URL}>
+              Request a demonstration
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-border hover:bg-secondary">
+            <a href="#platform">
+              See how Orgni works
+            </a>
+          </Button>
+        </div>
+        
+        {/* Architecture Visual */}
+        <div className="relative pt-12 mt-12 border-t border-border/50">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-4 text-xs font-medium text-muted-foreground tracking-widest uppercase">
+            System Architecture
           </div>
-        </motion.div>
-
-        {/* Earth video */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 1.2, delay: shouldReduceMotion ? 0 : 0.4 }}
-          style={{ scale: shouldReduceMotion ? 1 : videoScale, transformOrigin: "center center" }}
-          className="w-full mt-8 md:mt-12 -mb-24 sm:-mb-32 md:-mb-48 lg:-mb-64 relative z-0 aspect-square sm:aspect-video md:aspect-[16/9] will-change-transform mix-blend-screen pointer-events-none"
-        >
-          <motion.div
-            style={{ opacity: shouldReduceMotion ? 1 : earthOpacity }}
-            className="absolute inset-0"
-          >
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-contain pointer-events-none"
-              src={`${import.meta.env.BASE_URL}hero.mp4`}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-            />
-          </motion.div>
           
-        </motion.div>
-
+          <div className="flex flex-col items-center max-w-2xl mx-auto">
+            {/* Top Layer */}
+            <div className="w-full p-6 bg-secondary/30 rounded-lg border border-border flex justify-center">
+              <span className="text-sm font-medium text-foreground">Documents, systems and operational events</span>
+            </div>
+            
+            {/* Arrow */}
+            <div className="h-8 w-px bg-border my-2 relative">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 border-solid border-t-border border-t-[6px] border-x-transparent border-x-[5px] border-b-0"></div>
+            </div>
+            
+            {/* Middle Layer (Orgni) */}
+            <div className="w-full sm:w-3/4 p-6 bg-primary text-primary-foreground rounded-lg shadow-sm flex justify-center">
+              <span className="text-base font-semibold tracking-wide">Orgni</span>
+            </div>
+            
+            {/* Arrow */}
+            <div className="h-8 w-px bg-border my-2 relative">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 border-solid border-t-border border-t-[6px] border-x-transparent border-x-[5px] border-b-0"></div>
+            </div>
+            
+            {/* Bottom Layer */}
+            <div className="w-full p-6 bg-secondary/30 rounded-lg border border-border flex justify-center">
+              <span className="text-sm font-medium text-foreground">Teams, applications and AI agents</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
