@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { WhatItDoesSection } from "@/components/landing/WhatItDoesSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
+import { ProductShowcaseSection } from "@/components/landing/ProductShowcaseSection";
 import { UseCaseSection } from "@/components/landing/UseCaseSection";
 import { BusinessValueSection } from "@/components/landing/BusinessValueSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
@@ -28,6 +29,7 @@ export default function Home() {
         <ProblemSection />
         <WhatItDoesSection />
         <HowItWorksSection />
+        <ProductShowcaseSection />
         <UseCaseSection />
         <BusinessValueSection />
         <InfrastructureSection />

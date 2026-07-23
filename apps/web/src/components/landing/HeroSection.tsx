@@ -29,9 +29,7 @@ export function HeroSection() {
         </h1>
         
         <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl mb-10">
-          Orgni creates a live, evidence-backed model of your organisation’s people, processes, systems, policies, obligations and operational state.
-          <br /><br />
-          Give teams, applications and AI agents the trusted context they need to understand work, make better decisions and act reliably.
+          A live, evidence-backed model of your people, processes, systems, policies and obligations — trusted context for teams, applications and AI agents.
         </p>
         
         <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 md:mb-32">

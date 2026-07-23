@@ -9,13 +9,10 @@ export function ProblemSection() {
           
           <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
             <p>
-              Important operational knowledge is spread across documents, emails, business systems, workflows and people.
+              Operational knowledge is spread across documents, emails, systems, workflows and people — and every new project or AI agent rebuilds that context from scratch.
             </p>
             <p>
-              Every new transformation project, application or AI agent must rebuild that context from the beginning.
-            </p>
-            <p>
-              This leads to repeated process discovery, conflicting information, unclear ownership, missed obligations and AI systems that cannot act safely.
+              The result: repeated discovery, conflicting information, unclear ownership, missed obligations and AI that cannot act safely.
             </p>
           </div>
         </div>
