@@ -721,6 +721,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
+      vitest:
+        specifier: 'catalog:'
+        version: 2.1.9(@types/node@25.9.5)(lightningcss@1.32.0)
 
   packages/auth:
     dependencies:
