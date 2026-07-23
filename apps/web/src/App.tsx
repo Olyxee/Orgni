@@ -8,6 +8,7 @@ import Home from "@/pages/home";
 import Platform from "@/pages/platform";
 import UseCases from "@/pages/use-cases";
 import Infrastructure from "@/pages/infrastructure";
+import Developers from "@/pages/developers";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Api from "@/pages/api";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/platform" component={Platform} />
       <Route path="/use-cases" component={UseCases} />
       <Route path="/infrastructure" component={Infrastructure} />
+      <Route path="/developers" component={Developers} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference" component={Api} />

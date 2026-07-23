@@ -43,6 +43,11 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
                   Infrastructure
                 </Link>
               </li>
+              <li>
+                <Link href="/developers" className={linkHover}>
+                  Developers
+                </Link>
+              </li>
             </ul>
           </div>
           

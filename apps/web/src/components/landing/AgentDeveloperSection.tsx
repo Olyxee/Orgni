@@ -37,7 +37,7 @@ export function AgentDeveloperSection() {
           </div>
           
           <Button asChild variant="outline" className="h-12 px-8 font-medium border-border shadow-none rounded-none hover:bg-secondary/30">
-            <Link href="/api-reference">
+            <Link href="/developers">
               Explore Orgni infrastructure
             </Link>
           </Button>

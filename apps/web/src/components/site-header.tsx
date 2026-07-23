@@ -31,7 +31,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
       : "bg-transparent border-b border-transparent py-6"
   }`;
 
-  const navLink = "text-xs font-mono uppercase tracking-widest text-foreground/70 hover:text-primary transition-colors relative group py-1";
+  const navLink = "whitespace-nowrap text-xs font-mono uppercase tracking-widest text-foreground/70 hover:text-primary transition-colors relative group py-1";
   const mobileLink = "block py-4 text-xs font-mono uppercase tracking-widest text-foreground/80 hover:text-primary border-b border-border";
 
   return (
@@ -67,6 +67,9 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             </Link>
             <Link href="/infrastructure" className={navLink}>
               Infrastructure
+            </Link>
+            <Link href="/developers" className={navLink}>
+              Developers
             </Link>
             <Link href="/thesis" className={navLink}>
               Research
@@ -133,6 +136,9 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             </Link>
             <Link href="/infrastructure" onClick={closeMobile} className={mobileLink}>
               Infrastructure
+            </Link>
+            <Link href="/developers" onClick={closeMobile} className={mobileLink}>
+              Developers
             </Link>
             <Link href="/thesis" onClick={closeMobile} className={mobileLink}>
               Research
