@@ -9,14 +9,21 @@ export function UseCaseSection() {
   ];
 
   return (
-    <section id="use-cases" className="py-20 md:py-32 px-6 md:px-12 max-w-screen-xl mx-auto">
+    <section id="use-cases" className="py-24 md:py-32 px-6 md:px-12 max-w-screen-xl mx-auto scroll-mt-20">
       <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-start">
         <div>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-8">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="h-px w-8 bg-primary"></div>
+            <span className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
+              Commercial Context
+            </span>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight text-foreground mb-8 leading-[1.1]">
             Start with contracts, invoices and payments
           </h2>
           
-          <div className="space-y-6 text-lg text-muted-foreground leading-relaxed mb-12">
+          <div className="space-y-6 text-lg text-muted-foreground leading-relaxed mb-16 pl-6 border-l-2 border-border">
             <p>
               Orgni connects contracts, obligations, invoices, payments and counterparties into one traceable operational model.
             </p>
@@ -25,12 +32,15 @@ export function UseCaseSection() {
             </p>
           </div>
           
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-foreground uppercase tracking-widest mb-6">Visible outcomes</h4>
+          <div className="space-y-6">
+            <h4 className="text-xs font-mono text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-primary"></div> Visible outcomes
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {outputs.map((output, i) => (
-                <div key={i} className="flex items-start gap-3 p-4 border border-border rounded-sm bg-background">
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0"></div>
+                <div key={i} className="group relative flex items-start gap-3 p-5 border border-border bg-background hover:border-primary/50 transition-colors">
+                  <div className="absolute left-0 top-0 w-0.5 h-0 bg-primary group-hover:h-full transition-all duration-300"></div>
+                  <div className="font-mono text-xs text-primary mt-1">{String(i + 1).padStart(2, '0')}</div>
                   <span className="text-sm font-medium text-foreground">{output}</span>
                 </div>
               ))}
@@ -39,21 +49,24 @@ export function UseCaseSection() {
         </div>
 
         {/* Diagram */}
-        <div className="flex flex-col bg-secondary/10 border border-border rounded-lg p-8 md:p-12">
-          <div className="flex flex-col space-y-2 items-center">
+        <div className="flex flex-col bg-secondary/20 border border-border p-8 md:p-12 relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid-pattern opacity-40 pointer-events-none"></div>
+          <div className="flex flex-col space-y-0 items-center relative z-10">
             {['Contract', 'Obligation', 'Invoice', 'Payment'].map((step, i) => (
               <div key={i} className="w-full flex flex-col items-center">
-                <div className="w-full max-w-xs p-4 bg-background border border-border rounded text-center shadow-sm">
-                  <span className="text-sm font-medium text-foreground">{step}</span>
+                <div className="w-full max-w-xs p-5 bg-background border border-border text-center shadow-sm hover:border-primary/50 transition-colors relative">
+                  <div className="absolute left-0 top-0 w-1 h-full bg-border"></div>
+                  <span className="text-sm font-mono uppercase tracking-wider text-foreground">{step}</span>
                 </div>
-                <div className="flex justify-center py-2 h-10 w-px relative">
+                <div className="flex justify-center py-4 h-12 w-px relative">
                   <div className="absolute top-0 w-px h-full bg-border"></div>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 border-solid border-t-border border-t-[5px] border-x-transparent border-x-[4px] border-b-0"></div>
+                  <div className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-border"></div>
                 </div>
               </div>
             ))}
-            <div className="w-full max-w-xs p-4 bg-primary text-primary-foreground rounded text-center shadow-sm font-medium">
-              Current state
+            <div className="w-full max-w-xs p-5 bg-primary text-primary-foreground text-center shadow-md relative">
+              <div className="absolute left-0 top-0 w-1 h-full bg-black/20"></div>
+              <span className="text-base font-mono uppercase tracking-widest font-semibold">Current state</span>
             </div>
           </div>
         </div>

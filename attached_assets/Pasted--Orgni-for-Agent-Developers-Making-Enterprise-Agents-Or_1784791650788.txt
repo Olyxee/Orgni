@@ -1,0 +1,813 @@
+# Orgni for Agent Developers
+
+## Making Enterprise Agents Organisationally Intelligent
+
+The growth of AI agents will create demand for specialised systems capable of performing compliance, financial, legal, procurement, operational and administrative work.
+
+However, most agents are currently designed around a narrow combination of model instructions, retrieval pipelines, application connectors and temporary memory.
+
+This allows an agent to access information, but it does not necessarily allow the agent to understand the organisation in which it operates.
+
+An agent may be able to retrieve a policy document without knowing whether the policy is current.
+
+It may read a compliance certificate without understanding which supplier, contract, jurisdiction or obligation the certificate relates to.
+
+It may identify a missing document without knowing whether the document is required for the specific organisation, transaction, licence or regulatory regime.
+
+It may flag an anomaly without understanding whether that anomaly is an approved exception.
+
+The limitation is therefore not only model intelligence.
+
+The deeper limitation is the absence of structured, historical and governed organisational context.
+
+Orgni is designed to provide this missing infrastructure.
+
+---
+
+# 1. The Agent Context Problem
+
+A specialised enterprise agent generally needs two forms of intelligence.
+
+## 1.1 Domain intelligence
+
+Domain intelligence includes knowledge of:
+
+* regulations;
+* accounting principles;
+* legal requirements;
+* compliance frameworks;
+* industry terminology;
+* common procedures;
+* expected document structures.
+
+This knowledge may be supplied through a language model, rule system, external database or specialised training dataset.
+
+## 1.2 Organisational intelligence
+
+Organisational intelligence includes knowledge of:
+
+* how the specific organisation is structured;
+* which entities and people are involved;
+* which policies have been adopted;
+* which jurisdictions apply;
+* which licences are active;
+* which obligations are outstanding;
+* where evidence is stored;
+* what happened previously;
+* who has authority;
+* which exceptions have been approved;
+* what the current operational state is.
+
+Domain intelligence tells an agent what compliance means generally.
+
+Organisational intelligence tells the agent what compliance means for this organisation, at this moment, for this activity.
+
+Most agent platforms concentrate on domain intelligence and tool access.
+
+Orgni provides organisational intelligence.
+
+---
+
+# 2. The YC Compliance Infrastructure Opportunity
+
+Y Combinator’s Fall 2026 Request for Startups identifies AI-native compliance infrastructure as an important opportunity.
+
+The request describes a market in which compliance operations remain fragmented across spreadsheets, point solutions, specialist teams and manual review processes.
+
+It highlights functions such as:
+
+* monitoring regulatory changes;
+* identifying anomalies;
+* generating compliance reports;
+* preserving audit trails;
+* managing licences and renewals;
+* supporting operations across multiple jurisdictions.
+
+The opportunity is larger than building a chatbot that answers regulatory questions.
+
+The stronger opportunity is to create infrastructure through which compliance becomes continuously observable, explainable and operational.
+
+A compliance agent provides a useful example of how Orgni could support this future.
+
+---
+
+# 3. Compliance Agent Without Orgni
+
+Consider a developer building an AI compliance agent.
+
+The agent connects to:
+
+* SharePoint;
+* email;
+* cloud storage;
+* finance systems;
+* human-resources systems;
+* procurement platforms;
+* regulatory websites.
+
+The agent may use retrieval-augmented generation to search these sources.
+
+It may be able to answer:
+
+> Where is our information-security policy?
+
+> When does this supplier certificate expire?
+
+> What documents are required for an audit?
+
+However, each query is treated largely as an independent retrieval task.
+
+The agent may not maintain a reliable model of:
+
+* which policy superseded another;
+* which legal entity a licence applies to;
+* which supplier records represent the same company;
+* whether a control is implemented or merely documented;
+* whether evidence remains current;
+* which business activity created an obligation;
+* who owns the remediation;
+* whether an exception was approved;
+* how the compliance state changed over time.
+
+The agent therefore remains dependent on repeated searches, manually prepared prompts and isolated workflow logic.
+
+Its apparent intelligence may increase, while its organisational understanding remains shallow.
+
+---
+
+# 4. Compliance Agent With Orgni
+
+When connected to Orgni, the compliance agent receives a persistent organisational model.
+
+Orgni maintains:
+
+* canonical entity identities;
+* regulatory obligations;
+* company policies;
+* operational controls;
+* licences;
+* jurisdictions;
+* responsibilities;
+* evidence;
+* deadlines;
+* exceptions;
+* approvals;
+* events;
+* current compliance state;
+* historical compliance state.
+
+The agent no longer begins every task by reconstructing the organisation.
+
+It requests the context required for the task.
+
+Example:
+
+```json
+{
+  "actor": "compliance-agent",
+  "task": "evaluate_supplier_compliance",
+  "resource": "supplier_482",
+  "jurisdiction": "South Africa",
+  "asOf": "2026-07-23"
+}
+```
+
+Orgni may return:
+
+```text
+Supplier:
+ABC Technologies (Pty) Ltd
+
+Canonical registration:
+2021/123456/07
+
+Active relationship:
+Critical infrastructure supplier
+
+Applicable policies:
+Third-Party Risk Policy v3
+Information Security Policy v5
+
+Required evidence:
+B-BBEE certificate
+Tax compliance status
+Information-security assessment
+Data-processing agreement
+Proof of insurance
+
+Current evidence:
+B-BBEE certificate valid
+Tax status valid
+Security assessment expired
+Data-processing agreement active
+Proof of insurance missing
+
+Approved exceptions:
+Temporary security exception approved until 31 July 2026
+
+Responsible owner:
+Head of Procurement
+
+Current compliance state:
+Conditionally compliant
+
+Required next action:
+Obtain updated security assessment and proof of insurance before 31 July 2026
+```
+
+Every returned conclusion can remain connected to its source evidence, confidence, effective date and governing rule.
+
+The compliance agent can now reason about the supplier as part of the organisation rather than as a collection of retrieved documents.
+
+---
+
+# 5. How Orgni Makes the Agent Smarter
+
+## 5.1 Persistent identity
+
+The agent may encounter:
+
+```text
+ABC Technologies
+ABC Tech
+ABC Technologies (Pty) Ltd
+Supplier SUP-0042
+Registration 2021/123456/07
+```
+
+Orgni resolves these references into one canonical supplier while preserving their source identities.
+
+The compliance agent can therefore combine evidence from multiple systems without treating the same organisation as several unrelated companies.
+
+## 5.2 Applicable-rule selection
+
+A generic compliance agent may know thousands of regulations and policies.
+
+The difficult question is determining which ones apply to the current situation.
+
+Orgni can filter requirements according to:
+
+* legal entity;
+* jurisdiction;
+* industry;
+* activity;
+* product;
+* supplier category;
+* data classification;
+* contract;
+* effective date.
+
+The agent receives the applicable requirements instead of the complete regulatory universe.
+
+## 5.3 Current-state understanding
+
+The existence of a document does not prove compliance.
+
+A policy may exist but remain unapproved.
+
+A certificate may exist but be expired.
+
+A control may be defined but not implemented.
+
+An exception may have been approved temporarily.
+
+Orgni derives current state from evidence and events.
+
+The agent can distinguish:
+
+```text
+REQUIRED
+DOCUMENTED
+IMPLEMENTED
+VERIFIED
+EXPIRED
+DISPUTED
+EXEMPTED
+NON_COMPLIANT
+```
+
+## 5.4 Temporal reasoning
+
+Compliance depends on time.
+
+Orgni allows the agent to determine:
+
+* what requirement applied on a specific date;
+* when evidence expired;
+* when a control changed;
+* whether an audit finding was unresolved at period end;
+* which policy version governed an earlier decision.
+
+The agent can answer both:
+
+> Are we compliant today?
+
+and:
+
+> Were we compliant on 31 March 2026, based on evidence available at that time?
+
+## 5.5 Provenance
+
+Every compliance conclusion should be explainable.
+
+Orgni provides the agent with:
+
+* source document;
+* page or field;
+* source system;
+* extraction method;
+* confidence;
+* processing version;
+* governing policy;
+* applicable rule;
+* human review decision.
+
+The agent can produce an audit-ready response rather than an unsupported model answer.
+
+## 5.6 Conflict awareness
+
+The agent should not silently choose between conflicting information.
+
+For example:
+
+```text
+Supplier system:
+Certificate expires 30 September
+
+Uploaded certificate:
+Certificate expires 31 August
+
+Email:
+Supplier claims a renewed certificate was submitted
+```
+
+Orgni preserves the claims and marks the conflict.
+
+The compliance agent can report:
+
+> The supplier’s certificate status cannot currently be verified because the procurement record and uploaded certificate contain conflicting expiry dates.
+
+## 5.7 Organisational responsibility
+
+Detecting a problem is not enough.
+
+The agent must know:
+
+* who owns the requirement;
+* who may approve an exception;
+* who must provide evidence;
+* who should receive escalation;
+* what workflow applies.
+
+Orgni connects compliance findings to organisational roles and responsibilities.
+
+## 5.8 Organisational memory
+
+The agent can use previous cases and decisions.
+
+For example:
+
+* how a similar supplier issue was resolved;
+* which evidence an auditor previously accepted;
+* why an exception was approved;
+* how long remediation normally takes;
+* whether the issue repeatedly occurs.
+
+The agent becomes more useful as the organisation’s verified history grows.
+
+---
+
+# 6. The Compliance Intelligence Loop
+
+The future compliance agent should not operate only when a person asks a question.
+
+It should work as a continuous loop.
+
+```text
+Observe
+↓
+Interpret
+↓
+Compare actual state with required state
+↓
+Identify gaps or changes
+↓
+Recommend or initiate remediation
+↓
+Capture the decision and outcome
+↓
+Update organisational state
+↓
+Improve future context
+```
+
+## Observe
+
+Orgni receives:
+
+* policies;
+* certificates;
+* contracts;
+* transactions;
+* licence records;
+* system events;
+* regulatory changes;
+* audit findings;
+* human corrections.
+
+## Interpret
+
+The tokenizer and ontology convert these sources into standard entities, claims, events, obligations and relationships.
+
+## Compare
+
+The compliance agent compares the organisation’s current state with the applicable compliance requirements.
+
+## Act
+
+The agent may:
+
+* create a review item;
+* request evidence;
+* draft a report;
+* notify an owner;
+* prepare a renewal;
+* propose an exception;
+* escalate an unresolved risk.
+
+Consequential actions remain subject to permissions and approval policies.
+
+## Learn
+
+The outcome becomes part of Orgni’s organisational history.
+
+The next time a similar event occurs, the agent receives stronger context.
+
+---
+
+# 7. Example End-to-End Scenario
+
+A financial-services company operates in several jurisdictions.
+
+A new regulatory requirement changes the reporting obligations for a particular type of customer transaction.
+
+## Without Orgni
+
+The compliance agent:
+
+1. retrieves the regulatory publication;
+2. summarises it;
+3. searches internal policies;
+4. identifies several potentially relevant documents;
+5. asks a human to determine which teams and systems are affected.
+
+The difficult organisational mapping remains manual.
+
+## With Orgni
+
+The regulatory change is interpreted as a set of proposed requirements.
+
+Orgni maps those requirements against:
+
+* affected legal entities;
+* applicable jurisdictions;
+* products;
+* transaction types;
+* internal policies;
+* business processes;
+* system owners;
+* existing controls;
+* reporting workflows.
+
+The agent receives:
+
+```text
+Affected legal entity:
+Example Financial Services South Africa
+
+Affected product:
+Cross-border business account
+
+Affected workflow:
+High-value international transfer monitoring
+
+Affected systems:
+Transaction Monitoring Platform
+Customer Risk Platform
+
+Current control:
+Manual review above threshold
+
+Gap:
+New regulation requires beneficial-owner evidence to be retained with each report
+
+Current evidence state:
+Beneficial-owner evidence exists in onboarding records but is not linked to transaction reports
+
+Responsible teams:
+Financial Crime Compliance
+Customer Operations
+Payments Engineering
+
+Recommended change:
+Add beneficial-owner evidence reference to the reporting workflow
+
+Deadline:
+30 September 2026
+```
+
+The compliance agent can then coordinate a structured response instead of producing only a regulatory summary.
+
+---
+
+# 8. Developer Experience
+
+Agent developers should not need to understand every internal Orgni component.
+
+They should interact with a stable context interface.
+
+## Context request
+
+```typescript
+const context = await orgni.context.get({
+  actor: "compliance-agent",
+  task: "evaluate-control",
+  resource: "control_284",
+  asOf: new Date().toISOString()
+});
+```
+
+## Context response
+
+```typescript
+{
+  resource: {},
+  applicableRequirements: [],
+  currentState: {},
+  evidence: [],
+  owners: [],
+  exceptions: [],
+  conflicts: [],
+  historicalEvents: [],
+  permittedActions: [],
+  missingContext: []
+}
+```
+
+## Agent actions
+
+The developer may use Orgni to:
+
+```text
+resolve_entity
+get_applicable_requirements
+get_current_state
+get_evidence
+get_timeline
+list_open_obligations
+list_conflicts
+find_responsible_owner
+propose_remediation
+submit_correction
+subscribe_to_state_changes
+```
+
+Orgni may expose these capabilities through:
+
+* REST;
+* TypeScript SDK;
+* Python SDK;
+* webhooks;
+* event streams;
+* MCP.
+
+The Model Context Protocol provides a machine-readable interface through which agents can discover and call authorised tools. Orgni can use MCP as one delivery mechanism while maintaining organisational truth, identity, evidence and state behind the interface.
+
+---
+
+# 9. Orgni as Infrastructure for Multiple Agents
+
+The compliance agent is one consumer of Orgni.
+
+The same organisational model may support:
+
+## Financial agent
+
+Understands:
+
+* contracts;
+* invoices;
+* payments;
+* budgets;
+* approvals;
+* obligations;
+* financial exceptions.
+
+## Procurement agent
+
+Understands:
+
+* suppliers;
+* contracts;
+* purchase orders;
+* certifications;
+* delivery requirements;
+* supplier risks.
+
+## Legal agent
+
+Understands:
+
+* agreements;
+* parties;
+* clauses;
+* obligations;
+* amendments;
+* expirations;
+* disputes.
+
+## Transformation agent
+
+Understands:
+
+* processes;
+* systems;
+* roles;
+* dependencies;
+* bottlenecks;
+* change history.
+
+## Audit agent
+
+Understands:
+
+* controls;
+* evidence;
+* policies;
+* findings;
+* remediation;
+* responsible owners;
+* historical state.
+
+These agents should not maintain five separate versions of the organisation.
+
+They should consume one shared organisational model through Orgni.
+
+---
+
+# 10. Cross-Agent Coordination
+
+A compliance finding may affect finance, procurement and legal operations.
+
+For example:
+
+```text
+Compliance agent:
+Supplier certificate has expired.
+
+Procurement agent:
+Supplier has an active purchase order.
+
+Financial agent:
+Supplier has an invoice awaiting approval.
+
+Legal agent:
+Supplier contract requires continuous certification.
+```
+
+Without shared organisational infrastructure, these agents may operate independently.
+
+With Orgni, they receive the same underlying entities, relationships, events and current state.
+
+The compliance finding can update the organisational model:
+
+```text
+SUPPLIER_COMPLIANCE_STATUS_CHANGED
+```
+
+This event may cause:
+
+* the procurement agent to pause a new order;
+* the finance agent to request approval before payment;
+* the legal agent to review the contract;
+* the compliance agent to request renewed evidence.
+
+Orgni becomes the coordination substrate between specialised agents.
+
+---
+
+# 11. From Agent Tool to Future Infrastructure
+
+A compliance agent without Orgni may be sold as an application that automates compliance tasks.
+
+A compliance agent built on Orgni becomes part of a larger organisational intelligence system.
+
+The difference is:
+
+```text
+Traditional compliance agent
+=
+model
++ compliance rules
++ connectors
++ workflow automation
+```
+
+```text
+Orgni-powered compliance agent
+=
+model
++ compliance rules
++ governed organisational identity
++ temporal organisational state
++ evidence and provenance
++ permissions
++ organisational history
++ cross-agent context
+```
+
+The first system performs tasks.
+
+The second system understands how those tasks relate to the organisation.
+
+This creates a stronger long-term position for Olyxee.
+
+Olyxee does not need to compete with every company building a compliance agent.
+
+Olyxee can provide the infrastructure that makes compliance agents, financial agents, procurement agents and other enterprise agents organisationally intelligent.
+
+---
+
+# 12. Recommended Developer Positioning
+
+The business-facing Orgni message is:
+
+> Orgni creates a live, evidence-backed model of how your organisation operates.
+
+The developer-facing message is:
+
+> Give your agents the organisational context they cannot build from prompts and connectors alone.
+
+A more direct developer headline is:
+
+> Build agents that understand the organisation, not only the task.
+
+Supporting copy:
+
+> Orgni gives enterprise agents access to governed identity, relationships, policies, evidence, history and current operational state through APIs, SDKs, events and MCP.
+
+---
+
+# 13. Recommended Landing-Page Demonstration
+
+The developer section of the Orgni website should include an interactive compliance-agent example.
+
+## Step 1: Agent request
+
+```text
+Can this supplier invoice be approved?
+```
+
+## Step 2: Normal agent answer
+
+```text
+The invoice contains the required supplier and payment information.
+```
+
+## Step 3: Orgni-powered answer
+
+```text
+Do not approve automatically.
+
+The invoice is linked to an active supplier contract, but the supplier’s required information-security assessment expired on 15 July 2026.
+
+A temporary exception remains active until 31 July 2026 and requires approval from the Head of Procurement before payment.
+
+Evidence:
+Supplier contract, clause 8.2
+Third-Party Risk Policy v3, section 5
+Security assessment, expiry field
+Exception approval EX-2026-18
+```
+
+This comparison demonstrates the product more effectively than a generic list of APIs.
+
+---
+
+# 14. Strategic Conclusion
+
+YC’s compliance infrastructure request validates the increasing demand for AI-native compliance systems.
+
+However, the deeper infrastructure problem extends beyond compliance.
+
+Every specialised agent must reconstruct organisational identity, evidence, history, policies, responsibilities and state.
+
+Orgni should provide these capabilities once and make them available to every authorised agent.
+
+The compliance agent is therefore not the final definition of Orgni.
+
+It is the first proof that Orgni can transform a specialised agent from a domain-aware tool into an organisationally intelligent system.
+
+The future opportunity is:
+
+> Any agent can understand its domain. Orgni allows the agent to understand the organisation in which that domain operates.

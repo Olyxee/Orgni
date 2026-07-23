@@ -19,20 +19,24 @@ const integrations = [
 
 export function IntegrationsSection() {
   return (
-    <section className="py-16 md:py-20 px-6 md:px-12 max-w-screen-xl mx-auto border-t border-border/50">
-      <p className="text-center text-xs font-medium text-muted-foreground tracking-widest uppercase mb-10">
-        Connects to the tools you already use
-      </p>
-      <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-x-8 gap-y-10 items-center justify-items-center">
+    <section className="py-16 md:py-24 px-6 md:px-12 max-w-screen-xl mx-auto border-t border-border bg-white">
+      <div className="flex items-center gap-3 mb-10 justify-center">
+        <div className="h-px w-8 bg-primary"></div>
+        <p className="text-center text-xs font-mono font-medium text-muted-foreground tracking-widest uppercase">
+          Connects to the tools you already use
+        </p>
+        <div className="h-px w-8 bg-primary"></div>
+      </div>
+      <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-px bg-border">
         {integrations.map((tool) => (
-          <div key={tool.name} className="flex flex-col items-center gap-2" title={tool.name}>
+          <div key={tool.name} className="flex flex-col items-center justify-center p-6 gap-3 bg-white hover:bg-secondary/20 transition-colors duration-200" title={tool.name}>
             <img
               src={`${import.meta.env.BASE_URL}integrations/${tool.file}`}
               alt={`${tool.name} logo`}
-              className="h-8 w-8 object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-200"
+              className="h-7 w-7 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
               loading="lazy"
             />
-            <span className="text-[11px] text-muted-foreground">{tool.name}</span>
+            <span className="text-[10px] font-mono text-muted-foreground uppercase">{tool.name}</span>
           </div>
         ))}
       </div>

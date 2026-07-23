@@ -40,8 +40,8 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
       : "bg-transparent border-b border-transparent py-6"
   }`;
 
-  const navLink = "text-sm font-medium text-foreground/70 hover:text-foreground transition-colors relative group py-1";
-  const mobileLink = "block py-4 text-base font-medium text-foreground/80 hover:text-foreground border-b border-border";
+  const navLink = "text-xs font-mono uppercase tracking-widest text-foreground/70 hover:text-primary transition-colors relative group py-1";
+  const mobileLink = "block py-4 text-xs font-mono uppercase tracking-widest text-foreground/80 hover:text-primary border-b border-border";
 
   return (
     <header className={headerClass}>
@@ -54,20 +54,20 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             <img
               src={`${import.meta.env.BASE_URL}orgni-logo.png`}
               alt="Orgni logo"
-              className="h-8 w-8 object-cover"
+              className="h-8 w-8 object-cover group-hover:scale-105 transition-transform"
             />
             <div className="flex flex-col">
-              <span className="font-bold tracking-tight text-lg leading-none text-foreground">
+              <span className="font-mono uppercase tracking-widest font-semibold text-lg leading-none text-foreground group-hover:text-primary transition-colors">
                 Orgni
               </span>
-              <span className="text-[10px] text-foreground/50 font-medium leading-none mt-1 uppercase tracking-wider">
+              <span className="text-[10px] text-foreground/50 font-mono leading-none mt-1 uppercase tracking-widest group-hover:text-primary/70 transition-colors">
                 by Olyxee
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8 ml-8 border-l border-border pl-12 h-8">
             <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={navLink}>
               Platform
             </Link>
@@ -91,11 +91,11 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           
           <button
             onClick={() => commandPalette.open()}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-foreground/60 hover:text-foreground transition-colors group border border-transparent hover:border-border rounded-md"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 text-xs font-mono uppercase tracking-widest text-foreground/60 hover:text-foreground transition-colors group border border-transparent hover:border-border rounded-none"
           >
             <Search className="h-4 w-4" />
             <span>Search</span>
-            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-sans font-medium bg-muted text-muted-foreground rounded-[2px] ml-1">
+            <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-sans font-medium bg-muted text-muted-foreground rounded-none ml-1">
               <span className="mr-0.5 text-[11px] leading-none">⌘</span>K
             </kbd>
           </button>
@@ -111,7 +111,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           <Button
             asChild
             size="sm"
-            className="hidden lg:inline-flex h-9 px-5 font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors"
+            className="hidden lg:inline-flex h-9 px-5 font-mono text-xs uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none transition-colors rounded-none"
           >
             <a href={SIGNUP_URL}>
               Request a Demo
@@ -150,7 +150,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
               Company
             </a>
             <div className="pt-6 pb-4">
-              <Button asChild className="w-full h-12 font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-none">
+              <Button asChild className="w-full h-12 font-mono text-xs uppercase tracking-widest bg-primary text-primary-foreground hover:bg-primary/90 shadow-none rounded-none">
                 <a href={SIGNUP_URL}>
                   Request a Demo
                 </a>

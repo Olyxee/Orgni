@@ -13,7 +13,7 @@ function handleHashNav(e: React.MouseEvent, hash: string) {
 export function SiteFooter({ dark = false }: { dark?: boolean }) {
   const footerClass = "border-t border-border py-16 md:py-24 bg-background";
   const muted = "text-muted-foreground";
-  const linkHover = "hover:text-foreground transition-colors";
+  const linkHover = "hover:text-primary transition-colors";
   const innerBorder = "border-border";
 
   return (
@@ -27,15 +27,15 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
                 alt="Orgni logo"
                 className="h-6 w-6 object-cover"
               />
-              <span className="font-bold tracking-tight text-lg text-foreground">Orgni</span>
+              <span className="font-mono uppercase tracking-widest font-semibold text-lg text-foreground">Orgni</span>
             </div>
-            <p className={`text-base ${muted} max-w-md leading-relaxed`}>
+            <p className={`text-base ${muted} max-w-md leading-relaxed border-l-2 border-primary/30 pl-4`}>
               Orgni is organisational intelligence infrastructure developed by Olyxee.
             </p>
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold text-foreground mb-6">Product</h4>
+            <h4 className="text-xs font-mono tracking-widest uppercase text-foreground mb-6">Product</h4>
             <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
                 <Link href="/#platform" onClick={(e) => handleHashNav(e, "#platform")} className={linkHover}>
@@ -51,7 +51,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold text-foreground mb-6">Resources</h4>
+            <h4 className="text-xs font-mono tracking-widest uppercase text-foreground mb-6">Resources</h4>
             <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
                 <Link href="/thesis" className={linkHover}>
@@ -72,7 +72,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
           </div>
           
           <div>
-            <h4 className="text-sm font-semibold text-foreground mb-6">Company</h4>
+            <h4 className="text-xs font-mono tracking-widest uppercase text-foreground mb-6">Company</h4>
             <ul className={`space-y-4 text-sm ${muted}`}>
               <li>
                 <a href="https://www.olyxee.com" target="_blank" rel="noopener noreferrer" className={linkHover}>
@@ -104,7 +104,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
         </div>
         
         <div className={`pt-8 border-t ${innerBorder} flex flex-col md:flex-row justify-between items-center gap-4`}>
-          <div className={`text-sm ${muted}`}>
+          <div className={`text-xs font-mono uppercase tracking-widest ${muted}`}>
             © {new Date().getFullYear()} Olyxee. All rights reserved.
           </div>
         </div>
