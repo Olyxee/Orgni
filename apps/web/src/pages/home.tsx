@@ -4,12 +4,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { WhatItDoesSection } from "@/components/landing/WhatItDoesSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { ProductShowcaseSection } from "@/components/landing/ProductShowcaseSection";
 import { VideoSection } from "@/components/landing/VideoSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
 import { UseCaseSection } from "@/components/landing/UseCaseSection";
-import { BusinessValueSection } from "@/components/landing/BusinessValueSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
 import { AgentDeveloperSection } from "@/components/landing/AgentDeveloperSection";
 import { TrustSection } from "@/components/landing/TrustSection";
@@ -31,10 +29,8 @@ export default function Home() {
         <IntegrationsSection />
         <ProblemSection />
         <WhatItDoesSection />
-        <HowItWorksSection />
         <ProductShowcaseSection />
         <UseCaseSection />
-        <BusinessValueSection />
         <VideoSection />
         <InfrastructureSection />
         <AgentDeveloperSection />
