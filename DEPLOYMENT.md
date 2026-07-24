@@ -7,7 +7,7 @@ How to deploy each component of the monorepo. Summary:
 | Marketing + docs site | `@workspace/web` (`apps/web`) | Static SPA (Vite) | **Vercel** |
 | Backend API | `@workspace/api` (`apps/api`) | Node/Express (bundled) | **Azure Container Apps** |
 | Background worker | `@workspace/worker` (`apps/worker`) | Node service (bundled) | **Azure Container Apps** |
-| Component sandbox | `@workspace/mockup-sandbox` | Dev tool | Not deployed |
+| Organizational Ontology | `intelligence/organizational-ontology` | Python/FastAPI | **Azure Container Apps** |
 
 Legacy note: the archived pre-restructure repo (with the product app and Python
 document-service) lives in `.migration-backup/` and is not deployed. Its old
