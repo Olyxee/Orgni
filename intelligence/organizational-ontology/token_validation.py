@@ -33,16 +33,25 @@ class TokenValidationError(ValueError):
 
 
 def _default_schema_path() -> str:
-    # intelligence/organizational-ontology/ -> repo root -> packages/contracts/...
-    here = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.abspath(os.path.join(here, "..", ".."))
-    return os.path.join(
-        repo_root,
-        "packages",
-        "contracts",
-        "schemas",
-        "organizational-token.schema.json",
+    # Resolve the canonical schema across layouts: the monorepo checkout (module
+    # at intelligence/organizational-ontology) and the container image (module
+    # copied to /app, schema copied to /app/packages/...). An explicit
+    # ORGNI_TOKEN_SCHEMA env var overrides everything.
+    rel = os.path.join(
+        "packages", "contracts", "schemas", "organizational-token.schema.json"
     )
+    here = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.environ.get("ORGNI_TOKEN_SCHEMA", ""),
+        os.path.join(os.path.abspath(os.path.join(here, "..", "..")), rel),  # repo
+        os.path.join(here, rel),  # container: schema copied under the app root
+        os.path.join(os.sep, rel),  # absolute /packages/... fallback
+    ]
+    for candidate in candidates:
+        if candidate and os.path.isfile(candidate):
+            return candidate
+    # Fall back to the repo-relative path so the error names a sensible location.
+    return candidates[1]
 
 
 @lru_cache(maxsize=4)
