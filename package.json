@@ -11,7 +11,7 @@
     "dev": "turbo run dev",
     "build": "pnpm run typecheck && turbo run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./apps/**\" --filter \"./packages/**\" --filter \"./scripts\" --if-present run typecheck",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./apps/**\" --filter \"./packages/**\" --filter \"./intelligence/**\" --filter \"./scripts\" --if-present run typecheck",
     "type-check": "pnpm run typecheck",
     "lint": "prettier --check \"apps/**/*.{ts,tsx,css}\" \"packages/**/*.{ts,tsx}\" \"lib/**/*.ts\"",
     "lint:fix": "prettier --write \"apps/**/*.{ts,tsx,css}\" \"packages/**/*.{ts,tsx}\" \"lib/**/*.ts\"",

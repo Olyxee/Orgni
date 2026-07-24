@@ -41,9 +41,11 @@ The authoritative baseline is [`ORGNI_TECHNOLOGY_STACK.md`](ORGNI_TECHNOLOGY_STA
 Current conformance and gaps are tracked in
 [`docs/architecture/stack-compliance.md`](docs/architecture/stack-compliance.md).
 
-> Replit note: `artifacts/web` and `artifacts/api` contain only Replit
-> platform config (`.replit-artifact/`) so the dev preview keeps working;
-> all application code lives in `apps/`.
+Run the whole pipeline locally with Docker:
+
+```bash
+docker compose -f infrastructure/docker/docker-compose.yml up --build
+```
 
 ## Document pipeline (Phase 1)
 
