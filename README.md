@@ -88,17 +88,35 @@ pnpm --filter @workspace/worker run dev   # background worker
 docker compose -f infrastructure/docker/docker-compose.yml up --build
 ```
 
-Runs API (:8080), worker, PostgreSQL (:5432) and Redis (:6379).
+Boots Postgres + Redis + a one-shot migration + Document Intelligence +
+Ontology + API + worker + the web dev server — the full Phase 1 pipeline, with
+the same env wiring as production. Then:
 
-## Deployment
+```bash
+curl -X POST http://localhost:8080/api/documents \
+  -H "X-Tenant-Id: tenant_demo" -F "file=@invoice.pdf"
+curl http://localhost:8080/api/documents -H "X-Tenant-Id: tenant_demo"
+```
 
-| App         | Target                | How                                             |
-| ----------- | --------------------- | ----------------------------------------------- |
-| `apps/web`  | Vercel                | `vercel.json` at repo root (static build)       |
-| `apps/api`  | Azure Container Apps  | `infrastructure/docker/api.Dockerfile` — see `infrastructure/azure/README.md` |
-| `apps/worker` | Azure Container Apps | `infrastructure/docker/worker.Dockerfile`      |
+## Deployment (Azure)
 
-Health endpoints: `GET /api/health`, `GET /api/health/ready`, `GET /api/version`.
+Everything except the web app runs on **Azure Container Apps**; the web app is
+static (Vercel or Azure Static Web Apps).
+
+| Component | Target | Ingress |
+| --------- | ------ | ------- |
+| `apps/api` | Azure Container Apps | external |
+| `apps/worker` | Azure Container Apps | none |
+| `intelligence/document-intelligence` | Azure Container Apps | internal |
+| `intelligence/organizational-ontology` | Azure Container Apps | internal |
+| PostgreSQL | Azure Database for PostgreSQL (Flexible Server) | — |
+| Redis | Azure Cache for Redis | — |
+| `apps/web` | Vercel / Azure Static Web Apps | — |
+
+Full guide with `az` commands: **[DEPLOYMENT.md](DEPLOYMENT.md)** and
+[`infrastructure/azure/README.md`](infrastructure/azure/README.md).
+Health endpoints: `GET /api/health`, `/api/health/ready`, `/api/version`;
+Python services expose `GET /health`.
 
 ## Docs
 
