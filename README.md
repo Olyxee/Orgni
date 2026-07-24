@@ -1,6 +1,7 @@
 # Orgni
 
 Orgni is Olyxee’s organizational intelligence platform.
+
 ![Uploading image.png…]()
 
 It turns business documents into structured, traceable, and queryable organizational context that applications, workflows, and AI systems can use.
