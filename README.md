@@ -1,126 +1,556 @@
 # Orgni
 
-Orgni is Olyxee's AI business-intelligence platform — it turns an
-organization's documents into structured, queryable business context.
+Orgni is Olyxee’s organizational intelligence platform.
+![Uploading image.png…]()
 
-This repository is a production-oriented modular monorepo (pnpm + Turborepo).
+It turns business documents into structured, traceable, and queryable organizational context that applications, workflows, and AI systems can use.
 
-## Structure
+Orgni processes documents such as invoices, proofs of payment, and contracts. It extracts relevant information, validates the results, generates organizational tokens, and stores the resulting facts as part of a reusable organizational model.
+
+## What Orgni does
+
+Orgni converts business documents into structured organizational facts.
+
+For example, an invoice can produce:
+
+* The organizations involved
+* The invoice amount
+* The issue date
+* The payment obligation
+* The line items
+* The source evidence
+* Warnings for missing information
+
+Orgni does not invent facts that are not supported by the source document.
+
+If an invoice does not state whether it has been paid, Orgni will not mark it as paid.
+
+## Repository
+
+This repository is a production-oriented modular monorepo built with:
+
+* pnpm
+* Turborepo
+* TypeScript
+* Python
+* PostgreSQL
+* Redis
+* Docker
+* Azure Container Apps
+
+The platform is divided into two main parts:
+
+* TypeScript control plane for APIs, orchestration, contracts, workers, and persistence
+* Python intelligence plane for OCR, classification, extraction, and ontology processing
+
+Both parts use one canonical organizational contract.
+
+## Repository structure
 
 ```text
 apps/
-  web/       Marketing site (React + Vite)         → Vercel
-  api/       Main backend API (Express)            → Azure Container Apps
-  worker/    Background & async processing         → Azure Container Apps
-             (ingestion pipeline + Phase 1 orchestration)
+  web/
+    Marketing and product interface
+    React + Vite
+    Deployment: Vercel or Azure Static Web Apps
+
+  api/
+    Main Orgni API
+    Express + TypeScript
+    Deployment: Azure Container Apps
+
+  worker/
+    Background processing and pipeline orchestration
+    Handles ingestion, retries, and async processing
+    Deployment: Azure Container Apps
+
 intelligence/
-  document-intelligence/     OCR, classification, field extraction (Python/FastAPI)
-  organizational-tokenizer/  Extractions → OrganizationalToken[] (TypeScript)
+  document-intelligence/
+    OCR, document classification, and field extraction
+    Python + FastAPI
+
+  organizational-tokenizer/
+    Converts normalized extractions into OrganizationalToken[]
+    TypeScript
+
+  organizational-ontology/
+    Validates and enriches organizational relationships
+    Python + FastAPI
+
 packages/
-  contracts/                 Canonical contracts — the only OrganizationalToken
-  ui/                        Shared frontend components (shadcn-based)
-  auth/                      Shared auth types & permission logic
-  config/                    Validated environment configuration (zod)
-  observability/             Structured logging (pino)
-  testing/                   Shared test utilities
+  contracts/
+    Canonical shared contracts
+    The only authoritative OrganizationalToken definition
+
+  ui/
+    Shared frontend components
+    Based on shadcn/ui
+
+  auth/
+    Shared authentication types and permission logic
+
+  config/
+    Validated environment configuration using Zod
+
+  observability/
+    Structured logging using Pino
+
+  testing/
+    Shared fixtures, mocks, and test utilities
+
 lib/
-  api-spec/            OpenAPI contract (source of truth)
-  api-client-react/    Generated React Query client
-  api-zod/             Generated zod validators
-  db/                  Drizzle ORM + PostgreSQL
+  api-spec/
+    OpenAPI specification
+    Source of truth for the public API
+
+  api-client-react/
+    Generated React Query client
+
+  api-zod/
+    Generated Zod validators
+
+  db/
+    PostgreSQL schema and migrations using Drizzle ORM
+
 infrastructure/
-  docker/    Dockerfiles + docker-compose (API, worker, Postgres, Redis)
-  azure/     Azure Container Apps deployment guide
-  scripts/   Build & deploy scripts
-docs/        Architecture, API, deployment and Phase 1 documentation
-.migration-backup/   Archived original repo (unported product app & services)
+  docker/
+    Dockerfiles and Docker Compose configuration
+
+  azure/
+    Azure Container Apps deployment documentation
+
+  scripts/
+    Build, migration, and deployment scripts
+
+docs/
+  Architecture, API, deployment, and Phase 1 documentation
+
+.migration-backup/
+  Archived files from the original repository
 ```
 
-The authoritative baseline is [`ORGNI_TECHNOLOGY_STACK.md`](ORGNI_TECHNOLOGY_STACK.md)
-(TypeScript control plane, Python intelligence plane, one canonical contract).
-Current conformance and gaps are tracked in
-[`docs/architecture/stack-compliance.md`](docs/architecture/stack-compliance.md).
+## Architecture baseline
 
-Run the whole pipeline locally with Docker:
+The main technology and architecture decisions are documented in:
+
+* [`ORGNI_TECHNOLOGY_STACK.md`](ORGNI_TECHNOLOGY_STACK.md)
+* [`docs/architecture/stack-compliance.md`](docs/architecture/stack-compliance.md)
+
+These documents define:
+
+* The TypeScript control plane
+* The Python intelligence plane
+* The canonical organizational contracts
+* Current architecture compliance
+* Remaining implementation gaps
+
+## Phase 1 document pipeline
+
+Phase 1 supports:
+
+* Invoices
+* Proofs of payment
+* Contracts
+
+The processing flow is:
+
+```text
+Document upload
+    ↓
+Ingestion
+    ↓
+Document Intelligence
+    ↓
+Normalized extraction envelope v0.1.0
+    ↓
+Contract validation
+    ↓
+Organizational Tokenizer
+    ↓
+OrganizationalToken[]
+    ↓
+Organizational Ontology
+    ↓
+Organizational facts and relationships
+    ↓
+Persistent organizational context
+```
+
+Each generated fact must retain enough evidence to trace it back to the original document.
+
+Full Phase 1 documentation is available at:
+
+[`docs/phase1/README.md`](docs/phase1/README.md)
+
+## Verified invoice pipeline
+
+The document pipeline has been tested with a real sample invoice.
+
+The following services were used:
+
+* Document Intelligence on port `8000`
+* Organizational Ontology on port `8100`
+* Orgni API on port `8080`
+
+The invoice returned:
+
+```text
+Upload:        invoice.txt
+HTTP status:   200
+Document type: INVOICE
+
+Tokens:
+- INVOICE_ISSUED
+- INVOICE_OBLIGATION
+- INVOICE_LINE_ITEMS
+
+Entities:
+- Olyxee AI (Pty) Ltd
+- Clover Retail Group
+
+Facts:
+- INVOICE_ISSUED: OBSERVED
+- INVOICE_OBLIGATION: ASSERTED
+- INVOICE_LINE_ITEMS: OBSERVED
+
+Warning:
+- invoice_status_not_stated
+```
+
+The warning confirms that Orgni did not create a payment status because the invoice did not state one.
+
+## Requirements
+
+Install the following before running Orgni locally:
+
+* Node.js
+* Corepack
+* pnpm 10
+* Docker
+* Docker Compose
+* Python 3
+* PostgreSQL and Redis only if running without Docker
+
+Enable pnpm:
 
 ```bash
-docker compose -f infrastructure/docker/docker-compose.yml up --build
+corepack enable
 ```
 
-## Document pipeline (Phase 1)
-
-An uploaded Invoice, Proof of Payment or Contract becomes evidence-backed
-organizational tokens:
-
-```
-upload → ingestion → Document Intelligence → normalized envelope v0.1.0
-       → validation → tokenizer → OrganizationalToken[]
-```
-
-Full documentation, the ontology handoff interface and sample output per
-document type: [`docs/phase1/README.md`](docs/phase1/README.md).
-
-## Getting started
+Install workspace dependencies:
 
 ```bash
-corepack enable          # pnpm 10
 pnpm install
-
-pnpm --filter @workspace/web run dev      # marketing site
-pnpm --filter @workspace/api run dev      # API on :8080
-pnpm --filter @workspace/worker run dev   # background worker
 ```
 
-## Root scripts
+## Run the full platform with Docker
 
-| Command                 | Purpose                                    |
-| ----------------------- | ------------------------------------------ |
-| `pnpm run dev`          | Run dev tasks via Turborepo                |
-| `pnpm run build`        | Typecheck + build all packages             |
-| `pnpm run typecheck`    | TypeScript across the workspace            |
-| `pnpm run lint`         | Prettier check                             |
-| `pnpm run test`         | All package tests                          |
-| `pnpm run docker:build` | Build API + worker production images       |
-
-## Full local platform (Docker)
+Docker is the recommended way to run Orgni locally.
 
 ```bash
-docker compose -f infrastructure/docker/docker-compose.yml up --build
+docker compose \
+  -f infrastructure/docker/docker-compose.yml \
+  up --build
 ```
 
-Boots Postgres + Redis + a one-shot migration + Document Intelligence +
-Ontology + API + worker + the web dev server — the full Phase 1 pipeline, with
-the same env wiring as production. Then:
+This starts:
+
+* PostgreSQL
+* Redis
+* Database migrations
+* Document Intelligence
+* Organizational Ontology
+* Orgni API
+* Background worker
+* Web application
+
+The first build may take longer because the Document Intelligence image includes OCR dependencies.
+
+## Test the document pipeline
+
+After the Docker services are running, open another terminal.
+
+### Upload a document
 
 ```bash
 curl -X POST http://localhost:8080/api/documents \
-  -H "X-Tenant-Id: tenant_demo" -F "file=@invoice.pdf"
-curl http://localhost:8080/api/documents -H "X-Tenant-Id: tenant_demo"
+  -H "X-Tenant-Id: tenant_demo" \
+  -F "file=@invoice.pdf"
 ```
 
-## Deployment (Azure)
+### List documents
 
-Everything except the web app runs on **Azure Container Apps**; the web app is
-static (Vercel or Azure Static Web Apps).
+```bash
+curl http://localhost:8080/api/documents \
+  -H "X-Tenant-Id: tenant_demo"
+```
 
-| Component | Target | Ingress |
-| --------- | ------ | ------- |
-| `apps/api` | Azure Container Apps | external |
-| `apps/worker` | Azure Container Apps | none |
-| `intelligence/document-intelligence` | Azure Container Apps | internal |
-| `intelligence/organizational-ontology` | Azure Container Apps | internal |
-| PostgreSQL | Azure Database for PostgreSQL (Flexible Server) | — |
-| Redis | Azure Cache for Redis | — |
-| `apps/web` | Vercel / Azure Static Web Apps | — |
+### Retrieve a document
 
-Full guide with `az` commands: **[DEPLOYMENT.md](DEPLOYMENT.md)** and
-[`infrastructure/azure/README.md`](infrastructure/azure/README.md).
-Health endpoints: `GET /api/health`, `/api/health/ready`, `/api/version`;
-Python services expose `GET /health`.
+```bash
+curl http://localhost:8080/api/documents/<sourceId> \
+  -H "X-Tenant-Id: tenant_demo"
+```
 
-## Docs
+Replace `<sourceId>` with the ID returned by the upload request.
 
-- [Deployment guide](DEPLOYMENT.md)
-- [Architecture overview](docs/architecture/overview.md)
-- [Local development](docs/development/local-setup.md)
-- [API & codegen](docs/api/README.md)
+The response should contain:
+
+* Document metadata
+* Extracted entities
+* Organizational tokens
+* Organizational facts
+* Evidence
+* Warnings
+* Processing status
+
+## Run services without Docker
+
+The stack can also run directly on the local machine.
+
+This is useful when developing one service or when Docker builds are slow.
+
+### Start Document Intelligence
+
+```bash
+pip install -r intelligence/document-intelligence/requirements.txt
+
+cd intelligence/document-intelligence
+uvicorn main:app --port 8000
+```
+
+### Start Organizational Ontology
+
+Open another terminal:
+
+```bash
+cd intelligence/organizational-ontology
+uvicorn main:app --port 8100
+```
+
+### Build the API
+
+Open another terminal from the repository root:
+
+```bash
+pnpm --filter @workspace/api run build
+```
+
+### Start the API on Linux or macOS
+
+```bash
+DOCUMENT_INTELLIGENCE_URL=http://127.0.0.1:8000 \
+ONTOLOGY_URL=http://127.0.0.1:8100 \
+PORT=8080 \
+node --enable-source-maps apps/api/dist/index.mjs
+```
+
+### Start the API on Windows PowerShell
+
+```powershell
+$env:DOCUMENT_INTELLIGENCE_URL="http://127.0.0.1:8000"
+$env:ONTOLOGY_URL="http://127.0.0.1:8100"
+$env:PORT="8080"
+
+node --enable-source-maps apps/api/dist/index.mjs
+```
+
+Without a database connection, the generated facts are returned in the response but are not persisted.
+
+To enable persistence, provide a valid `DATABASE_URL`.
+
+## Upload a text invoice
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/documents \
+  -H "X-Tenant-Id: tenant_demo" \
+  -F "file=@invoice.txt;type=text/plain"
+```
+
+## Local development
+
+Run individual TypeScript services:
+
+```bash
+pnpm --filter @workspace/web run dev
+pnpm --filter @workspace/api run dev
+pnpm --filter @workspace/worker run dev
+```
+
+Default local addresses:
+
+| Service                 | Address                            |
+| ----------------------- | ---------------------------------- |
+| Web                     | `http://localhost:5173`            |
+| API                     | `http://localhost:8080`            |
+| Document Intelligence   | `http://localhost:8000`            |
+| Organizational Ontology | `http://localhost:8100`            |
+| API health              | `http://localhost:8080/api/health` |
+
+## Windows note
+
+The current API development script may use the Bash `export` command.
+
+This can fail in Windows Command Prompt.
+
+If this command fails:
+
+```bash
+pnpm --filter @workspace/api run dev
+```
+
+Build and run the API directly:
+
+```bash
+pnpm --filter @workspace/api run build
+node --enable-source-maps apps/api/dist/index.mjs
+```
+
+Use PowerShell to set the required environment variables before starting the API.
+
+Windows curl may also fail when using Git Bash paths such as:
+
+```text
+/tmp/invoice.txt
+```
+
+Use a relative path instead:
+
+```bash
+-F "file=@invoice.txt"
+```
+
+## Root commands
+
+| Command                 | Purpose                                 |
+| ----------------------- | --------------------------------------- |
+| `pnpm run dev`          | Run development tasks through Turborepo |
+| `pnpm run build`        | Type-check and build the workspace      |
+| `pnpm run typecheck`    | Run TypeScript checks                   |
+| `pnpm run lint`         | Run formatting and lint checks          |
+| `pnpm run test`         | Run all tests                           |
+| `pnpm run docker:build` | Build production Docker images          |
+
+## Deployment
+
+Orgni application and intelligence services run on Azure Container Apps.
+
+The web application can run on Vercel or Azure Static Web Apps.
+
+| Component                              | Deployment target                             | Ingress  |
+| -------------------------------------- | --------------------------------------------- | -------- |
+| `apps/web`                             | Vercel or Azure Static Web Apps               | Public   |
+| `apps/api`                             | Azure Container Apps                          | External |
+| `apps/worker`                          | Azure Container Apps                          | None     |
+| `intelligence/document-intelligence`   | Azure Container Apps                          | Internal |
+| `intelligence/organizational-ontology` | Azure Container Apps                          | Internal |
+| PostgreSQL                             | Azure Database for PostgreSQL Flexible Server | Private  |
+| Redis                                  | Azure Managed Redis                           | Private  |
+
+Deployment documentation:
+
+* [`DEPLOYMENT.md`](DEPLOYMENT.md)
+* [`infrastructure/azure/README.md`](infrastructure/azure/README.md)
+
+## Health endpoints
+
+### API
+
+```text
+GET /api/health
+GET /api/health/ready
+GET /api/version
+```
+
+### Python services
+
+```text
+GET /health
+```
+
+The readiness endpoint should return success only when required dependencies are available.
+
+## Architecture principles
+
+### One canonical contract
+
+`packages/contracts` is the only authoritative source for `OrganizationalToken` and related shared contracts.
+
+### Evidence before inference
+
+Facts must retain references to the source document and extraction result.
+
+Orgni must not invent unsupported information.
+
+### Tenant isolation
+
+Every document, token, fact, workflow, and query must belong to a tenant.
+
+The current API uses the `X-Tenant-Id` header to identify the tenant.
+
+### Replaceable intelligence services
+
+OCR, extraction, tokenizer, and ontology implementations can change without changing the public control plane contracts.
+
+### Asynchronous processing
+
+Long-running document operations should be handled by the worker.
+
+The API should not remain blocked while large documents are processed.
+
+### Contract-first development
+
+API and service changes should begin with shared contracts or the OpenAPI specification.
+
+### Observable by default
+
+Every service should provide:
+
+* Structured logs
+* Health checks
+* Processing status
+* Error details
+* Traceable document states
+
+## Expected document behaviour
+
+Orgni should behave carefully when processing documents.
+
+Examples:
+
+* An invoice without a payment status must not be marked as paid.
+* A proof of payment confirms that a payment occurred, but it must not automatically settle an invoice without enough matching evidence.
+* A draft contract must not be marked as executed.
+* Missing information should produce a warning instead of an invented value.
+* Every important fact should include source evidence.
+
+## Phase 1 completion criteria
+
+Phase 1 is complete when Orgni can:
+
+* Accept supported business documents
+* Store the uploaded source
+* Classify the document
+* Extract the required fields
+* Produce a valid normalized envelope
+* Validate the envelope
+* Generate canonical organizational tokens
+* Process tokens through the ontology
+* Produce organizational facts and relationships
+* Preserve evidence and traceability
+* Store and retrieve the results
+* Maintain tenant isolation
+* Run locally with Docker
+* Run in Azure
+* Pass automated tests for invoices, proofs of payment, and contracts
+
+## Documentation
+
+* [Technology stack](ORGNI_TECHNOLOGY_STACK.md)
+* [Phase 1 pipeline](docs/phase1/README.md)
+* [Deployment guide](DEPLOYMENT.md)
+* [Architecture overview](docs/architecture/overview.md)
+* [Stack compliance](docs/architecture/stack-compliance.md)
+* [Local development](docs/development/local-setup.md)
+* [API and code generation](docs/api/README.md)
+* [Azure deployment](infrastructure/azure/README.md)
