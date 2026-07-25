@@ -52,7 +52,7 @@ type Item = {
   icon: typeof FileText;
 };
 
-const GROUP_ORDER = ["Pages", "Research Thesis", "Documentation", "API Reference"] as const;
+const GROUP_ORDER = ["Pages", "Research Thesis", "Documentation"] as const;
 
 const ITEMS: Item[] = [
   // Pages
@@ -101,7 +101,8 @@ const ITEMS: Item[] = [
     id: "p-api",
     title: "API Reference",
     group: "Pages",
-    path: "/api-reference",
+    path: "/docs",
+    hash: "authentication",
     icon: Code2,
     keywords: "api rest json endpoints developers",
   },
@@ -183,8 +184,8 @@ const ITEMS: Item[] = [
   {
     id: "a-overview",
     title: "Overview",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "overview",
     icon: Code2,
     keywords: "intro api",
@@ -192,8 +193,8 @@ const ITEMS: Item[] = [
   {
     id: "a-auth",
     title: "Authentication",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "authentication",
     icon: Code2,
     keywords: "api key token bearer auth",
@@ -201,8 +202,8 @@ const ITEMS: Item[] = [
   {
     id: "a-errors",
     title: "Errors",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "errors",
     icon: Code2,
     keywords: "status codes 404 429 500 failures",
@@ -210,8 +211,8 @@ const ITEMS: Item[] = [
   {
     id: "a-orgs",
     title: "Organizations",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "organizations",
     icon: Code2,
     keywords: "org tenant account",
@@ -219,8 +220,8 @@ const ITEMS: Item[] = [
   {
     id: "a-sources",
     title: "Sources",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "sources",
     icon: Code2,
     keywords: "submit evidence ingest",
@@ -228,8 +229,8 @@ const ITEMS: Item[] = [
   {
     id: "a-context",
     title: "Context",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "context",
     icon: Code2,
     keywords: "business context query",
@@ -237,8 +238,8 @@ const ITEMS: Item[] = [
   {
     id: "a-map",
     title: "Business Map",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "business-map",
     icon: Code2,
     keywords: "roles departments rules dependencies",
@@ -246,8 +247,8 @@ const ITEMS: Item[] = [
   {
     id: "a-workflows",
     title: "Workflows",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "workflows",
     icon: Code2,
     keywords: "tasks approvals execution",
@@ -255,8 +256,8 @@ const ITEMS: Item[] = [
   {
     id: "a-finance",
     title: "Finance",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "finance",
     icon: Code2,
     keywords: "reconciliation ledger money",
@@ -264,8 +265,8 @@ const ITEMS: Item[] = [
   {
     id: "a-evidence",
     title: "Evidence",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "evidence",
     icon: Code2,
     keywords: "source trail confidence audit",
@@ -273,8 +274,8 @@ const ITEMS: Item[] = [
   {
     id: "a-updates",
     title: "Updates",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "updates",
     icon: Code2,
     keywords: "events stream changes",
@@ -282,8 +283,8 @@ const ITEMS: Item[] = [
   {
     id: "a-webhooks",
     title: "Webhooks",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "webhooks",
     icon: Code2,
     keywords: "callbacks notifications events",

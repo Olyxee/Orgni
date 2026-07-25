@@ -22,8 +22,7 @@ const navItems = [
     match: ["/developers", "/docs", "/api-reference"],
     dropdown: [
       { title: "Overview", href: "/developers", desc: "Tools and resources for building." },
-      { title: "Documentation", href: "/docs", desc: "Guides, tutorials and core concepts." },
-      { title: "API Reference", href: "/api-reference", desc: "Complete REST API documentation." },
+      { title: "Documentation", href: "/docs", desc: "Guides, tutorials, core concepts, and complete REST API documentation." },
     ]
   },
   { title: "Research", href: "/thesis" },

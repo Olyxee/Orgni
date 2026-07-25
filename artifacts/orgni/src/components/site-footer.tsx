@@ -36,7 +36,6 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <h3 className="font-mono text-xs uppercase tracking-widest text-foreground mb-6">Resources</h3>
             <ul className="space-y-4">
               <li><Link href="/thesis" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Research</Link></li>
-              <li><Link href="/api-reference" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">API Reference</Link></li>
               <li><Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Documentation</Link></li>
             </ul>
           </div>

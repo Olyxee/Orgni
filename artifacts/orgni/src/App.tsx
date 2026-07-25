@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { Switch, Route, Router as WouterRouter, useLocation, Redirect } from "wouter";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,7 +11,6 @@ import Infrastructure from "@/pages/infrastructure";
 import Developers from "@/pages/developers";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
-import Api from "@/pages/api";
 import Thesis from "@/pages/thesis";
 import Login from "@/pages/login";
 import Console from "@/pages/console";
@@ -39,7 +38,7 @@ function Router() {
       <Route path="/developers" component={Developers} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
-      <Route path="/api-reference" component={Api} />
+      <Route path="/api-reference"><Redirect to="/docs" /></Route>
       <Route path="/thesis" component={Thesis} />
       <Route path="/login" component={Login} />
       <Route path="/app" component={Console} />
