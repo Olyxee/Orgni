@@ -72,9 +72,6 @@ export function HeroSection() {
               </div>
             </div>
             
-            <div className="absolute top-6 left-6 bg-foreground text-background px-3 py-1 text-xs font-mono uppercase tracking-widest">
-              Live System
-            </div>
           </div>
         </div>
       </div>
