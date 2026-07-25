@@ -47,10 +47,3 @@ Thumbs.db
 # Replit
 .cache/
 .local/
-
-# Python bytecode
-__pycache__/
-*.py[cod]
-
-# Document service runtime uploads
-services/document-service/uploads/
