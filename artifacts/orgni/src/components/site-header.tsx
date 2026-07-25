@@ -27,7 +27,7 @@ const navItems = [
       { title: "API Reference", href: "/api-reference", desc: "Complete REST API documentation." },
     ]
   },
-  { title: "Pricing", href: "/pricing" },
+  { title: "Pricing", href: "https://www.olyxee.com/pricing", external: true },
   { title: "Research", href: "/thesis" },
 ];
 
@@ -112,17 +112,28 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                   className="relative h-full flex items-center" 
                   onMouseEnter={() => setActiveDropdown(item.title)}
                 >
-                  <Link
-                    href={item.href}
-                    className={`text-sm font-medium tracking-wide flex items-center gap-1.5 transition-colors h-full px-2 ${
-                      active || isHovered ? "text-foreground" : "text-foreground/70 hover:text-foreground"
-                    }`}
-                  >
-                    {item.title}
-                    {item.dropdown && (
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${isHovered ? 'rotate-180 text-foreground' : 'text-foreground/40'}`} />
-                    )}
-                  </Link>
+                  {"external" in item && item.external ? (
+                    <a
+                      href={item.href}
+                      className={`text-sm font-medium tracking-wide flex items-center gap-1.5 transition-colors h-full px-2 ${
+                        isHovered ? "text-foreground" : "text-foreground/70 hover:text-foreground"
+                      }`}
+                    >
+                      {item.title}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={`text-sm font-medium tracking-wide flex items-center gap-1.5 transition-colors h-full px-2 ${
+                        active || isHovered ? "text-foreground" : "text-foreground/70 hover:text-foreground"
+                      }`}
+                    >
+                      {item.title}
+                      {item.dropdown && (
+                        <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${isHovered ? 'rotate-180 text-foreground' : 'text-foreground/40'}`} />
+                      )}
+                    </Link>
+                  )}
                   
                   <AnimatePresence>
                     {item.dropdown && isHovered && (
@@ -237,14 +248,25 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                   transition={{ delay: i * 0.05, duration: 0.3, ease: "easeOut" }}
                   className="flex flex-col border-b border-border py-5 last:border-0"
                 >
-                  <Link 
-                    href={item.href} 
-                    onClick={closeMobile} 
-                    className="text-xl font-semibold tracking-wide text-foreground hover:text-primary transition-colors flex items-center justify-between group"
-                  >
-                    {item.title}
-                    <ArrowRight className="h-5 w-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                  </Link>
+                  {"external" in item && item.external ? (
+                    <a
+                      href={item.href}
+                      onClick={closeMobile}
+                      className="text-xl font-semibold tracking-wide text-foreground hover:text-primary transition-colors flex items-center justify-between group"
+                    >
+                      {item.title}
+                      <ArrowRight className="h-5 w-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </a>
+                  ) : (
+                    <Link 
+                      href={item.href} 
+                      onClick={closeMobile} 
+                      className="text-xl font-semibold tracking-wide text-foreground hover:text-primary transition-colors flex items-center justify-between group"
+                    >
+                      {item.title}
+                      <ArrowRight className="h-5 w-5 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </Link>
+                  )}
                   {item.dropdown && (
                     <div className="mt-5 flex flex-col gap-4 pl-4 border-l-2 border-border">
                       {item.dropdown.map(drop => (

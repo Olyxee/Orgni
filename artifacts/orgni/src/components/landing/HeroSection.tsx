@@ -19,11 +19,11 @@ export function HeroSection() {
             <p className="text-sm font-medium tracking-wide">Olyxee Infrastructure</p>
           </div>
           
-          <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif leading-[1.05] tracking-tight text-foreground mb-8">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold leading-[1.08] tracking-tight text-foreground mb-8">
             Build AI on top of how your organisation <span className={`draw-underline ${mounted ? 'active' : ''}`}>actually works</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground leading-snug max-w-2xl mb-12 font-light">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mb-12">
             A live, evidence-backed model of your people, processes, systems, policies and obligations: trusted context for teams, applications and AI agents.
           </p>
           
@@ -52,7 +52,7 @@ export function HeroSection() {
             </div>
             
             {/* We'll use the product screenshot as a texture */}
-            <div className="absolute inset-0 bg-[url('/orgni-product-ui.png')] bg-cover bg-left-top opacity-50 mix-blend-multiply filter grayscale contrast-125"></div>
+            <div className="absolute inset-0 bg-[url('/orgni-product-ui.png')] bg-cover bg-left-top"></div>
             
             <div className="absolute bottom-6 right-6 bg-background/95 backdrop-blur-sm p-4 border border-border shadow-sm max-w-[240px]">
               <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2 border-b border-border pb-2">Event Stream</div>
@@ -72,7 +72,7 @@ export function HeroSection() {
               </div>
             </div>
             
-            <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-3 py-1 text-xs font-mono uppercase tracking-widest">
+            <div className="absolute top-6 left-6 bg-foreground text-background px-3 py-1 text-xs font-mono uppercase tracking-widest">
               Live System
             </div>
           </div>
