@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 
 export function FinalCtaSection() {
   return (
@@ -17,7 +17,7 @@ export function FinalCtaSection() {
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
           <Button asChild size="lg" className="w-full sm:w-auto h-16 px-10 font-medium shadow-none rounded-none text-lg">
-            <a href={SIGNUP_URL}>
+            <a href={LOGIN_URL}>
               Request a demonstration
             </a>
           </Button>

@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 
 export function SiteFooter({ dark = false }: { dark?: boolean }) {
   const footerClass = `border-t border-border bg-background pt-24 pb-12 px-6 md:px-12 ${dark ? 'dark' : ''}`;
@@ -46,7 +46,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <ul className="space-y-4">
               <li><a href="https://olyxee.com" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">About Olyxee</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Contact Sales</a></li>
-              <li><a href={SIGNUP_URL} className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Sign In</a></li>
+              <li><a href={LOGIN_URL} className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Sign In</a></li>
             </ul>
           </div>
         </div>

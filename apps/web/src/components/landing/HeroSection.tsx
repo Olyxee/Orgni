@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 import { useEffect, useState } from "react";
 
 export function HeroSection() {
@@ -29,7 +29,7 @@ export function HeroSection() {
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 font-medium shadow-none rounded-none text-base">
-              <a href={SIGNUP_URL}>
+              <a href={LOGIN_URL}>
                 Request a demonstration
               </a>
             </Button>

@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
 
@@ -76,7 +76,7 @@ function DevelopersHeroSection() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-none bg-transparent">
-              <a href={SIGNUP_URL}>
+              <a href={LOGIN_URL}>
                 Request access
               </a>
             </Button>
@@ -561,7 +561,7 @@ function ClosingCtaSection() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-none bg-transparent">
-              <a href={SIGNUP_URL}>
+              <a href={LOGIN_URL}>
                 Request access
               </a>
             </Button>

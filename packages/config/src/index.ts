@@ -54,6 +54,13 @@ export const apiEnvSchema = baseEnvSchema.extend({
     .int()
     .positive()
     .default(20 * 1024 * 1024),
+  /**
+   * HMAC secret used to sign dev-mode session tokens. This is the seam that a
+   * real OIDC provider (Entra External ID) replaces in production; until then,
+   * the API issues and verifies its own signed tokens. Change it in any shared
+   * environment.
+   */
+  AUTH_SECRET: z.string().default("dev-only-insecure-secret-change-me"),
 });
 
 /** Worker service configuration. */

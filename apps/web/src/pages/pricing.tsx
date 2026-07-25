@@ -1,4 +1,4 @@
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 import { Fragment, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, Minus } from "lucide-react";
@@ -379,7 +379,7 @@ export default function Pricing() {
                       <Button
                         variant={plan.variant}
                         onClick={() => {
-                          window.location.href = SIGNUP_URL;
+                          window.location.href = LOGIN_URL;
                         }}
                         className={`w-full rounded-sm ${
                           featured
@@ -530,7 +530,7 @@ export default function Pricing() {
                 Still unsure?{" "}
                 <button
                   onClick={() => {
-                    window.location.href = SIGNUP_URL;
+                    window.location.href = LOGIN_URL;
                   }}
                   className="text-primary font-medium hover:underline rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
@@ -576,7 +576,7 @@ export default function Pricing() {
                   <Button
                     size="lg"
                     onClick={() => {
-                      window.location.href = SIGNUP_URL;
+                      window.location.href = LOGIN_URL;
                     }}
                     className="w-full sm:w-auto rounded-sm bg-[hsl(0_0%_92%)] text-[hsl(0_0%_12%)] border border-[hsl(0_0%_85%)] hover:bg-[hsl(0_0%_87%)] h-14 px-8 text-base font-bold"
                   >
@@ -586,7 +586,7 @@ export default function Pricing() {
                     size="lg"
                     variant="outline"
                     onClick={() => {
-                      window.location.href = SIGNUP_URL;
+                      window.location.href = LOGIN_URL;
                     }}
                     className="w-full sm:w-auto rounded-sm h-14 px-8 border-border text-foreground hover:bg-foreground hover:text-background bg-transparent text-base font-medium"
                   >

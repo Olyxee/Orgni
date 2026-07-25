@@ -1,4 +1,4 @@
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Copy } from "lucide-react";
 import { Link } from "wouter";
@@ -439,7 +439,7 @@ export default function Api() {
                 </p>
                 <Button
                   onClick={() => {
-                    window.location.href = SIGNUP_URL;
+                    window.location.href = LOGIN_URL;
                   }}
                   className="rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 shrink-0"
                 >
