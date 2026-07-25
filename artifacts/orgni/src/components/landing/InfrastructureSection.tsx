@@ -14,7 +14,7 @@ export function InfrastructureSection() {
           <div>
             <span className="font-mono text-xs text-muted-foreground uppercase tracking-widest block mb-8">01 / Existing Systems</span>
             <div className="space-y-4">
-              {['CRM', 'Finance', 'Documents', 'Email', 'Workflows'].map(sys => (
+              {['Contracts', 'Invoices', 'Proofs of Payment', 'Policies', 'Statements'].map(sys => (
                 <div key={sys} className="text-xl md:text-2xl font-light text-foreground pb-4 border-b border-border/50">
                   {sys}
                 </div>
@@ -22,7 +22,7 @@ export function InfrastructureSection() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground mt-12 max-w-xs">
-            Orgni ingests signals, documents and states from your current stack without requiring migration.
+            Orgni ingests operational evidence from your current stack without requiring migration.
           </p>
         </div>
 

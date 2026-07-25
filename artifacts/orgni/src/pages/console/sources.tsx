@@ -41,7 +41,7 @@ export default function Sources() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif tracking-tight mb-2">Evidence Sources</h1>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">Evidence Sources</h1>
           <p className="text-muted-foreground text-sm">Processed organizational evidence.</p>
         </div>
         <div>

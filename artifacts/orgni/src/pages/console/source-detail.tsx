@@ -21,7 +21,7 @@ export default function SourceDetail() {
         <Link href="/app/sources" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-4 transition-colors">
           <ArrowLeft className="w-3 h-3" /> Back to sources
         </Link>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">{source.filename}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">{source.filename}</h1>
         <div className="flex items-center gap-3 mt-2">
           <Badge variant="secondary" className="font-mono text-xs font-normal">{source.documentType || "UNKNOWN"}</Badge>
           <Badge variant={source.state === 'COMPLETED' ? 'default' : 'outline'} className="font-mono text-xs">{source.state}</Badge>

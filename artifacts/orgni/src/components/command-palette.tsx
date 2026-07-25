@@ -223,7 +223,7 @@ const ITEMS: Item[] = [
     path: "/api-reference",
     hash: "sources",
     icon: Code2,
-    keywords: "upload documents ingest",
+    keywords: "submit evidence ingest",
   },
   {
     id: "a-context",

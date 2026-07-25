@@ -14,7 +14,7 @@ export default function Overview() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
       <div>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">Organization Overview</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Organization Overview</h1>
         <p className="text-muted-foreground text-sm">Current state of the organizational model.</p>
       </div>
 
@@ -76,7 +76,7 @@ function MetricCard({ title, value, href }: { title: string, value: number, href
           <CardTitle className="text-xs text-muted-foreground uppercase tracking-wider font-sans">{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-serif text-foreground">{value}</div>
+          <div className="text-3xl font-semibold text-foreground">{value}</div>
         </CardContent>
       </Card>
     </Link>

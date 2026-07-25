@@ -216,7 +216,7 @@ function ComparisonDemoSection() {
               </div>
               <div className="flex gap-3 text-white/40">
                 <span className="select-none">{">"}</span>
-                <span className="italic text-white/30">Analyzing document...</span>
+                <span className="italic text-white/30">Analyzing evidence...</span>
               </div>
               <div className="flex gap-3">
                 <span className="text-[#79c0ff] select-none font-bold">OK:</span>
@@ -292,7 +292,7 @@ function WhatAgentsGetSection() {
     },
     {
       title: "Current-state understanding",
-      desc: "Distinguish required, documented, implemented, verified, expired or exempted"
+      desc: "Distinguish required, evidenced, implemented, verified, expired or exempted"
     },
     {
       title: "Temporal reasoning",
@@ -300,7 +300,7 @@ function WhatAgentsGetSection() {
     },
     {
       title: "Provenance",
-      desc: "Source document, field, extraction method, confidence and governing rule"
+      desc: "Source evidence, field, extraction method, confidence and governing rule"
     },
     {
       title: "Conflict awareness",

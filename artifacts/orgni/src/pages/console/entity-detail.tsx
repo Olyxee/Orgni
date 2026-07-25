@@ -19,7 +19,7 @@ export default function EntityDetail() {
         <Link href="/app/entities" className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1 mb-4 transition-colors">
           <ArrowLeft className="w-3 h-3" /> Back to entities
         </Link>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">
           {data.entity.name ? String(data.entity.name) : data.key}
         </h1>
         <div className="flex items-center gap-3 mt-2">

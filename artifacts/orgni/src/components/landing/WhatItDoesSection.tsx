@@ -6,7 +6,7 @@ export function WhatItDoesSection() {
     },
     {
       title: "Stream the events",
-      description: "Connect systems to feed the model. State changes, document creations, and approvals become a timeline."
+      description: "Connect systems to feed the model. State changes, evidence updates, and approvals become a timeline."
     },
     {
       title: "Infer the state",

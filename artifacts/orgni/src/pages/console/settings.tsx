@@ -12,7 +12,7 @@ export default function Settings() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Settings</h1>
         <p className="text-muted-foreground text-sm">Manage your session and workspace.</p>
       </div>
 

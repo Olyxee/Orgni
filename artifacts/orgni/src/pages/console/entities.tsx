@@ -14,7 +14,7 @@ export default function Entities() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">Entities</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Entities</h1>
         <p className="text-muted-foreground text-sm">De-duplicated organizational entities mapped from evidence.</p>
       </div>
 

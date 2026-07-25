@@ -57,13 +57,13 @@ const resources: Resource[] = [
   {
     id: "sources",
     title: "Sources",
-    desc: "Upload and manage the raw business information Orgni reads: documents, spreadsheets, notes, and connected systems.",
+    desc: "Submit and manage the raw business information Orgni processes: organisational evidence, spreadsheets, notes, and connected systems.",
     group: "Core resources",
     endpoints: [
       {
         method: "POST",
         path: "/v1/sources",
-        label: "Upload a source for processing.",
+        label: "Submit a source for processing.",
       },
       {
         method: "GET",
@@ -162,7 +162,7 @@ const resources: Resource[] = [
   {
     id: "evidence",
     title: "Evidence",
-    desc: "Trace every extracted fact back to its exact source (document, page, and snippet) with a confidence score.",
+    desc: "Trace every extracted fact back to its exact source (evidence source, system record, and snippet) with a confidence score.",
     group: "Execution",
     endpoints: [
       {
@@ -618,7 +618,7 @@ export default function Api() {
                 {r.id === "evidence" && (
                   <CodeBlock title="EVIDENCE OBJECT">{`{
   "fact_id": "fact_55ab",
-  "source_document": "supplier_agreement.pdf",
+  "source_evidence": "supplier_agreement.pdf",
   "page": 4,
   "snippet": "Payment terms are net 30 days...",
   "confidence": 0.91,

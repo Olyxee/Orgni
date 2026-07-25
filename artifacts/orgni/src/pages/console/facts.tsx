@@ -15,7 +15,7 @@ export default function Facts() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-2xl font-serif tracking-tight mb-2">Verified Facts</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2">Verified Facts</h1>
         <p className="text-muted-foreground text-sm">Organizational facts with their epistemic status and provenance.</p>
       </div>
 

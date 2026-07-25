@@ -23,7 +23,7 @@ export function IntegrationsSection() {
       <div className="flex items-center gap-3 mb-10 justify-center">
         <div className="h-px w-8 bg-primary"></div>
         <p className="text-center text-xs font-mono font-medium text-muted-foreground tracking-widest uppercase">
-          Connects to the tools you already use
+          Roadmap: Future sources & connected systems
         </p>
         <div className="h-px w-8 bg-primary"></div>
       </div>

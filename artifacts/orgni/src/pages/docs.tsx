@@ -38,11 +38,11 @@ const usableBy = [
 const flow = [
   {
     title: "Business inputs",
-    desc: "You provide documents, spreadsheets, notes, voice, or connected systems.",
+    desc: "You provide organisational evidence, spreadsheets, notes, voice, or connected systems.",
   },
   {
     title: "Orgni reads and extracts context",
-    desc: "It parses your sources and pulls out the facts that matter.",
+    desc: "It continuously processes your sources and extracts the facts that matter.",
   },
   {
     title: "Orgni builds a business map",
@@ -68,8 +68,8 @@ const quickstart = [
     desc: "Set up the workspace that represents your business.",
   },
   {
-    step: "Upload business sources",
-    desc: "Add documents, spreadsheets, notes, or connect a system.",
+    step: "Submit business sources",
+    desc: "Add organisational evidence, spreadsheets, notes, or connect a system.",
   },
   {
     step: "Review extracted context",
@@ -93,7 +93,7 @@ const concepts = [
   { name: "Organization", desc: "The business or company using Orgni." },
   {
     name: "Sources",
-    desc: "Documents, spreadsheets, notes, voice, connected systems, and uploads.",
+    desc: "Organisational evidence, spreadsheets, notes, voice, connected systems, and manual submissions.",
   },
   {
     name: "Business Context",
@@ -135,11 +135,11 @@ const outputs = [
 const useCases = [
   {
     tag: "Operations",
-    desc: "Upload process documents and Orgni identifies tasks, approvals, roles, and escalation paths.",
+    desc: "Submit operational evidence and Orgni identifies tasks, approvals, roles, and escalation paths.",
   },
   {
     tag: "Finance",
-    desc: "Upload statements, ledgers, and invoices. Orgni helps identify matches, exceptions, and evidence.",
+    desc: "Submit statements, ledgers, and invoices. Orgni helps identify matches, exceptions, and evidence.",
   },
   {
     tag: "AI enablement",
@@ -155,7 +155,7 @@ export default function Docs() {
   useSeo({
     title: "Documentation - Orgni",
     description:
-      "Orgni documentation: learn how Orgni turns your documents, workflows, roles, and finance records into structured business context that your tools and AI systems can use.",
+      "Orgni documentation: learn how Orgni turns your organisational evidence, workflows, roles, and finance records into structured operational intelligence that your tools and AI systems can use.",
     path: "/docs",
   });
   const [active, setActive] = useState("introduction");
@@ -268,7 +268,7 @@ export default function Docs() {
                 can use.
               </p>
               <p className="text-[15px] text-muted-foreground leading-7 mb-5">
-                Orgni reads documents, workflows, roles, rules, approvals,
+                Orgni reads organisational evidence, workflows, roles, rules, approvals,
                 finance records, and operational explanations, then makes that
                 knowledge usable across your stack:
               </p>
