@@ -1,4 +1,4 @@
-import { SIGNUP_URL } from "@/lib/links";
+import { LOGIN_URL } from "@/lib/links";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, Search } from "lucide-react";
@@ -86,7 +86,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             size="sm"
             className="hidden lg:inline-flex h-10 px-6 font-medium bg-foreground text-background hover:bg-foreground/90 shadow-none transition-colors rounded-none"
           >
-            <a href={SIGNUP_URL}>
+            <a href={LOGIN_URL}>
               Request a Demo
             </a>
           </Button>
@@ -113,7 +113,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             <Link href="/thesis" onClick={closeMobile} className={mobileLink}>Research</Link>
             <div className="pt-6 pb-4">
               <Button asChild className="w-full h-12 font-medium bg-foreground text-background hover:bg-foreground/90 shadow-none rounded-none">
-                <a href={SIGNUP_URL}>
+                <a href={LOGIN_URL}>
                   Request a Demo
                 </a>
               </Button>

@@ -43,16 +43,12 @@ const ontology = config.ONTOLOGY_URL
   : null;
 
 /**
- * Resolve the caller's tenant.
- *
- * Phase 1 has no authentication yet (§15), so the tenant is taken from an
- * explicit header. This is the single seam to replace with the authenticated
- * principal's tenant once Entra External ID lands — the rest of the pipeline
- * already carries tenantId end-to-end.
+ * The caller's tenant, from the authenticated session (set by `authenticate`).
+ * All document routes are mounted behind that middleware, so `req.principal` is
+ * always present here.
  */
 function resolveTenantId(req: Request): string | null {
-  const header = req.header("x-tenant-id");
-  return header && header.trim() ? header.trim() : null;
+  return req.principal?.tenantId ?? null;
 }
 
 /**

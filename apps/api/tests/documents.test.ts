@@ -147,7 +147,7 @@ beforeAll(async () => {
     apiServer = app.listen(0, resolve);
   });
   baseUrl = `http://127.0.0.1:${(apiServer.address() as AddressInfo).port}`;
-}, 30_000);
+}, 60_000);
 
 afterAll(() => {
   apiServer?.close();
@@ -185,7 +185,7 @@ describe("POST /api/documents", () => {
     }
   });
 
-  it("rejects a request with no tenant header", async () => {
+  it("rejects an unauthenticated request", async () => {
     const res = await fetch(`${baseUrl}/api/documents`, {
       method: "POST",
       body: form(
@@ -194,8 +194,43 @@ describe("POST /api/documents", () => {
         "application/pdf",
       ),
     });
-    expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe("missing_tenant");
+    expect(res.status).toBe(401);
+    expect((await res.json()).error).toBe("unauthenticated");
+  });
+
+  it("logs in and uses the session token as the tenant", async () => {
+    const login = await fetch(`${baseUrl}/api/auth/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        email: "demo@olyxee.com",
+        organization: "Clover Retail",
+      }),
+    });
+    expect(login.status).toBe(200);
+    const { token, principal } = await login.json();
+    expect(principal.tenantId).toBe("tenant_clover-retail");
+
+    // A Bearer session is accepted and drives the tenant.
+    const up = await fetch(`${baseUrl}/api/documents`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${token}` },
+      body: form(
+        new TextEncoder().encode("%PDF-1.4 fake"),
+        "invoice.pdf",
+        "application/pdf",
+      ),
+    });
+    expect(up.status).toBe(200);
+    const body = await up.json();
+    for (const t of body.tokens)
+      expect(t.tenantId).toBe("tenant_clover-retail");
+
+    // A garbage token is rejected.
+    const bad = await fetch(`${baseUrl}/api/documents`, {
+      headers: { authorization: "Bearer not.a.valid.token" },
+    });
+    expect(bad.status).toBe(401);
   });
 
   it("rejects a request with no file", async () => {

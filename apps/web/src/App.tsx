@@ -13,8 +13,11 @@ import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Api from "@/pages/api";
 import Thesis from "@/pages/thesis";
+import Login from "@/pages/login";
+import Console from "@/pages/console";
 import { CommandPaletteProvider } from "@/components/command-palette";
 import { ScrollToTopButton } from "@/components/scroll-to-top";
+import { AuthProvider } from "@/lib/auth";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +41,8 @@ function Router() {
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference" component={Api} />
       <Route path="/thesis" component={Thesis} />
+      <Route path="/login" component={Login} />
+      <Route path="/app" component={Console} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -46,16 +51,18 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <CommandPaletteProvider>
-            <ScrollRestore />
-            <Router />
-            <ScrollToTopButton />
-          </CommandPaletteProvider>
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <CommandPaletteProvider>
+              <ScrollRestore />
+              <Router />
+              <ScrollToTopButton />
+            </CommandPaletteProvider>
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
