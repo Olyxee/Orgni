@@ -177,11 +177,11 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           {/* Desktop Search */}
           <button
             onClick={() => commandPalette.open()}
-            className="hidden xl:flex items-center gap-3 px-3 h-9 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border hover:border-foreground/30 bg-muted/20 hover:bg-muted/40 w-56 group rounded-none"
+            className="hidden xl:flex items-center gap-3 px-3 h-9 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border hover:border-foreground/30 bg-muted/20 hover:bg-muted/40 w-56 group rounded-md"
           >
             <Search className="h-4 w-4 shrink-0" />
             <span className="flex-1 text-left font-sans">Search...</span>
-            <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground border border-border bg-background group-hover:border-foreground/20 group-hover:text-foreground transition-colors rounded-none">
+            <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground border border-border bg-background group-hover:border-foreground/20 group-hover:text-foreground transition-colors rounded-md">
               ⌘K
             </kbd>
           </button>
@@ -189,7 +189,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           {/* Tablet Search */}
           <button
             onClick={() => commandPalette.open()}
-            className="hidden lg:flex xl:hidden items-center justify-center h-9 w-9 text-foreground/70 hover:text-foreground border border-transparent hover:border-border hover:bg-muted/20 transition-colors rounded-none"
+            className="hidden lg:flex xl:hidden items-center justify-center h-9 w-9 text-foreground/70 hover:text-foreground border border-transparent hover:border-border hover:bg-muted/20 transition-colors rounded-md"
             aria-label="Search"
           >
             <Search className="h-[18px] w-[18px]" />
@@ -206,7 +206,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
 
           <Button
             asChild
-            className="hidden lg:inline-flex h-9 px-5 text-[13px] font-semibold tracking-wide bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-none transition-all duration-300 rounded-none"
+            className="hidden lg:inline-flex h-9 px-5 text-[13px] font-semibold tracking-wide bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-none transition-all duration-300 rounded-md"
           >
             <a href={LOGIN_URL}>
               Request a Demo
@@ -288,7 +288,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
               transition={{ delay: 0.3, duration: 0.3 }}
               className="p-6 border-t border-border bg-muted/30 pb-8"
             >
-              <Button asChild className="w-full h-12 text-[15px] font-semibold tracking-wide bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-none rounded-none transition-all duration-300">
+              <Button asChild className="w-full h-12 text-[15px] font-semibold tracking-wide bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-none rounded-md transition-all duration-300">
                 <a href={LOGIN_URL}>
                   Request a Demo
                 </a>

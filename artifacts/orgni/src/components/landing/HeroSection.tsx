@@ -28,12 +28,12 @@ export function HeroSection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 font-medium shadow-none rounded-none text-base">
+            <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 font-medium shadow-none rounded-md text-base">
               <a href={LOGIN_URL}>
                 Request a demonstration
               </a>
             </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none text-base transition-colors">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-md text-base transition-colors">
               <Link href="/platform">
                 See how Orgni works
               </Link>

@@ -70,12 +70,12 @@ function DevelopersHeroSection() {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/api-reference">
                 Read the API reference
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-none bg-transparent">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-md bg-transparent">
               <a href={LOGIN_URL}>
                 Request access
               </a>
@@ -555,12 +555,12 @@ function ClosingCtaSection() {
           </blockquote>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full sm:w-auto">
-            <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-none bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button asChild size="lg" className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground">
               <Link href="/api-reference">
                 Read the API reference
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-none bg-transparent">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-12 px-8 font-medium border-white/20 text-white hover:bg-white/10 rounded-md bg-transparent">
               <a href={LOGIN_URL}>
                 Request access
               </a>

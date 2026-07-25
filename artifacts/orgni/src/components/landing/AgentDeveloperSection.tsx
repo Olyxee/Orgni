@@ -36,7 +36,7 @@ export function AgentDeveloperSection() {
               </ul>
             </div>
 
-            <Button asChild variant="outline" size="lg" className="h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none text-base transition-colors">
+            <Button asChild variant="outline" size="lg" className="h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-md text-base transition-colors">
               <Link href="/developers">
                 Read the Documentation
               </Link>

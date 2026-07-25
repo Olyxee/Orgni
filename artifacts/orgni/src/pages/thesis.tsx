@@ -275,7 +275,7 @@ export default function Thesis() {
         `}>
           <div className="flex justify-between items-center lg:hidden mb-12">
             <span className="font-mono font-bold tracking-widest uppercase text-sm">Contents</span>
-            <button onClick={() => setTocOpen(false)} className="p-3 border border-border rounded-none">
+            <button onClick={() => setTocOpen(false)} className="p-3 border border-border rounded-md">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -357,7 +357,7 @@ export default function Thesis() {
             <p className="text-lg text-muted-foreground mb-10 max-w-xl font-light">
               Orgni continuously learns how your organisation operates, preserving your operational memory and making it available via API.
             </p>
-            <Button asChild size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium rounded-none shadow-none transition-all group">
+            <Button asChild size="lg" className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground text-base font-medium rounded-md shadow-none transition-all group">
               <a href="https://www.olyxee.com/signup?tool=api">
                 Request access
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />

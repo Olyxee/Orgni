@@ -16,12 +16,12 @@ export function FinalCtaSection() {
         </p>
         
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-          <Button asChild size="lg" className="w-full sm:w-auto h-16 px-10 font-medium shadow-none rounded-none text-lg">
+          <Button asChild size="lg" className="w-full sm:w-auto h-16 px-10 font-medium shadow-none rounded-md text-lg">
             <a href={LOGIN_URL}>
               Request a demonstration
             </a>
           </Button>
-          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-16 px-10 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none text-lg transition-colors bg-transparent">
+          <Button asChild variant="outline" size="lg" className="w-full sm:w-auto h-16 px-10 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-md text-lg transition-colors bg-transparent">
             <a href="mailto:hello@olyxee.com">
               Contact Sales
             </a>
