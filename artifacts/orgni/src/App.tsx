@@ -43,6 +43,8 @@ function Router() {
       <Route path="/thesis" component={Thesis} />
       <Route path="/login" component={Login} />
       <Route path="/app" component={Console} />
+      <Route path="/app/:section" component={Console} />
+      <Route path="/app/:section/:id" component={Console} />
       <Route component={NotFound} />
     </Switch>
   );
