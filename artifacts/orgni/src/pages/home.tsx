@@ -3,7 +3,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
-import { WhatItDoesSection } from "@/components/landing/WhatItDoesSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
 import { UseCaseSection } from "@/components/landing/UseCaseSection";
 import { VideoSection } from "@/components/landing/VideoSection";
@@ -25,7 +24,6 @@ export default function Home() {
         <HeroSection />
         <ProblemSection />
         <VideoSection />
-        <WhatItDoesSection />
         <InfrastructureSection />
         <UseCaseSection />
         <IntegrationsSection />
