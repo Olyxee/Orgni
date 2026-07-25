@@ -89,10 +89,9 @@
   --ring: 19 99% 50%;
   
   --app-font-sans: 'Geist', sans-serif;
-  /* Display font: same clean sans as body for maximum readability. */
   --app-font-serif: "Geist", sans-serif;
   --app-font-mono: "Geist Mono", ui-monospace, monospace;
-  --radius: 0rem;
+  --radius: 0.5rem;
 }
 
 .dark {
