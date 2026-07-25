@@ -12,9 +12,8 @@ const navItems = [
     href: "/platform",
     match: ["/platform", "/infrastructure", "/use-cases"],
     dropdown: [
-      { title: "Overview", href: "/platform", desc: "The complete operational intelligence platform." },
+      { title: "Overview & Use Cases", href: "/platform", desc: "The platform and how organisations use it." },
       { title: "Infrastructure", href: "/infrastructure", desc: "Enterprise-grade deployment & security." },
-      { title: "Use Cases", href: "/use-cases", desc: "How organizations use Orgni." },
     ]
   },
   {
