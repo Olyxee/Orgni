@@ -44,6 +44,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
           <div>
             <h3 className="font-mono text-xs uppercase tracking-widest text-foreground mb-6">Company</h3>
             <ul className="space-y-4">
+              <li><a href="https://www.olyxee.com/pricing" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Pricing</a></li>
               <li><a href="https://olyxee.com" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">About Olyxee</a></li>
               <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Contact Sales</a></li>
               <li><a href={LOGIN_URL} className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm">Sign In</a></li>

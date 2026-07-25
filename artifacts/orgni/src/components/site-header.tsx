@@ -27,7 +27,6 @@ const navItems = [
       { title: "API Reference", href: "/api-reference", desc: "Complete REST API documentation." },
     ]
   },
-  { title: "Pricing", href: "https://www.olyxee.com/pricing", external: true },
   { title: "Research", href: "/thesis" },
 ];
 
