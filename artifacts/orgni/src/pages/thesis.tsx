@@ -214,7 +214,7 @@ export default function Thesis() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
+    <div className="dark min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"
@@ -327,7 +327,7 @@ export default function Thesis() {
               <h2 className="text-3xl md:text-5xl font-serif leading-tight tracking-tight mb-8 text-foreground pb-6 border-b border-border">
                 {s.title}
               </h2>
-              <div className="text-lg md:text-xl leading-relaxed text-foreground font-light">
+              <div className="text-lg md:text-xl leading-relaxed text-foreground">
                 {renderContent(s.content)}
               </div>
             </section>
