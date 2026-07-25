@@ -1,75 +1,83 @@
 import { motion } from "framer-motion";
 import {
-  Mail,
-  FileSpreadsheet,
-  MessageSquare,
-  Database,
-  FileText,
-  Users,
   AlertCircle,
   Network,
   X
 } from "lucide-react";
+import { 
+  SiGmail, 
+  SiGooglesheets, 
+  SiJira, 
+  SiSap, 
+  SiZoom, 
+  SiGoogledrive 
+} from "react-icons/si";
 
 export function ProblemSection() {
   const problems = [
-    { num: "01", title: "Fragmented knowledge", text: "Context is scattered across systems, emails, and isolated workflows." },
-    { num: "02", title: "Repeated discovery", text: "Every new project is forced to rebuild context entirely from scratch." },
-    { num: "03", title: "Unclear reality", text: "Conflicting information masks the true state of operations." },
-    { num: "04", title: "Blind AI execution", text: "AI cannot act safely without access to trusted organisational context." }
+    { num: "01", title: "Fragmented knowledge", text: "Context scattered across disconnected systems." },
+    { num: "02", title: "Repeated discovery", text: "Rebuilding context entirely from scratch." },
+    { num: "03", title: "Unclear reality", text: "Conflicting information masks the truth." },
+    { num: "04", title: "Blind AI execution", text: "Acting without trusted operational context." }
   ];
 
   const silos = [
     {
       id: "email",
-      icon: Mail,
-      title: "FW: ACME Terms",
-      content: "Net 60 agreed.",
+      icon: SiGmail,
+      iconColor: "#EA4335",
+      title: "Gmail",
+      content: "Net 60",
       x: 22, y: 18,
       delay: 0,
       conflict: false
     },
     {
       id: "spreadsheet",
-      icon: FileSpreadsheet,
-      title: "Suppliers_Final.xlsx",
-      content: "Terms: Net 30",
+      icon: SiGooglesheets,
+      iconColor: "#34A853",
+      title: "Google Sheets",
+      content: "Net 30",
       x: 78, y: 22,
       delay: 1,
       conflict: true
     },
     {
       id: "chat",
-      icon: MessageSquare,
-      title: "#finance-approvals",
-      content: "Wait, who approved this?",
+      icon: SiJira,
+      iconColor: "#0052CC",
+      title: "Jira",
+      content: "Approved?",
       x: 18, y: 50,
       delay: 2,
       conflict: false
     },
     {
       id: "pdf",
-      icon: FileText,
-      title: "Signed_MSA_2024.pdf",
-      content: "Liability: 2x Fees",
+      icon: SiGoogledrive,
+      iconColor: "#4285F4",
+      title: "Google Drive",
+      content: "Liability: 2x",
       x: 82, y: 55,
       delay: 0.5,
       conflict: true
     },
     {
       id: "users",
-      icon: Users,
-      title: "Zoom Transcripts",
-      content: "Handshake agreement",
+      icon: SiZoom,
+      iconColor: "#2D8CFF",
+      title: "Zoom",
+      content: "Handshake",
       x: 32, y: 82,
       delay: 1.5,
       conflict: false
     },
     {
       id: "db",
-      icon: Database,
-      title: "CRM / ERP",
-      content: "Status: Pending",
+      icon: SiSap,
+      iconColor: "#008FD3",
+      title: "SAP",
+      content: "Pending",
       x: 72, y: 80,
       delay: 2.5,
       conflict: false
@@ -193,7 +201,7 @@ export function ProblemSection() {
                         </div>
                       )}
                       <div className="flex items-center gap-2 mb-1.5 md:mb-2">
-                        <silo.icon size={14} className={`shrink-0 ${silo.conflict ? "text-primary/80" : "text-muted-foreground"}`} />
+                        <silo.icon size={14} className="shrink-0" style={{ color: silo.iconColor }} />
                         <span className="text-[10px] md:text-xs font-semibold truncate text-muted-foreground">{silo.title}</span>
                       </div>
                       <div className={`text-[11px] md:text-xs font-medium leading-tight ${
