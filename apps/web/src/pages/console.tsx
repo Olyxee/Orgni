@@ -88,7 +88,8 @@ export default function Console() {
         <section className="rounded-lg border border-border p-6">
           <h1 className="text-lg font-semibold mb-1">Upload a document</h1>
           <p className="text-sm text-muted-foreground mb-4">
-            Invoice, proof of payment, or contract (PDF, PNG/JPEG, or plain text).
+            Invoice, proof of payment, or contract (PDF, PNG/JPEG, or plain
+            text).
           </p>
           <div className="flex items-center gap-3">
             <input
@@ -123,7 +124,9 @@ export default function Console() {
                 >
                   <span className="truncate">{d.filename}</span>
                   <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant="secondary">{d.documentType ?? "UNKNOWN"}</Badge>
+                    <Badge variant="secondary">
+                      {d.documentType ?? "UNKNOWN"}
+                    </Badge>
                     <Badge>{d.state}</Badge>
                   </div>
                 </div>
@@ -155,7 +158,8 @@ function ResultView({ result }: { result: UploadResult }) {
         <div className="flex flex-wrap gap-2">
           {result.tokens.map((t, i) => (
             <Badge key={i} variant="outline">
-              {String(t["tokenKind"])} · {String(t["eventType"] ?? t["predicate"] ?? "")}
+              {String(t["tokenKind"])} ·{" "}
+              {String(t["eventType"] ?? t["predicate"] ?? "")}
             </Badge>
           ))}
         </div>
@@ -177,7 +181,9 @@ function ResultView({ result }: { result: UploadResult }) {
               {(facts.facts ?? []).map((f, i) => (
                 <li key={i}>
                   {f.fact_type}{" "}
-                  <span className="text-xs opacity-70">({f.epistemic_status})</span>
+                  <span className="text-xs opacity-70">
+                    ({f.epistemic_status})
+                  </span>
                 </li>
               ))}
             </ul>

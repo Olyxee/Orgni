@@ -4,10 +4,9 @@
  * Sends the session token as a Bearer header on every authenticated call. The
  * API base URL comes from VITE_API_URL (defaults to the local API on :8080).
  */
-const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(
-  /\/+$/,
-  "",
-);
+const API_URL = (
+  import.meta.env.VITE_API_URL ?? "http://localhost:8080"
+).replace(/\/+$/, "");
 
 export interface Session {
   token: string;
@@ -96,7 +95,12 @@ export async function login(
 ): Promise<Session> {
   const data = await request<{
     token: string;
-    principal: { email: string; tenantId: string; organization: string; roles: string[] };
+    principal: {
+      email: string;
+      tenantId: string;
+      organization: string;
+      roles: string[];
+    };
   }>("/api/auth/login", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -117,14 +121,23 @@ export function uploadDocument(
 ): Promise<UploadResult> {
   const body = new FormData();
   body.append("file", file);
-  return request<UploadResult>("/api/documents", { method: "POST", body, token });
+  return request<UploadResult>("/api/documents", {
+    method: "POST",
+    body,
+    token,
+  });
 }
 
-export function listDocuments(token: string): Promise<{ documents: DocumentSummary[] }> {
+export function listDocuments(
+  token: string,
+): Promise<{ documents: DocumentSummary[] }> {
   return request("/api/documents", { token });
 }
 
-export function getDocument(token: string, sourceId: string): Promise<DocumentDetail> {
+export function getDocument(
+  token: string,
+  sourceId: string,
+): Promise<DocumentDetail> {
   return request(`/api/documents/${sourceId}`, { token });
 }
 

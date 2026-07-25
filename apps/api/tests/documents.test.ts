@@ -202,7 +202,10 @@ describe("POST /api/documents", () => {
     const login = await fetch(`${baseUrl}/api/auth/login`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email: "demo@olyxee.com", organization: "Clover Retail" }),
+      body: JSON.stringify({
+        email: "demo@olyxee.com",
+        organization: "Clover Retail",
+      }),
     });
     expect(login.status).toBe(200);
     const { token, principal } = await login.json();
@@ -220,7 +223,8 @@ describe("POST /api/documents", () => {
     });
     expect(up.status).toBe(200);
     const body = await up.json();
-    for (const t of body.tokens) expect(t.tenantId).toBe("tenant_clover-retail");
+    for (const t of body.tokens)
+      expect(t.tenantId).toBe("tenant_clover-retail");
 
     // A garbage token is rejected.
     const bad = await fetch(`${baseUrl}/api/documents`, {

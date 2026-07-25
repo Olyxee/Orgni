@@ -40,7 +40,10 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4">
       <div className="w-full max-w-sm">
-        <a href="/" className="block text-2xl font-semibold tracking-tight mb-1">
+        <a
+          href="/"
+          className="block text-2xl font-semibold tracking-tight mb-1"
+        >
           Orgni
         </a>
         <p className="text-sm text-muted-foreground mb-8">

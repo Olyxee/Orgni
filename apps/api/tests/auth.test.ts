@@ -3,11 +3,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import {
-  issueToken,
-  verifyToken,
-  tenantIdFromOrg,
-} from "../src/lib/auth.js";
+import { issueToken, verifyToken, tenantIdFromOrg } from "../src/lib/auth.js";
 
 const SECRET = "test-secret";
 
