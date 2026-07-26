@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { LOGIN_URL } from "@/lib/links";
 import { motion } from "framer-motion";
-import { Calculator } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -123,30 +122,13 @@ export function HeroSection() {
                   opacity="0.35"
                 />
               </svg>
-              {/* Floating calculator chip */}
-              <motion.span
-                initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
-                animate={{ opacity: 1, scale: 1, rotate: 8 }}
-                transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 12 }}
-                className="absolute -top-5 -right-8 md:-top-7 md:-right-12"
-                aria-hidden="true"
-              >
-                <motion.span
-                  animate={{ y: [0, -6, 0], rotate: [8, 12, 8] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                  className="flex items-center justify-center h-10 w-10 md:h-14 md:w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 ring-4 ring-white"
-                >
-                  <Calculator className="h-5 w-5 md:h-7 md:w-7 text-white" />
-                </motion.span>
-              </motion.span>
             </span>
             . Get one answer you can trust.
           </h1>
 
           <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mb-10 font-medium">
-            Orgni connects your contracts, invoices, payments and approvals
-            into one live picture of your operations — so your team and your
-            AI always know what&apos;s true, and where it came from.
+            Orgni brings your contracts, invoices and payments into one place,
+            so everyone works from the same numbers.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">

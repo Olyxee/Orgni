@@ -19,9 +19,8 @@ export function InfrastructureSection() {
             From scattered tools to one sourced answer.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Orgni reads where your finance team already works — Teams, email,
-            drives, SAP and spreadsheets — and answers questions right in the
-            conversation, with every figure traced back to its source.
+            Orgni reads your team&apos;s existing tools and answers questions
+            right in the conversation, with every figure traced to its source.
           </p>
         </motion.div>
 
@@ -35,7 +34,7 @@ export function InfrastructureSection() {
         >
           <img
             src={evidenceFlowImage}
-            alt="Orgni ingests context from where finance teams work — Microsoft Teams, Gmail, Google Drive, SAP, spreadsheets and databases — and answers questions right where you work, with sourced answers in a finance-ops channel."
+            alt="Orgni ingests context from Microsoft Teams, Gmail, Google Drive, SAP, spreadsheets and databases, and answers questions with sources in a finance-ops channel."
             className="w-full h-auto mix-blend-multiply"
             width={1535}
             height={1024}

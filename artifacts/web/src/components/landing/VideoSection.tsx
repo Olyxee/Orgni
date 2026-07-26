@@ -22,8 +22,7 @@ export function VideoSection() {
           </div>
           <div className="lg:col-span-6 lg:col-start-7">
             <p className="text-xl md:text-2xl font-medium text-background/80 leading-relaxed">
-              See how connecting fragmented data into a cohesive operational
-              graph transforms how businesses execute.
+              See how connected data changes the way businesses execute.
             </p>
           </div>
         </motion.div>
