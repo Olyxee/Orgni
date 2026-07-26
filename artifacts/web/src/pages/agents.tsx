@@ -75,6 +75,7 @@ export default function Agents() {
       <main className="flex-1 pt-16">
         <Hero />
         <Capabilities />
+        <ExampleFlow />
         <Quickstart />
         <Guardrails />
         <NextSteps />
@@ -180,6 +181,104 @@ function Capabilities() {
   );
 }
 
+function ExampleFlow() {
+  const steps = [
+    {
+      n: "1",
+      title: "Your agent asks",
+      desc: "\u201CCan supplier invoice INV-2048 be approved?\u201D One API call, no digging through emails, policies or ledgers.",
+      code: `POST /v1/context/query
+
+{
+  "agent_id": "procurement-agent",
+  "objective": "Can invoice INV-2048 be approved?",
+  "entities": {
+    "invoice_id": "INV-2048",
+    "supplier_id": "SUP-019"
+  }
+}`,
+      codeTitle: "request",
+    },
+    {
+      n: "2",
+      title: "Orgni answers with a decision",
+      desc: "Not just data. Orgni checks the invoice, the purchase order, the supplier and the company's own rules, then says what's blocking and why.",
+      code: `{
+  "decision_status": "blocked",
+  "reason": "Supplier bank details changed 2 days ago.
+    Payments over R25,000 need finance verification.",
+  "recommended_action": {
+    "action": "request_finance_verification",
+    "assigned_role": "finance-manager"
+  },
+  "evidence": [
+    "Invoice INV-2048",
+    "Purchase order PO-8821",
+    "Approval policy FIN-APR-07"
+  ]
+}`,
+      codeTitle: "response",
+    },
+    {
+      n: "3",
+      title: "Your agent acts safely",
+      desc: "Instead of paying a possibly-hijacked account, it routes the invoice to the finance manager, with the evidence attached.",
+      code: `{
+  "action": "create_approval_request",
+  "assigned_to": "finance-manager",
+  "reason": "Bank details need verification before payment."
+}`,
+      codeTitle: "agent action",
+    },
+  ];
+
+  return (
+    <section className="py-24 px-6 max-w-screen-xl mx-auto border-t border-border">
+      <div className="max-w-2xl mb-16">
+        <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
+          See one call, start to finish
+        </h2>
+        <p className="text-lg text-muted-foreground leading-relaxed">
+          A procurement agent wants to pay a supplier. Here is the whole
+          conversation with Orgni.
+        </p>
+      </div>
+      <div className="space-y-12">
+        {steps.map((s) => (
+          <div
+            key={s.n}
+            className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start"
+          >
+            <div className="lg:pt-2">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center shrink-0">
+                  {s.n}
+                </span>
+                <h3 className="text-xl font-medium">{s.title}</h3>
+              </div>
+              <p className="text-muted-foreground leading-relaxed lg:pl-10">
+                {s.desc}
+              </p>
+            </div>
+            <CodeBlock title={s.codeTitle} copyText={s.code}>
+              <pre className="text-white/80 leading-relaxed text-xs md:text-sm font-mono whitespace-pre">
+                {s.code}
+              </pre>
+            </CodeBlock>
+          </div>
+        ))}
+      </div>
+      <div className="mt-14 p-6 md:p-8 rounded-xl bg-primary/5 border border-primary/20 max-w-3xl">
+        <p className="text-base md:text-lg font-medium text-foreground leading-relaxed">
+          Your agent asks &quot;what should I do?&quot; and Orgni answers with
+          the current state, the rule that applies, the evidence, the
+          responsible person and the permitted next step.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function Quickstart() {
   const mcpConfig = `{
   "mcpServers": {
@@ -196,16 +295,18 @@ function Quickstart() {
 
 const orgni = new Orgni({ apiKey: process.env.ORGNI_API_KEY });
 
-// Give your agent verified context before it acts
-const context = await orgni.context.get({
-  actor: "payments-agent",
-  task: "approve-invoice",
-  resource: "invoice_INV-2391",
+// Your agent asks: "can I approve this invoice?"
+const result = await orgni.context.query({
+  agentId: "procurement-agent",
+  objective: "Can supplier invoice INV-2048 be approved?",
+  entities: { invoiceId: "INV-2048", supplierId: "SUP-019" },
 });
 
-if (context.permittedActions.includes("approve")) {
-  // safe to execute — every claim is evidence-backed
-}`;
+// Orgni answers with a decision, the rule, and the evidence
+result.decisionStatus;              // "blocked"
+result.recommendedAction.action;    // "request_finance_verification"
+result.recommendedAction.reason;    // "Supplier bank details changed 2 days ago"
+result.evidence;                    // ["Invoice INV-2048", "Policy FIN-APR-07", ...]`;
 
   return (
     <section className="py-24 bg-[#050505] text-white px-6">
