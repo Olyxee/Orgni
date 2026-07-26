@@ -34,14 +34,6 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/platform"
-                  className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
-                >
-                  Platform
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/use-cases"
                   className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
                 >

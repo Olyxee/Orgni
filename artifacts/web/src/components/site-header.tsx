@@ -8,36 +8,34 @@ import { LOGIN_URL } from "@/lib/links";
 
 const navItems = [
   {
-    title: "Platform",
-    href: "/platform",
-    match: ["/platform", "/infrastructure", "/use-cases"],
-    dropdown: [
-      {
-        title: "Overview & Use Cases",
-        href: "/platform",
-        desc: "The platform and how organisations use it.",
-      },
-      {
-        title: "Infrastructure",
-        href: "/infrastructure",
-        desc: "Enterprise-grade deployment & security.",
-      },
-    ],
+    title: "Use Cases",
+    href: "/use-cases",
+    match: ["/use-cases", "/infrastructure"],
   },
   {
     title: "Developers",
     href: "/developers",
-    match: ["/developers", "/docs", "/api-reference"],
+    match: ["/developers", "/docs", "/api-reference", "/agents"],
     dropdown: [
       {
         title: "Overview",
         href: "/developers",
-        desc: "Tools and resources for building.",
+        desc: "The API surface, authentication, and what Orgni exposes.",
+      },
+      {
+        title: "Agents",
+        href: "/agents",
+        desc: "Build AI agents on verified context — MCP & SDK quickstart.",
       },
       {
         title: "Documentation",
         href: "/docs",
-        desc: "Guides, tutorials, core concepts, and complete REST API documentation.",
+        desc: "Guides, core concepts, and integration walkthroughs.",
+      },
+      {
+        title: "API Reference",
+        href: "/api-reference",
+        desc: "Complete REST API endpoints and schemas.",
       },
     ],
   },

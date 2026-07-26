@@ -54,7 +54,7 @@ export function HeroSection() {
               size="lg"
               className="w-full sm:w-auto h-14 px-8 font-bold border-border text-foreground hover:bg-secondary rounded-md text-base transition-colors"
             >
-              <Link href="/platform">See how Orgni works</Link>
+              <Link href="/use-cases">See how Orgni works</Link>
             </Button>
           </div>
         </motion.div>

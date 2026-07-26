@@ -11,10 +11,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import Platform from "@/pages/platform";
 import UseCases from "@/pages/use-cases";
 import Infrastructure from "@/pages/infrastructure";
 import Developers from "@/pages/developers";
+import Agents from "@/pages/agents";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
@@ -38,10 +38,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/platform" component={Platform} />
       <Route path="/use-cases" component={UseCases} />
       <Route path="/infrastructure" component={Infrastructure} />
       <Route path="/developers" component={Developers} />
+      <Route path="/agents" component={Agents} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference">
