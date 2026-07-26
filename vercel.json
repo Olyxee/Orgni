@@ -1,5 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "artifacts/web/dist/public",
-  "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @workspace/web run build",
+  "outputDirectory": "apps/web/dist/public",
+  "rewrites": [{ "source": "/:path*", "destination": "/index.html" }]
 }

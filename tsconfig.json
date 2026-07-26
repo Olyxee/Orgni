@@ -13,10 +13,22 @@
       "path": "./lib/api-zod"
     },
     {
+      "path": "./packages/contracts"
+    },
+    {
+      "path": "./intelligence/organizational-tokenizer"
+    },
+    {
       "path": "./packages/config"
     },
     {
-      "path": "./packages/contracts"
+      "path": "./packages/observability"
+    },
+    {
+      "path": "./packages/auth"
+    },
+    {
+      "path": "./packages/testing"
     }
   ]
 }
