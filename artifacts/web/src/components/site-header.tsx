@@ -27,11 +27,6 @@ const navItems = [
         href: "/docs",
         desc: "Guides, core concepts, and integration walkthroughs.",
       },
-      {
-        title: "API Reference",
-        href: "/api-reference",
-        desc: "Complete REST API endpoints and schemas.",
-      },
     ],
   },
   { title: "Research", href: "/thesis" },
