@@ -66,7 +66,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/thesis"
+                  href="/research"
                   className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
                 >
                   Research

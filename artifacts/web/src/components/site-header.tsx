@@ -34,7 +34,7 @@ const navItems = [
       },
     ],
   },
-  { title: "Research", href: "/thesis" },
+  { title: "Research", href: "/research", match: ["/research", "/thesis"] },
 ];
 
 export function SiteHeader({ dark }: { dark?: boolean }) {
@@ -184,9 +184,9 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                               className="group relative flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors z-10"
                               onClick={() => setActiveDropdown(null)}
                             >
-                              <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="w-9 h-9 rounded-md bg-muted border border-border flex items-center justify-center shrink-0 mt-0.5">
                                 <dropItem.icon
-                                  className="h-4 w-4 text-primary"
+                                  className="h-4 w-4 text-foreground/70 group-hover:text-foreground transition-colors"
                                   aria-hidden="true"
                                 />
                               </div>
@@ -323,7 +323,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                           className="flex items-center gap-2.5 text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
                           <drop.icon
-                            className="h-4 w-4 text-primary"
+                            className="h-4 w-4 text-muted-foreground"
                             aria-hidden="true"
                           />
                           {drop.title}

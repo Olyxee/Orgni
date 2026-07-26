@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
-import { UseCaseSection } from "@/components/landing/UseCaseSection";
 import { VideoSection } from "@/components/landing/VideoSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
 import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
@@ -26,7 +25,6 @@ export default function Home() {
         <ProblemSection />
         <VideoSection />
         <InfrastructureSection />
-        <UseCaseSection />
         <IntegrationsSection />
         <FinalCtaSection />
       </main>

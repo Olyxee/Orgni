@@ -278,45 +278,8 @@ export default function Thesis() {
 
       <SiteHeader />
 
-      {/* Vision & Mission */}
-      <section className="pt-24 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto border-b border-border">
-        <div className="max-w-4xl">
-          <div className="mb-6 flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-foreground"></div>
-            <p className="text-xs font-mono tracking-widest uppercase">
-              Why we do this work
-            </p>
-          </div>
-          <h1 className="text-4xl md:text-6xl font-serif leading-[1.1] tracking-tight mb-16 text-foreground max-w-3xl">
-            Organisations should never lose what they know.
-          </h1>
-          <div className="grid md:grid-cols-2 gap-12 md:gap-16">
-            <div>
-              <h2 className="text-xs font-mono tracking-widest uppercase text-primary mb-4">
-                Our vision
-              </h2>
-              <p className="text-xl md:text-2xl font-serif leading-snug text-foreground">
-                A world where every organisation has a living, queryable memory
-                of how it operates, so that people and AI can act on verified
-                fact instead of guesswork.
-              </p>
-            </div>
-            <div>
-              <h2 className="text-xs font-mono tracking-widest uppercase text-primary mb-4">
-                Our mission
-              </h2>
-              <p className="text-xl md:text-2xl font-serif leading-snug text-foreground">
-                Build the organisational intelligence layer: capture contracts,
-                invoices, payments and decisions into one verified model, and
-                make it available to every person and agent that needs it.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Hero Header */}
-      <header className="pt-16 pb-16 md:pt-24 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto border-b border-border">
+      <header className="pt-24 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto border-b border-border">
         <div className="max-w-4xl">
           <div className="mb-6 flex items-center gap-4">
             <div className="h-[1px] w-12 bg-primary"></div>
@@ -325,9 +288,9 @@ export default function Thesis() {
             </p>
           </div>
 
-          <h2 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif leading-[1.05] tracking-tight mb-8 text-foreground">
+          <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-serif leading-[1.05] tracking-tight mb-8 text-foreground">
             {thesisData.title}
-          </h2>
+          </h1>
           <p className="text-xl md:text-3xl text-muted-foreground leading-snug font-light max-w-3xl">
             {thesisData.subtitle}
           </p>

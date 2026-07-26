@@ -17,6 +17,7 @@ import Developers from "@/pages/developers";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
+import Research from "@/pages/research";
 import Login from "@/pages/login";
 import Console from "@/pages/console";
 import { CommandPaletteProvider } from "@/components/command-palette";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/api-reference">
         <Redirect to="/docs" />
       </Route>
+      <Route path="/research" component={Research} />
       <Route path="/thesis" component={Thesis} />
       <Route path="/login" component={Login} />
       <Route path="/app" component={Console} />
