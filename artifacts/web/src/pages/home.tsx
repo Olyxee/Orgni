@@ -4,7 +4,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
-import { VideoSection } from "@/components/landing/VideoSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
 import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
 
@@ -23,7 +22,6 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <ProblemSection />
-        <VideoSection />
         <InfrastructureSection />
         <IntegrationsSection />
         <FinalCtaSection />
