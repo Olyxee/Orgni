@@ -25,6 +25,10 @@ describe("mapProofOfPaymentToTokens — complete PoP with invoiceRef", () => {
     expect(t!.tokenKind).toBe("STATE");
     expect((t!.scalarValue as Record<string, unknown>)["status"]).toBe("PENDING_VERIFICATION");
     expect((t!.scalarValue as Record<string, unknown>)["invoiceRef"]).toBe("INV-2026-0042");
+    // A settlement derived from a mere invoice reference must be INFERRED, never
+    // ASSERTED/OBSERVED — a payment reference must not assert a settled invoice.
+    expect(t!.epistemicStatus).toBe("INFERRED");
+    expect(t!.epistemicStatus).not.toBe("ASSERTED");
   });
 
   it("all tokens have valid sourceRefs with precise page or section locators", () => {

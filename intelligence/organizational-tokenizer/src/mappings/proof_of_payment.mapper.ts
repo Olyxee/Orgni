@@ -70,7 +70,11 @@ export function mapProofOfPaymentToTokens(env: ProofOfPaymentExtraction): Organi
       confidence: clampConfidence(
         minConfidence(env.invoiceRef.confidence, env.amount.confidence),
       ),
-      epistemicStatus: "ASSERTED",
+      // INFERRED, not ASSERTED: this settlement link is derived from the payment
+      // merely *referencing* an invoice, not from any explicit settlement
+      // statement in the document. Combined with status PENDING_VERIFICATION,
+      // this ensures a payment reference never asserts a settled invoice.
+      epistemicStatus: "INFERRED",
       visibility: [],
       actionScope: ["finance", "accounts-payable"],
       retentionClass: "financial",
