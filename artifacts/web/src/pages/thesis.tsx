@@ -191,6 +191,11 @@ export default function Thesis() {
           name: "Mosa Maseko",
           jobTitle: "Founding Data Engineer",
         },
+        {
+          "@type": "Person",
+          name: "Emmanuel Stakio",
+          jobTitle: "Theoretical Research Scientist",
+        },
       ],
       publisher: {
         "@type": "Organization",
@@ -294,7 +299,7 @@ export default function Thesis() {
           <p className="text-xl md:text-3xl text-muted-foreground leading-snug font-light max-w-3xl">
             {thesisData.subtitle}
           </p>
-          <div className="mt-16 pt-12 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-12">
+          <div className="mt-16 pt-12 border-t border-border grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
             <div className="flex flex-col gap-2">
               <span className="font-serif text-2xl text-foreground">
                 Lethabo Scofield
@@ -319,6 +324,14 @@ export default function Thesis() {
               </span>
               <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">
                 Founding Data Engineer
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-serif text-2xl text-foreground">
+                Emmanuel Stakio
+              </span>
+              <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">
+                Theoretical Research Scientist
               </span>
             </div>
           </div>

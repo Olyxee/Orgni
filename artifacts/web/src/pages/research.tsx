@@ -100,6 +100,14 @@ export default function Research() {
                     Founding Data Engineer
                   </span>
                 </div>
+                <div>
+                  <span className="block font-medium text-foreground">
+                    Emmanuel Stakio
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    Theoretical Research Scientist
+                  </span>
+                </div>
               </div>
               <Button
                 asChild
