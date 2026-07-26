@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-20", "web", "python-3.12"]
 
 [deployment]
 router = "application"
@@ -19,6 +19,5 @@ expertMode = true
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
 
-[userenv]
-
-[userenv.shared]
+[nix]
+channel = "stable-25_05"
