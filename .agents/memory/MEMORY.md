@@ -1,3 +1,2 @@
-# Memory index
-
-- [Orgni architecture notes](orgni-architecture.md) — intelligence services are the user's own (URLs pending, uploads 503 by design), light root theme, dev-login gating, source-exporting lib packages.
+- [Replit artifact routing](replit-artifact-routing.md) — preview router only serves artifacts whose `.replit-artifact/` lives under `artifacts/`; app code can live elsewhere via stub dirs.
+- [Worker/API bundling](service-bundling.md) — backend services must esbuild-bundle workspace deps (packages export .ts sources); esbuild-plugin-pino needs pino/pino-pretty/thread-stream as direct deps.

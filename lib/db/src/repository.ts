@@ -171,29 +171,6 @@ export function createRepository(db: Database) {
       };
     },
 
-    /** All stored fact-sets for a tenant, joined with their source rows. */
-    async listFactRows(
-      tenantId: string,
-    ): Promise<Array<{ fact: FactRow; source: SourceRow }>> {
-      const rows = await db
-        .select({ fact: facts, source: sources })
-        .from(facts)
-        .innerJoin(sources, eq(facts.sourceId, sources.sourceId))
-        .where(eq(facts.tenantId, tenantId))
-        .orderBy(desc(facts.createdAt));
-      return rows;
-    },
-
-    /** All reviews for a tenant, newest first (activity/audit views). */
-    async listReviewRows(tenantId: string, limit = 200): Promise<ReviewRow[]> {
-      return db
-        .select()
-        .from(reviews)
-        .where(eq(reviews.tenantId, tenantId))
-        .orderBy(desc(reviews.createdAt))
-        .limit(limit);
-    },
-
     /** Record a reviewer correction/rejection (append-only audit trail). */
     async addReview(input: {
       tenantId: string;
