@@ -1,0 +1,83 @@
+{
+  "assessment": "Orgni Phase 1 Release Readiness",
+  "decision": "NO-GO",
+  "commit": "b4f1456f94538a2603ae2f869dedb1c04e4fab5e",
+  "branch": "main",
+  "environment": {
+    "node": "24",
+    "pnpm": "10.32.1",
+    "python": "3.13",
+    "os": "windows",
+    "cross_checked_ci": "github-actions-linux"
+  },
+  "static_checks": {
+    "pnpm_install": { "status": "pass", "exit": 0 },
+    "pnpm_typecheck": { "status": "pass", "exit": 0 },
+    "pnpm_lint": { "status": "fail", "exit": 1, "detail": "138 files with Prettier issues" },
+    "pnpm_build": { "status": "fail", "exit": 1, "detail": "turbo: missing packageManager field in root package.json" },
+    "pnpm_test_local": { "status": "fail", "exit": 1, "detail": "windows rollup native binary stripped by overrides; passes in linux CI (74 tests)" },
+    "pytest_local": { "status": "fail", "exit": 2, "detail": "collection ImportError; python deps not installed; passes in linux CI (11 tests)" }
+  },
+  "architecture": {
+    "web_upload_review_ui": "missing",
+    "api": "partial_synchronous_only",
+    "worker": "stub_heartbeat_no_queue",
+    "postgres_persistence": "missing",
+    "blob_storage": "missing",
+    "redis_bullmq": "missing",
+    "ingestion_pipeline": "present",
+    "document_intelligence": "present",
+    "organizational_tokenizer": "present",
+    "organizational_ontology": "missing",
+    "canonical_contracts": "present_ts_only",
+    "auth_tenant_isolation": "missing",
+    "observability": "partial",
+    "ci": "present",
+    "cd_staging": "missing",
+    "production_deploy_config": "partial_dockerfiles_only"
+  },
+  "contracts": {
+    "single_organizational_token": true,
+    "duplicate_token_schema_on_main": false,
+    "generated_cross_language_schemas": false,
+    "ontology_consumes_tokenizer_output": false,
+    "production_depends_on_migration_backup": false
+  },
+  "safeguards": {
+    "no_fabrication": "enforced_unit_tested",
+    "pop_does_not_settle_invoice": "enforced_unit_tested",
+    "unsigned_contract_not_executed": "enforced_unit_tested",
+    "log_redaction": "enforced_unit_tested"
+  },
+  "extraction_quality": {
+    "golden_dataset_present": false,
+    "classification_accuracy": null,
+    "field_precision": null,
+    "field_recall": null,
+    "evidence_location_accuracy": null,
+    "note": "no versioned golden dataset; metrics not measurable"
+  },
+  "security": {
+    "committed_secrets": "none_found",
+    "log_redaction": "present",
+    "authentication": "absent",
+    "tenant_isolation": "structurally_absent",
+    "confirmed_cross_tenant_exposure": false,
+    "dependency_vuln_scanning": "not_configured"
+  },
+  "performance": { "measured": false, "reason": "no deployable full system" },
+  "critical_blockers": [
+    "complete_pipeline_does_not_run_no_ontology_no_facts",
+    "ontology_absent",
+    "no_review_path_no_ui_no_persistence",
+    "no_staging_environment_no_cd",
+    "tenant_isolation_structurally_absent_no_auth"
+  ],
+  "automatic_nogo_conditions_met": [
+    "complete_pipeline_does_not_run",
+    "ontology_does_not_consume_tokenizer_output",
+    "no_staging_environment",
+    "no_review_path_for_uncertain_results"
+  ],
+  "recommended_pilot_limits": "none_do_not_pilot"
+}

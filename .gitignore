@@ -1,7 +1,3 @@
-
-
-
-
 # See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # compiled output
@@ -14,9 +10,6 @@ out-tsc
 
 # dependencies
 node_modules
-.venv
-__pycache__/
-*.py[cod]
 
 # IDEs and editors
 /.idea
@@ -54,10 +47,3 @@ Thumbs.db
 # Replit
 .cache/
 .local/
-
-# Orgni Docs runtime uploads
-services/document-service/uploads/
-
-# Deployment bundles
-deploy/
-services/api/deploy/

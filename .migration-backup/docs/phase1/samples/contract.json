@@ -1,0 +1,332 @@
+{
+  "documentType": "CONTRACT",
+  "envelope": {
+    "source_id": "src_23777822-c640-43af-9a9f-9ccd7ad15167",
+    "source_type": "UPLOAD",
+    "document_type": "CONTRACT",
+    "content": {
+      "text": "<omitted>",
+      "language": "en"
+    },
+    "extracted_fields": {
+      "contractTitle": {
+        "value": "SERVICE AGREEMENT",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "SERVICE AGREEMENT"
+      },
+      "contractReference": {
+        "value": "CT-2024-77",
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "header",
+        "raw": "CT-2024-77"
+      },
+      "party1Name": {
+        "value": "Olyxee AI (Pty) Ltd",
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Olyxee AI (Pty) Ltd"
+      },
+      "party2Name": {
+        "value": "Clover Retail Group",
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Clover Retail Group"
+      },
+      "effectiveDate": {
+        "value": "2024-01-01",
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "term",
+        "raw": "2024-01-01"
+      },
+      "expirationDate": {
+        "value": "2025-01-01",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "term",
+        "raw": "2025-01-01"
+      },
+      "contractValue": {
+        "value": 250000,
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "commercial",
+        "raw": "250000.00"
+      },
+      "currency": {
+        "value": "ZAR",
+        "confidence": 0.78,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "commercial",
+        "raw": "ZAR"
+      },
+      "paymentTerms": {
+        "value": "Net 30 from invoice date",
+        "confidence": 0.78,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "commercial",
+        "raw": "Net 30 from invoice date"
+      },
+      "obligation1": {
+        "value": "The Supplier shall deliver monthly analytics reports within 5 business days.",
+        "confidence": 0.72,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "obligations",
+        "raw": "The Supplier shall deliver monthly analytics reports within 5 business days."
+      },
+      "obligation2": {
+        "value": "The Customer must pay all undisputed invoices within 30 days.",
+        "confidence": 0.72,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "obligations",
+        "raw": "The Customer must pay all undisputed invoices within 30 days."
+      },
+      "executionStatus": {
+        "value": "EXECUTED",
+        "confidence": 0.78,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "execution",
+        "raw": "IN WITNESS WHEREOF"
+      },
+      "signedDate": {
+        "value": "2024-01-05",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "execution",
+        "raw": "2024-01-05"
+      }
+    },
+    "tables": [],
+    "metadata": {
+      "filename": "contract.txt",
+      "mime_type": "text/plain",
+      "checksum": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f",
+      "tenant_id": "tenant_olyxee"
+    },
+    "evidence_locations": [
+      {
+        "field": "contractTitle",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 0,
+        "end": 17,
+        "excerpt": "SERVICE AGREEMENT"
+      },
+      {
+        "field": "contractReference",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 35,
+        "end": 45,
+        "excerpt": "CT-2024-77"
+      },
+      {
+        "field": "party1Name",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 77,
+        "end": 96,
+        "excerpt": "Olyxee AI (Pty) Ltd"
+      },
+      {
+        "field": "party2Name",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 101,
+        "end": 120,
+        "excerpt": "Clover Retail Group"
+      },
+      {
+        "field": "effectiveDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 137,
+        "end": 147,
+        "excerpt": "2024-01-01"
+      },
+      {
+        "field": "expirationDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 166,
+        "end": 176,
+        "excerpt": "2025-01-01"
+      },
+      {
+        "field": "contractValue",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 197,
+        "end": 206,
+        "excerpt": "250000.00"
+      },
+      {
+        "field": "currency",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 193,
+        "end": 196,
+        "excerpt": "ZAR"
+      },
+      {
+        "field": "paymentTerms",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 222,
+        "end": 246,
+        "excerpt": "Net 30 from invoice date"
+      },
+      {
+        "field": "obligation1",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 247,
+        "end": 323,
+        "excerpt": "The Supplier shall deliver monthly analytics reports within 5 business days."
+      },
+      {
+        "field": "obligation2",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 324,
+        "end": 385,
+        "excerpt": "The Customer must pay all undisputed invoices within 30 days."
+      },
+      {
+        "field": "executionStatus",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 386,
+        "end": 404,
+        "excerpt": "IN WITNESS WHEREOF"
+      },
+      {
+        "field": "signedDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 460,
+        "end": 470,
+        "excerpt": "2024-01-05"
+      }
+    ],
+    "confidence": 0.867,
+    "warnings": [],
+    "schema_version": "0.1.0",
+    "extraction_status": "COMPLETE"
+  },
+  "handoff": {
+    "sourceId": "src_23777822-c640-43af-9a9f-9ccd7ad15167",
+    "schemaVersion": "0.1.0",
+    "tokens": [
+      {
+        "tokenId": "tok_src_23777822-c640-43af-9a9f-9ccd7ad15167_contract_executed",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "EVENT",
+        "eventType": "CONTRACT_EXECUTED",
+        "subjectId": "Olyxee AI (Pty) Ltd",
+        "validTime": {
+          "from": "2024-01-01",
+          "to": "2025-01-01"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "contractType": "SERVICE_AGREEMENT",
+          "title": "SERVICE AGREEMENT",
+          "parties": [
+            {
+              "name": "Olyxee AI (Pty) Ltd",
+              "role": "PARTY_A"
+            },
+            {
+              "name": "Clover Retail Group",
+              "role": "PARTY_B"
+            }
+          ],
+          "contractValue": 250000,
+          "currency": "ZAR",
+          "signedDate": "2024-01-05"
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_23777822-c640-43af-9a9f-9ccd7ad15167",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f",
+            "checksum": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f",
+            "locator": {
+              "page": 1,
+              "section": "signature-block"
+            }
+          }
+        ],
+        "confidence": 0.7,
+        "epistemicStatus": "OBSERVED",
+        "visibility": [],
+        "actionScope": [
+          "legal",
+          "contracts"
+        ],
+        "retentionClass": "legal",
+        "payloadRef": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f"
+      },
+      {
+        "tokenId": "tok_src_23777822-c640-43af-9a9f-9ccd7ad15167_relation_0_1",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "RELATION",
+        "subjectId": "Olyxee AI (Pty) Ltd",
+        "predicate": "CONTRACT_COUNTERPARTY",
+        "objectId": "Clover Retail Group",
+        "validTime": {
+          "from": "2024-01-01",
+          "to": "2025-01-01"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "contractType": "SERVICE_AGREEMENT",
+          "subjectRole": "PARTY_A",
+          "objectRole": "PARTY_B"
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_23777822-c640-43af-9a9f-9ccd7ad15167",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f",
+            "checksum": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f",
+            "locator": {
+              "page": 1,
+              "section": "preamble-parties-0-1"
+            }
+          }
+        ],
+        "confidence": 0.82,
+        "epistemicStatus": "OBSERVED",
+        "visibility": [],
+        "actionScope": [
+          "legal"
+        ],
+        "retentionClass": "legal",
+        "payloadRef": "91d78e5c63c87cec60cf8e362c48eaa7d267a1f781556dcf9d5e9513c2342c6f"
+      }
+    ],
+    "warnings": [
+      "2 obligation clause(s) extracted but not tokenized: the tokenizer's ContractExtraction has no obligations field"
+    ]
+  }
+}

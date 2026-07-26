@@ -1,0 +1,281 @@
+{
+  "documentType": "PROOF_OF_PAYMENT",
+  "envelope": {
+    "source_id": "src_29c577bd-3e93-4423-90c3-8061f1723cf3",
+    "source_type": "UPLOAD",
+    "document_type": "PROOF_OF_PAYMENT",
+    "content": {
+      "text": "<omitted>",
+      "language": "en"
+    },
+    "extracted_fields": {
+      "paymentReference": {
+        "value": "TXN-88213",
+        "confidence": 0.9,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "TXN-88213"
+      },
+      "paymentDate": {
+        "value": "2024-04-02",
+        "confidence": 0.88,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "2024-04-02"
+      },
+      "payerName": {
+        "value": "Clover Retail Group",
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Clover Retail Group"
+      },
+      "payeeName": {
+        "value": "Olyxee AI (Pty) Ltd",
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "parties",
+        "raw": "Olyxee AI (Pty) Ltd"
+      },
+      "amount": {
+        "value": 13225,
+        "confidence": 0.9,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "13225.00"
+      },
+      "currency": {
+        "value": "ZAR",
+        "confidence": 0.82,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "ZAR"
+      },
+      "paymentMethod": {
+        "value": "EFT",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "Electronic Funds Transfer"
+      },
+      "bankName": {
+        "value": "First National Bank",
+        "confidence": 0.8,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "payment",
+        "raw": "First National Bank"
+      },
+      "referencedInvoiceNumber": {
+        "value": "INV-2024-0912",
+        "confidence": 0.78,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "reference",
+        "raw": "INV-2024-0912"
+      },
+      "transactionStatus": {
+        "value": "SUCCESSFUL",
+        "confidence": 0.85,
+        "method": "RULE_MATCH",
+        "page": 1,
+        "section": "status",
+        "raw": "Successful"
+      }
+    },
+    "tables": [],
+    "metadata": {
+      "filename": "pop.txt",
+      "mime_type": "text/plain",
+      "checksum": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57",
+      "tenant_id": "tenant_olyxee"
+    },
+    "evidence_locations": [
+      {
+        "field": "paymentReference",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 61,
+        "end": 70,
+        "excerpt": "TXN-88213"
+      },
+      {
+        "field": "paymentDate",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 85,
+        "end": 95,
+        "excerpt": "2024-04-02"
+      },
+      {
+        "field": "payerName",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 105,
+        "end": 124,
+        "excerpt": "Clover Retail Group"
+      },
+      {
+        "field": "payeeName",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 138,
+        "end": 157,
+        "excerpt": "Olyxee AI (Pty) Ltd"
+      },
+      {
+        "field": "amount",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 175,
+        "end": 183,
+        "excerpt": "13225.00"
+      },
+      {
+        "field": "currency",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 171,
+        "end": 174,
+        "excerpt": "ZAR"
+      },
+      {
+        "field": "paymentMethod",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 210,
+        "end": 235,
+        "excerpt": "Electronic Funds Transfer"
+      },
+      {
+        "field": "bankName",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 190,
+        "end": 209,
+        "excerpt": "First National Bank"
+      },
+      {
+        "field": "referencedInvoiceNumber",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 277,
+        "end": 290,
+        "excerpt": "INV-2024-0912"
+      },
+      {
+        "field": "transactionStatus",
+        "type": "TEXT_SPAN",
+        "page": 1,
+        "start": 244,
+        "end": 254,
+        "excerpt": "Successful"
+      }
+    ],
+    "confidence": 0.885,
+    "warnings": [
+      "invoice_reference_is_not_settlement: referenced invoice captured as a reference only; settlement is not asserted",
+      "fields_not_found: proofReference"
+    ],
+    "schema_version": "0.1.0",
+    "extraction_status": "PARTIAL"
+  },
+  "handoff": {
+    "sourceId": "src_29c577bd-3e93-4423-90c3-8061f1723cf3",
+    "schemaVersion": "0.1.0",
+    "tokens": [
+      {
+        "tokenId": "tok_src_29c577bd-3e93-4423-90c3-8061f1723cf3_payment_made",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "EVENT",
+        "eventType": "PAYMENT_MADE",
+        "subjectId": "Clover Retail Group",
+        "objectId": "Olyxee AI (Pty) Ltd",
+        "validTime": {
+          "from": "2024-04-02"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "referenceNumber": "TXN-88213",
+          "amount": 13225,
+          "currency": "ZAR",
+          "method": "EFT",
+          "invoiceRef": "INV-2024-0912"
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_29c577bd-3e93-4423-90c3-8061f1723cf3",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57",
+            "checksum": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57",
+            "locator": {
+              "page": 1,
+              "section": "payment-details"
+            }
+          }
+        ],
+        "confidence": 0.82,
+        "epistemicStatus": "OBSERVED",
+        "visibility": [],
+        "actionScope": [
+          "finance",
+          "accounts-payable"
+        ],
+        "retentionClass": "financial",
+        "payloadRef": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57"
+      },
+      {
+        "tokenId": "tok_src_29c577bd-3e93-4423-90c3-8061f1723cf3_payment_settlement",
+        "tenantId": "tenant_olyxee",
+        "tokenKind": "STATE",
+        "eventType": "PAYMENT_SETTLEMENT",
+        "subjectId": "Clover Retail Group",
+        "objectId": "Olyxee AI (Pty) Ltd",
+        "validTime": {
+          "from": "2024-04-02"
+        },
+        "transactionTime": "2026-07-17T06:41:00Z",
+        "scalarValue": {
+          "invoiceRef": "INV-2024-0912",
+          "amount": 13225,
+          "currency": "ZAR",
+          "method": "EFT",
+          "status": "PENDING_VERIFICATION"
+        },
+        "sourceRefs": [
+          {
+            "evidenceId": "ev_src_29c577bd-3e93-4423-90c3-8061f1723cf3",
+            "sourceSystem": "orgni.document-service",
+            "sourceObjectId": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57",
+            "checksum": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57",
+            "locator": {
+              "page": 1,
+              "section": "metadata-matching"
+            }
+          }
+        ],
+        "confidence": 0.78,
+        "epistemicStatus": "ASSERTED",
+        "visibility": [],
+        "actionScope": [
+          "finance",
+          "accounts-payable"
+        ],
+        "retentionClass": "financial",
+        "payloadRef": "2b959da5a1d44c7527334edf5eb36054a89c6c94b0e9e8e2a977aad07bb12c57"
+      }
+    ],
+    "warnings": [
+      "invoice_reference_is_not_settlement: referenced invoice captured as a reference only; settlement is not asserted",
+      "fields_not_found: proofReference",
+      "referenced invoice recorded as a reference only; settlement is not asserted"
+    ]
+  }
+}

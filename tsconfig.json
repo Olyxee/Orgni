@@ -11,18 +11,6 @@
     },
     {
       "path": "./lib/api-zod"
-    },
-    {
-      "path": "./packages/schemas"
-    },
-    {
-      "path": "./packages/events"
-    },
-    {
-      "path": "./services/ingestion-service"
-    },
-    {
-      "path": "./intelligence/organizational-tokenizer"
     }
   ]
 }

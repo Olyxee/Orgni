@@ -1,0 +1,476 @@
+Design and implement a unique, production-ready landing page for **Orgni by Olyxee**.
+
+Orgni is not a generic AI assistant, chatbot, dashboard or workflow application. It is an **operational intelligence system that builds and maintains a living understanding of how an organisation works**.
+
+The website must explain this idea immediately and visually without overwhelming the visitor.
+
+## Core message
+
+Use this positioning as the foundation:
+
+**Orgni builds the living context of your organisation.**
+
+It continuously connects:
+
+* People
+* Processes
+* Documents
+* Systems
+* Rules
+* Decisions
+* Dependencies
+* Exceptions
+
+The result is a persistent organisational model that humans, workflows and AI systems can use.
+
+Orgni helps organisations stop rediscovering themselves whenever they begin a new project, transformation programme or AI implementation.
+
+## Design direction
+
+Do not create a conventional SaaS landing page.
+
+Avoid the familiar structure of:
+
+* Large gradient hero
+* Dashboard screenshot inside a browser frame
+* Three feature cards
+* Logo wall
+* Testimonials
+* Generic AI illustrations
+* Repeated call-to-action sections
+* Excessive icons
+* Purple or blue AI gradients
+* Floating glass cards
+* Stock photography
+* Robot imagery
+* Glowing neural-network graphics
+
+The page should feel like a new category of software rather than another startup template.
+
+Use the clarity and discipline associated with Apple product pages, but do not imitate Apple’s exact layouts, typography or branding.
+
+The visual language should combine:
+
+* Editorial product storytelling
+* Organisational diagrams
+* Structured information
+* Calm motion
+* Large typography
+* Generous whitespace
+* Precise grid alignment
+* Minimal interface chrome
+* Strong contrast
+* Subtle depth
+
+The design should communicate that Orgni brings order, memory and structure to organisational complexity.
+
+## Visual concept
+
+Build the page around a **living organisational map**.
+
+The map should begin as disconnected fragments:
+
+```text
+Invoice
+Approval
+Supplier
+Finance team
+Policy
+Payment
+Customer
+Exception
+Contract
+Delivery
+```
+
+As the visitor scrolls, these fragments should gradually connect into a clear organisational model.
+
+The animation should show Orgni turning scattered information into structured operational context.
+
+Connections should represent meaningful relationships such as:
+
+```text
+Person → performs → Task
+Document → proves → Transaction
+Policy → governs → Process
+Exception → interrupts → Workflow
+Decision → changes → Organisational state
+System → produces → Record
+```
+
+Do not make the visual look like a decorative network graph. It must remain readable and purposeful.
+
+## Page structure
+
+### 1. Navigation
+
+Use a minimal fixed navigation bar.
+
+Left:
+
+* Orgni logo
+* “by Olyxee” in smaller text
+
+Centre or right:
+
+* Product
+* How it works
+* For enterprise
+* Developers
+* Sign in
+
+Primary action:
+
+* Request access
+
+Do not place too many navigation items.
+
+### 2. Opening section
+
+The opening screen should be visually calm.
+
+Suggested headline:
+
+**Your organisation already has intelligence.
+Orgni makes it visible, connected and reusable.**
+
+Supporting text:
+
+**Orgni creates a continuously updated model of your people, processes, documents, systems, rules and decisions—giving teams and AI the context needed to understand how work actually happens.**
+
+Primary action:
+
+**Explore Orgni**
+
+Secondary action:
+
+**See how it works**
+
+Instead of placing a dashboard screenshot beside the headline, show a small number of disconnected organisational signals slowly beginning to organise themselves.
+
+The visitor should understand within seconds that Orgni turns fragmented business information into connected organisational understanding.
+
+### 3. The problem
+
+Create a highly focused section using one strong statement:
+
+**Most organisations store information.
+Very few preserve understanding.**
+
+Show separated columns representing:
+
+* Documents
+* Business systems
+* People
+* Policies
+* Projects
+* AI tools
+
+Each column contains useful information, but there are no visible relationships between them.
+
+Explain briefly:
+
+**Every new project begins with interviews, document reviews, system discovery and process mapping. The organisation repeatedly pays to reconstruct knowledge it already possesses.**
+
+Avoid feature cards.
+
+### 4. The transformation
+
+This should be the main visual storytelling section.
+
+Use a scroll-controlled sequence:
+
+#### Stage 1 — Fragmented
+
+Documents, roles, systems and processes appear as disconnected objects.
+
+#### Stage 2 — Interpreted
+
+Orgni identifies entities, events, rules and operational signals.
+
+#### Stage 3 — Connected
+
+Relationships form between the objects.
+
+#### Stage 4 — Living context
+
+The map updates as new documents, decisions and workflow events arrive.
+
+#### Stage 5 — Usable intelligence
+
+Teams, systems and AI agents query the same organisational context.
+
+Use minimal copy beside each stage.
+
+### 5. What Orgni understands
+
+Present this as one interactive organisational model rather than separate feature cards.
+
+The model should contain layers that the visitor can activate:
+
+* People and responsibilities
+* Processes and workflows
+* Documents and evidence
+* Systems and data sources
+* Policies and business rules
+* Decisions and approvals
+* Risks and exceptions
+* Organisational dependencies
+
+Selecting a layer should change the diagram and reveal one concise explanation.
+
+Example:
+
+**Processes**
+
+Orgni maps how work moves across people, systems, approvals and exceptions—not only how the process was originally documented.
+
+### 6. How Orgni works
+
+Use one horizontal flow:
+
+```text
+Connect → Interpret → Model → Update → Activate
+```
+
+Explain each stage in one sentence.
+
+**Connect**
+Bring in documents, systems, workflow events and organisational knowledge.
+
+**Interpret**
+Identify entities, relationships, rules, events and evidence.
+
+**Model**
+Build a queryable representation of how the organisation operates.
+
+**Update**
+Keep the model current as operations and decisions change.
+
+**Activate**
+Make organisational context available to teams, applications and AI systems.
+
+Avoid turning these into five large cards.
+
+### 7. Product interface
+
+Only after explaining the concept should the page reveal the actual Orgni interface.
+
+Show a clean product composition containing:
+
+* Organisational confidence
+* Workflows detected
+* Documents requiring review
+* Approval rules mapped
+* Active exceptions
+* Organisational map
+* Source evidence
+* Recent changes
+
+The interface should look useful and restrained.
+
+Do not add fake charts simply to fill space.
+
+Every displayed component must reinforce organisational understanding.
+
+### 8. Before and after
+
+Create a clear comparison.
+
+Before Orgni:
+
+```text
+Scattered documents
+Repeated discovery
+Disconnected systems
+Knowledge held by individuals
+AI without organisational context
+Outdated process diagrams
+```
+
+With Orgni:
+
+```text
+Living organisational context
+Reusable understanding
+Connected evidence
+Persistent operational memory
+Context-ready AI systems
+Continuously updated workflows
+```
+
+Use typography and spatial composition rather than ordinary comparison cards.
+
+### 9. Enterprise value
+
+Use a bold statement:
+
+**Stop remapping the organisation for every transformation.**
+
+Explain the outcomes:
+
+* Faster organisational discovery
+* Lower dependency on repeated consulting exercises
+* Clearer visibility into operational bottlenecks
+* Better understanding of change impact
+* Traceable decisions and evidence
+* A reusable context layer for future AI systems
+
+Keep this grounded. Do not make unsupported percentage claims.
+
+### 10. Developers and AI systems
+
+Present Orgni as infrastructure that other systems can use.
+
+Suggested headline:
+
+**Give every system the same organisational context.**
+
+Show a central Orgni context layer connected to:
+
+* Internal applications
+* Workflow automation
+* AI agents
+* Analytics
+* Compliance tools
+* Decision-support systems
+
+Explain:
+
+**Instead of each tool building an incomplete model of the organisation, Orgni provides a persistent context layer through APIs, events and shared organisational contracts.**
+
+Include a restrained code example:
+
+```ts
+const context = await orgni.organisation.query({
+  organisationId,
+  question: "Who must approve this supplier payment, and why?"
+});
+```
+
+### 11. Closing section
+
+Use a quiet, confident closing rather than an oversized promotional banner.
+
+Headline:
+
+**An organisation should not have to rediscover itself.**
+
+Supporting text:
+
+**Orgni preserves how your organisation works so people, systems and AI can build on shared understanding.**
+
+Actions:
+
+* Request access
+* Talk to Olyxee
+
+### 12. Footer
+
+Keep the footer minimal:
+
+* Orgni
+* Olyxee
+* Product
+* Developers
+* Security
+* Privacy
+* Contact
+* LinkedIn
+
+## Style system
+
+Use:
+
+* White or warm off-white primary background
+* Near-black typography
+* One controlled accent colour based on the Orgni brand
+* Thin neutral borders
+* Large display typography
+* Smaller precise supporting text
+* Rounded corners only where functionally appropriate
+* Restrained shadows
+* Consistent spacing system
+* Clear visual hierarchy
+
+Avoid excessive visual decoration.
+
+Typography should carry much of the design.
+
+## Interaction principles
+
+Animations must explain the product rather than decorate the page.
+
+Use motion for:
+
+* Connecting organisational entities
+* Showing state changes
+* Revealing relationships
+* Updating organisational confidence
+* Moving from fragmented information to structured context
+
+Animations should be slow, controlled and easy to follow.
+
+Respect reduced-motion settings.
+
+Do not use constant background movement.
+
+## Responsive design
+
+The mobile version must not simply compress the desktop layout.
+
+On smaller screens:
+
+* Convert complex organisational maps into guided sequential views.
+* Keep headlines readable.
+* Avoid tiny graph nodes.
+* Preserve the conceptual story.
+* Use horizontal scrolling only for clearly interactive content.
+* Keep all primary actions easy to reach.
+
+## Technical implementation
+
+Build using the project’s existing frontend stack.
+
+Where applicable, use:
+
+* Next.js
+* TypeScript
+* Tailwind CSS
+* Framer Motion
+* Existing shared UI components from `packages/ui`
+
+Requirements:
+
+* Production-quality responsive implementation
+* Accessible semantic HTML
+* Keyboard-accessible interactions
+* Correct heading hierarchy
+* Strong colour contrast
+* Reduced-motion support
+* Optimised images and fonts
+* No unnecessary heavy animation libraries
+* No hardcoded deployment URLs
+* Strong Lighthouse performance
+* Reusable components
+* Clean separation between page content and visualisation logic
+
+## Final requirement
+
+The completed page should make visitors think:
+
+**“This is a system that understands how an organisation works.”**
+
+It must not make them think:
+
+**“This is another AI dashboard.”**
+
+Before implementing, provide:
+
+1. The visual concept.
+2. The proposed page flow.
+3. The primary interaction idea.
+4. The component structure.
+5. Any areas where the current brand assets or product screenshots are required.
+
+Then implement the landing page and provide a summary of the files created or changed.
