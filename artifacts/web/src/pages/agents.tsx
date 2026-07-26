@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { LOGIN_URL } from "@/lib/links";
+import { API_SIGNUP_URL } from "@/lib/links";
 import {
   Bot,
   Check,
@@ -111,7 +111,7 @@ function Hero() {
           size="lg"
           className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground"
         >
-          <a href={LOGIN_URL}>Get an API Key</a>
+          <a href={API_SIGNUP_URL}>Get an API Key</a>
         </Button>
         <Button
           asChild

@@ -1,1 +1,2 @@
 - [Vercel-to-Replit port notes](vercel-port.md) — project was already a pnpm/Vite/Express monorepo; migration copied apps/* and packages/* into artifacts/ and packages/.
+- [Olyxee design rules](olyxee-design-rules.md) — user's brand doctrine (fonts, icons, motion, shadows, reduced-motion); check every UI change against it.

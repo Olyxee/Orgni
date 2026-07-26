@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { LOGIN_URL } from "@/lib/links";
+import { API_SIGNUP_URL } from "@/lib/links";
 import {
   Check,
   Copy,
@@ -297,7 +297,7 @@ function Auth() {
             generate and manage API keys in your developer dashboard.
           </p>
           <Button asChild className="rounded-md h-11 px-6 shadow-none">
-            <a href={LOGIN_URL}>Get an API Key</a>
+            <a href={API_SIGNUP_URL}>Get an API Key</a>
           </Button>
         </div>
         <div>
