@@ -14,7 +14,6 @@ import Home from "@/pages/home";
 import UseCases from "@/pages/use-cases";
 import Infrastructure from "@/pages/infrastructure";
 import Developers from "@/pages/developers";
-import Agents from "@/pages/agents";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
@@ -41,7 +40,9 @@ function Router() {
       <Route path="/use-cases" component={UseCases} />
       <Route path="/infrastructure" component={Infrastructure} />
       <Route path="/developers" component={Developers} />
-      <Route path="/agents" component={Agents} />
+      <Route path="/agents">
+        <Redirect to="/developers" />
+      </Route>
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference">

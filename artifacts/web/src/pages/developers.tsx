@@ -17,6 +17,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import {
+  Capabilities,
+  ExampleFlow,
+  AgentQuickstart,
+  Guardrails,
+} from "@/pages/agents";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -82,8 +88,12 @@ export default function Developers() {
       <SiteHeader />
       <main className="flex-1 pt-16">
         <Hero />
+        <Capabilities />
+        <ExampleFlow />
         <Exposes />
+        <AgentQuickstart />
         <Auth />
+        <Guardrails />
         <NextSteps />
       </main>
       <SiteFooter />
@@ -107,8 +117,9 @@ function Hero() {
         A queryable organisational model for AI agents
       </h1>
       <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-        Give your agents access to governed identity, relationships, policies,
-        evidence, and operational state through a unified API.
+        Building an AI agent? Orgni is the API it calls to know your
+        company&apos;s contracts, invoices, people and rules. No guessing, no
+        hallucinated answers.
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
         <Button
@@ -116,7 +127,15 @@ function Hero() {
           size="lg"
           className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground"
         >
-          <Link href="/docs">Read the Documentation</Link>
+          <a href={API_SIGNUP_URL}>Get an API Key</a>
+        </Button>
+        <Button
+          asChild
+          size="lg"
+          variant="outline"
+          className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md"
+        >
+          <Link href="/docs">Read the Docs</Link>
         </Button>
       </div>
     </motion.section>

@@ -76,7 +76,7 @@ export default function Agents() {
         <Hero />
         <Capabilities />
         <ExampleFlow />
-        <Quickstart />
+        <AgentQuickstart />
         <Guardrails />
         <NextSteps />
       </main>
@@ -126,7 +126,7 @@ function Hero() {
   );
 }
 
-function Capabilities() {
+export function Capabilities() {
   const items = [
     {
       icon: Search,
@@ -181,7 +181,7 @@ function Capabilities() {
   );
 }
 
-function ExampleFlow() {
+export function ExampleFlow() {
   const steps = [
     {
       n: "1",
@@ -279,7 +279,7 @@ function ExampleFlow() {
   );
 }
 
-function Quickstart() {
+export function AgentQuickstart() {
   const mcpConfig = `{
   "mcpServers": {
     "orgni": {
@@ -358,7 +358,7 @@ result.evidence;                    // ["Invoice INV-2048", "Policy FIN-APR-07",
   );
 }
 
-function Guardrails() {
+export function Guardrails() {
   const rows = [
     {
       title: "Your agent has its own login",

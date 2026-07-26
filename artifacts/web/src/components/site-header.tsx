@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Search, ChevronDown, ArrowRight } from "lucide-react";
+import {
+  Menu,
+  X,
+  Search,
+  ChevronDown,
+  ArrowRight,
+  Bot,
+  Book,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCommandPalette } from "@/components/command-palette";
 import { Button } from "@/components/ui/button";
@@ -13,18 +21,15 @@ const navItems = [
     match: ["/developers", "/docs", "/api-reference", "/agents"],
     dropdown: [
       {
-        title: "Overview",
-        href: "/developers",
-        desc: "The API surface, authentication, and what Orgni exposes.",
-      },
-      {
         title: "Agents",
-        href: "/agents",
-        desc: "Build AI agents on verified context — MCP & SDK quickstart.",
+        href: "/developers",
+        icon: Bot,
+        desc: "Power your agent with Orgni: API, MCP and SDK quickstart.",
       },
       {
         title: "Documentation",
         href: "/docs",
+        icon: Book,
         desc: "Guides, core concepts, and integration walkthroughs.",
       },
     ],
@@ -176,16 +181,24 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                             <Link
                               key={dropItem.href}
                               href={dropItem.href}
-                              className="group relative flex flex-col gap-1 p-4 hover:bg-muted/50 transition-colors z-10"
+                              className="group relative flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors z-10"
                               onClick={() => setActiveDropdown(null)}
                             >
-                              <div className="flex items-center gap-2 text-[15px] font-semibold tracking-wide text-foreground group-hover:text-primary transition-colors">
-                                {dropItem.title}
-                                <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
+                              <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                                <dropItem.icon
+                                  className="h-4 w-4 text-primary"
+                                  aria-hidden="true"
+                                />
                               </div>
-                              <p className="text-[13px] text-muted-foreground leading-relaxed mt-0.5">
-                                {dropItem.desc}
-                              </p>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-[15px] font-semibold tracking-wide text-foreground group-hover:text-primary transition-colors">
+                                  {dropItem.title}
+                                  <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
+                                </div>
+                                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                                  {dropItem.desc}
+                                </p>
+                              </div>
                             </Link>
                           ))}
                         </div>
@@ -307,8 +320,12 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                           key={drop.href}
                           href={drop.href}
                           onClick={closeMobile}
-                          className="text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+                          className="flex items-center gap-2.5 text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
+                          <drop.icon
+                            className="h-4 w-4 text-primary"
+                            aria-hidden="true"
+                          />
                           {drop.title}
                         </Link>
                       ))}
