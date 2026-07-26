@@ -1,119 +1,133 @@
-# Azure infrastructure
+# Deploy Orgni to Azure
 
-Concrete `az` commands to host Orgni on **Azure Container Apps** (no AKS). See
-[`../../DEPLOYMENT.md`](../../DEPLOYMENT.md) for the overview.
+A runbook for deploying the Orgni backend to **Azure Container Apps**. There are
+two ways — pick one:
 
-| Component | Azure service | Ingress |
-|-----------|---------------|---------|
-| API | Container App `orgni-api` | **external** |
-| Worker | Container App `orgni-worker` | none |
-| Document Intelligence | Container App `orgni-document-intelligence` | **internal** |
-| Ontology | Container App `orgni-ontology` | **internal** |
-| Database | Azure Database for PostgreSQL (Flexible Server) | — |
-| Queue/cache | Azure Cache for Redis | — |
-| Images | Azure Container Registry (ACR) | — |
-| Frontend | Vercel (or Azure Static Web Apps) | — |
+- **A. One-click** from GitHub Actions (recommended for repeat deploys)
+- **B. One command** from your laptop (`deploy.sh`)
 
-Secrets (`DATABASE_URL`, `REDIS_URL`) are injected as Container App secrets —
-never baked into images or committed.
+Both do the same thing and are **idempotent** — safe to re-run to ship a new build.
 
-## 1. One-time setup
+What gets deployed:
 
-```bash
-az group create -n orgni-rg -l westeurope
-az acr create -n orgniacr -g orgni-rg --sku Basic
-az containerapp env create -n orgni-env -g orgni-rg -l westeurope
+| Service | Azure Container App | Ingress | Port |
+|---------|--------------------|---------|------|
+| API | `orgni-api` | external | 8080 |
+| Worker | `orgni-worker` | none | — |
+| Document Intelligence | `orgni-document-intelligence` | internal | 8000 |
+| Ontology | `orgni-ontology` | internal | 8100 |
 
-# Data stores
-az postgres flexible-server create -g orgni-rg -n orgni-pg \
-  --admin-user orgni --admin-password '<strong-password>' \
-  --tier Burstable --sku-name Standard_B1ms --version 16 --yes
-az redis create -g orgni-rg -n orgni-redis --sku Basic --vm-size c0
-```
+Plus **Azure Database for PostgreSQL** (Flexible Server) and **Azure Cache for
+Redis**, and an **Azure Container Registry** for the images.
 
-Connection strings:
-- `DATABASE_URL=postgres://orgni:<password>@orgni-pg.postgres.database.azure.com:5432/orgni?sslmode=require`
-- `REDIS_URL=rediss://:<primary-key>@orgni-redis.redis.cache.windows.net:6380`
+The frontend is already hosted separately (Vercel / Azure Static Web Apps) — it
+only needs `VITE_API_URL` pointed at the API URL this produces.
 
-## 2. Build & push images (from the repo root)
+---
 
-```bash
-az acr login -n orgniacr
-TAG=$(git rev-parse --short HEAD)
-for f in api worker document-intelligence organizational-ontology; do
-  name=$([ "$f" = organizational-ontology ] && echo ontology || echo "$f")
-  docker build -f infrastructure/docker/$f.Dockerfile \
-    -t orgniacr.azurecr.io/orgni-$name:$TAG .
-  docker push orgniacr.azurecr.io/orgni-$name:$TAG
-done
-```
+## Prerequisites (once)
 
-## 3. Run the database migration
+- An Azure subscription and the [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) (`az login`).
+- Permission to create resource groups, Container Apps, PostgreSQL, Redis, and a Container Registry.
+- Node 24 + pnpm (only for the schema migration step; the CLI/Actions handle the rest).
+
+---
+
+## Option A — one-click from GitHub Actions
+
+### A1. One-time: let GitHub log into Azure without a password (OIDC)
 
 ```bash
-DATABASE_URL='postgres://orgni:<password>@orgni-pg.postgres.database.azure.com:5432/orgni?sslmode=require' \
-  pnpm --filter @workspace/db run push-force
+# Create an app registration and a service principal
+az ad app create --display-name orgni-deployer
+APP_ID=$(az ad app list --display-name orgni-deployer --query "[0].appId" -o tsv)
+az ad sp create --id "$APP_ID"
+
+# Give it access to your subscription
+SUB=$(az account show --query id -o tsv)
+az role assignment create --assignee "$APP_ID" --role Contributor --scope "/subscriptions/$SUB"
+
+# Federate it to this repo's Actions (branch: main)
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-main",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:OlyxeeAI/Orgni:ref:refs/heads/main",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+
+echo "AZURE_CLIENT_ID=$APP_ID"
+echo "AZURE_TENANT_ID=$(az account show --query tenantId -o tsv)"
+echo "AZURE_SUBSCRIPTION_ID=$SUB"
 ```
 
-## 4. Deploy the internal Python services first
+### A2. One-time: add GitHub secrets
+
+In **Settings → Secrets and variables → Actions → Secrets**:
+
+| Secret | Value |
+|--------|-------|
+| `AZURE_CLIENT_ID` | from A1 |
+| `AZURE_TENANT_ID` | from A1 |
+| `AZURE_SUBSCRIPTION_ID` | from A1 |
+| `PG_ADMIN_PASSWORD` | a strong PostgreSQL password |
+| `AUTH_SECRET` | a random string (signs login sessions) — e.g. `openssl rand -hex 32` |
+
+Optional **Variables** (defaults in brackets): `AZURE_RESOURCE_GROUP` (`orgni-rg`),
+`AZURE_LOCATION` (`westeurope`), `AZURE_ACR_NAME` (`orgniacr`), `WEB_ORIGIN`
+(your frontend URL, for CORS).
+
+### A3. Deploy
+
+**Actions tab → "Deploy to Azure" → Run workflow.** It provisions everything,
+builds the images, runs the migration, deploys all four services, and smoke-tests
+the API. The run log prints the API URL at the end.
+
+---
+
+## Option B — one command from your laptop
 
 ```bash
-az containerapp create -n orgni-document-intelligence -g orgni-rg --environment orgni-env \
-  --image orgniacr.azurecr.io/orgni-document-intelligence:<tag> \
-  --target-port 8000 --ingress internal \
-  --env-vars PORT=8000
-
-az containerapp create -n orgni-ontology -g orgni-rg --environment orgni-env \
-  --image orgniacr.azurecr.io/orgni-ontology:<tag> \
-  --target-port 8100 --ingress internal \
-  --env-vars PORT=8100
+az login
+RESOURCE_GROUP=orgni-rg LOCATION=westeurope ACR_NAME=orgniacr \
+PG_ADMIN_PASSWORD='<strong-password>' \
+AUTH_SECRET="$(openssl rand -hex 32)" \
+WEB_ORIGIN='https://your-frontend-url' \
+  bash infrastructure/azure/deploy.sh
 ```
 
-Capture their internal FQDNs (used by the API):
+It prints the API URL and a health-check command when done.
 
-```bash
-DI_URL=https://$(az containerapp show -n orgni-document-intelligence -g orgni-rg --query properties.configuration.ingress.fqdn -o tsv)
-ONTO_URL=https://$(az containerapp show -n orgni-ontology -g orgni-rg --query properties.configuration.ingress.fqdn -o tsv)
-```
+---
 
-## 5. Deploy the API (external) and worker
+## After deploying
 
-```bash
-az containerapp create -n orgni-api -g orgni-rg --environment orgni-env \
-  --image orgniacr.azurecr.io/orgni-api:<tag> \
-  --target-port 8080 --ingress external \
-  --secrets database-url=<postgres-connection-string> \
-  --env-vars PORT=8080 NODE_ENV=production \
-             DATABASE_URL=secretref:database-url \
-             DOCUMENT_INTELLIGENCE_URL=$DI_URL ONTOLOGY_URL=$ONTO_URL \
-             GIT_SHA=<tag>
+1. **Point the frontend at the API.** Set `VITE_API_URL=https://<orgni-api-fqdn>`
+   in the frontend's build/hosting config and redeploy it.
+2. **Allow the frontend origin.** Set the `WEB_ORIGIN` variable (Option A) or env
+   (Option B) to the frontend URL so the API's CORS lets it through.
+3. **Verify** end-to-end:
+   ```bash
+   API=https://<orgni-api-fqdn>
+   curl $API/api/health
+   # log in and upload:
+   TOKEN=$(curl -s -X POST $API/api/auth/login -H 'content-type: application/json' \
+     -d '{"email":"you@org.com","organization":"Your Org"}' | jq -r .token)
+   curl -X POST $API/api/documents -H "authorization: Bearer $TOKEN" -F "file=@invoice.pdf"
+   ```
 
-az containerapp create -n orgni-worker -g orgni-rg --environment orgni-env \
-  --image orgniacr.azurecr.io/orgni-worker:<tag> \
-  --secrets database-url=<postgres-connection-string> redis-url=<redis-connection-string> \
-  --env-vars NODE_ENV=production DATABASE_URL=secretref:database-url \
-             REDIS_URL=secretref:redis-url GIT_SHA=<tag>
-```
+---
 
-## 6. Health probes
+## Notes & hardening
 
-- API: liveness `GET /api/health`, readiness `GET /api/health/ready`, deploy check `GET /api/version`
-- Document Intelligence: `GET /health`
-- Ontology: `GET /health`, `GET /health/ready`
-
-## 7. Verify
-
-```bash
-API=https://$(az containerapp show -n orgni-api -g orgni-rg --query properties.configuration.ingress.fqdn -o tsv)
-curl $API/api/health
-curl -X POST $API/api/documents -H "X-Tenant-Id: tenant_demo" -F "file=@invoice.pdf"
-curl $API/api/documents -H "X-Tenant-Id: tenant_demo"
-```
-
-## 8. Update / rollback
-
-Ship a new image tag and update in place; roll back by pointing at the previous tag:
-
-```bash
-az containerapp update -n orgni-api -g orgni-rg --image orgniacr.azurecr.io/orgni-api:<tag>
-```
+- **Re-deploying a new build:** just run the workflow (or `deploy.sh`) again — it
+  updates the container images in place. Roll back by re-running an older commit.
+- **PostgreSQL access:** for a quick pilot the script enables public access with
+  a firewall rule for Azure services + the deployer's IP, and runs the migration
+  over SSL. To harden, switch Postgres to private networking and run the
+  migration as a Container Apps job inside the environment.
+- **Secrets** (`DATABASE_URL`, `AUTH_SECRET`, Redis key) are stored as Container
+  App secrets, never in the image or git. For production, source them from Azure
+  Key Vault.
+- **Not yet automated here:** autoscale rules, custom domains/TLS on the API, and
+  Key Vault wiring — add per your environment. See `../../DEPLOYMENT.md` for the
+  full architecture.
