@@ -66,6 +66,27 @@ to Azure**. Nothing else moves between them except the API URL.
 * **Backend → Azure:** one command or one click provisions all four services
   plus Postgres and Redis. See [`infrastructure/azure/README.md`](infrastructure/azure/README.md).
 
+## Ownership & boundaries
+
+To keep the repo safe and easy to reason about, each part has a clear owner:
+
+| Area | Owner | May change |
+|------|-------|-----------|
+| `apps/web` (frontend) | Frontend / **Replit** | `apps/web/**` only |
+| Everything else (backend, infra, shared, docs) | Backend team | the rest of the repo |
+
+**Replit is scoped to the frontend only.** It may change `apps/web/**` and must
+never touch the backend (`apps/api`, `apps/worker`, `intelligence/`),
+`infrastructure/`, `.github/`, `packages/`, `lib/`, or the root config — and must
+never restructure/flatten the repo or reintroduce `artifacts/`,
+`.migration-backup/`, or `attached_assets/`. The full rules the Replit Agent
+follows are in [`replit.md`](replit.md).
+
+**All changes land via pull request** — no direct pushes to `main`. `main` is the
+whole team's source of truth, so a frontend tool must never rewrite it wholesale.
+(Enforce this with a GitHub branch-protection rule on `main`: require PRs, block
+force-pushes.)
+
 ## Repository structure
 
 ```text
