@@ -2,8 +2,6 @@
 
 Orgni is Olyxee’s organizational intelligence platform.
 
-![Uploading image.png…]()
-
 It turns business documents into structured, traceable, and queryable organizational context that applications, workflows, and AI systems can use.
 
 Orgni processes documents such as invoices, proofs of payment, and contracts. It extracts relevant information, validates the results, generates organizational tokens, and stores the resulting facts as part of a reusable organizational model.
@@ -267,6 +265,35 @@ This starts:
 
 The first build may take longer because the Document Intelligence image includes OCR dependencies.
 
+## Use the web console
+
+Once the stack is up, open the web application at `http://localhost:5000`.
+
+1. The marketing page's call-to-action takes you to **/login**.
+2. Sign in with an email and organization name. In local/dev mode this issues a
+   signed session token without a password — the seam a real OIDC provider
+   (Entra External ID) replaces in production.
+3. The authenticated console at **/app** lets you upload a document and see the
+   extracted tokens, entities, facts, evidence, and warnings, and submit reviews.
+
+## Authentication
+
+Every `/api/documents` route requires a caller identity, resolved to a tenant:
+
+* **Session token (all environments):** log in to get a bearer token.
+
+  ```bash
+  TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+    -H "content-type: application/json" \
+    -d '{"email":"you@org.com","organization":"Your Org"}' | jq -r .token)
+  ```
+
+  The organization name maps deterministically to a tenant id (`tenant_<slug>`),
+  so all of an organization's documents stay isolated to that tenant.
+* **`X-Tenant-Id` header (dev only):** outside production the API also accepts a
+  raw tenant id, which keeps the local curl examples below short. The production
+  build rejects it and requires a bearer token.
+
 ## Test the document pipeline
 
 After the Docker services are running, open another terminal.
@@ -274,6 +301,12 @@ After the Docker services are running, open another terminal.
 ### Upload a document
 
 ```bash
+# Authenticated (works in every environment):
+curl -X POST http://localhost:8080/api/documents \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@invoice.pdf"
+
+# Or, in local/dev mode only, with the tenant header:
 curl -X POST http://localhost:8080/api/documents \
   -H "X-Tenant-Id: tenant_demo" \
   -F "file=@invoice.pdf"
