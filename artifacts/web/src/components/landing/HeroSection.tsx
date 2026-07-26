@@ -55,13 +55,6 @@ export function HeroSection() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="lg:col-span-7 relative z-10"
         >
-          <div className="mb-6 flex items-center gap-4">
-            <div className="h-[2px] w-8 bg-primary"></div>
-            <p className="text-sm font-bold tracking-wide text-primary uppercase">
-              Operational Intelligence
-            </p>
-          </div>
-
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-foreground mb-8">
             Ask anything about your finances. Get one answer you can trust.
           </h1>
