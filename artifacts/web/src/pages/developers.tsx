@@ -194,45 +194,56 @@ function Exposes() {
             >
               <pre className="text-white/80 leading-relaxed text-xs md:text-sm flex-1 font-mono">
                 <span className="text-[#ff7b72]">&#123;</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"resource"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#ff7b72]">&#123;&#125;</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"applicableRequirements"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"currentState"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#ff7b72]">&#123;&#125;</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"evidence"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"owners"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"exceptions"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"conflicts"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"historicalEvents"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"permittedActions"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"missingContext"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
+                {"\n"}
                 <span className="text-[#ff7b72]">&#125;</span>
               </pre>
             </CodeBlock>
