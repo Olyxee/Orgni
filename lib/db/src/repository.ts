@@ -142,6 +142,33 @@ export function createRepository(db: Database) {
         .limit(limit);
     },
 
+    /**
+     * Load everything needed to build the aggregated organizational-model views
+     * for a tenant: all sources (newest first) plus their fact-sets and review
+     * actions. Strictly tenant-scoped. The aggregation itself lives in the API
+     * layer so this stays a plain data read.
+     */
+    async loadTenantModel(tenantId: string): Promise<{
+      sources: SourceRow[];
+      facts: FactRow[];
+      reviews: ReviewRow[];
+    }> {
+      const [sourceRows, factRows, reviewRows] = await Promise.all([
+        db
+          .select()
+          .from(sources)
+          .where(eq(sources.tenantId, tenantId))
+          .orderBy(desc(sources.createdAt)),
+        db.select().from(facts).where(eq(facts.tenantId, tenantId)),
+        db
+          .select()
+          .from(reviews)
+          .where(eq(reviews.tenantId, tenantId))
+          .orderBy(desc(reviews.createdAt)),
+      ]);
+      return { sources: sourceRows, facts: factRows, reviews: reviewRows };
+    },
+
     /** Full stored document for review — strictly tenant-scoped. */
     async getDocument(
       tenantId: string,

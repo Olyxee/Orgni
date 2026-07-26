@@ -44,7 +44,7 @@ const plans: Plan[] = [
     highlights: [
       "1 business map workspace",
       "Basic process and rule modeling",
-      "100 document ingestion",
+      "100 source ingestion",
       "Community support",
     ],
   },
@@ -105,8 +105,8 @@ const featureGroups: {
       },
       { label: "Roles & approval chains", values: [false, true, true] },
       {
-        label: "Document & policy ingestion",
-        values: ["100 docs", "10k docs", "Unlimited"],
+        label: "Evidence & policy ingestion",
+        values: ["100 sources", "10k sources", "Unlimited"],
       },
     ],
   },

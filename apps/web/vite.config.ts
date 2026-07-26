@@ -39,22 +39,6 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@/components/ui": path.resolve(
-        import.meta.dirname,
-        "../../packages/ui/src/components",
-      ),
-      "@/hooks/use-mobile": path.resolve(
-        import.meta.dirname,
-        "../../packages/ui/src/hooks/use-mobile",
-      ),
-      "@/hooks/use-toast": path.resolve(
-        import.meta.dirname,
-        "../../packages/ui/src/hooks/use-toast",
-      ),
-      "@/lib/utils": path.resolve(
-        import.meta.dirname,
-        "../../packages/ui/src/lib/utils",
-      ),
       "@": path.resolve(import.meta.dirname, "src"),
       "@assets": path.resolve(
         import.meta.dirname,

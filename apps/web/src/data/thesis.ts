@@ -1,11 +1,13 @@
 export const thesisData = {
-  "title": "Orgni: Organisational Intelligence Infrastructure for the Agentic Enterprise",
-  "subtitle": "Why the agentic enterprise requires a shared, governed and continuously updated model of how the organisation works",
-  "author": "Olyxee Research Thesis for Orgni",
-  "abstract": [
+  title:
+    "Orgni: Organisational Intelligence Infrastructure for the Agentic Enterprise",
+  subtitle:
+    "Why the agentic enterprise requires a shared, governed and continuously updated model of how the organisation works",
+  author: "Olyxee Research Thesis for Orgni",
+  abstract: [
     "Artificial intelligence is moving from isolated assistants toward systems that can retrieve information, use tools, coordinate work and perform actions across organisations. However, the ability to build an AI agent is advancing faster than the ability of organisations to provide those agents with reliable operational context.",
     "",
-    "Most organisations do not maintain a single, current and machine-readable representation of how they operate. Their knowledge is fragmented across documents, databases, emails, policies, workflow systems and employees. As a result, every new application, AI agent, transformation project or consulting engagement must reconstruct part of the organisation from the beginning.",
+    "Most organisations do not maintain a single, current and machine-readable representation of how they operate. Their knowledge is fragmented across scattered evidence, databases, emails, policies, workflow systems and employees. As a result, every new application, AI agent, transformation project or consulting engagement must reconstruct part of the organisation from the beginning.",
     "",
     "This creates duplicated integration work, conflicting interpretations, outdated process knowledge, weak provenance and unsafe automation.",
     "",
@@ -13,18 +15,18 @@ export const thesisData = {
     "",
     "The model represents organisational entities, relationships, responsibilities, policies, obligations, events, decisions, workflows, evidence and current state. It can then provide trusted and permission-aware context to employees, enterprise applications and AI agents.",
     "",
-    "Orgni is not intended to be another chatbot, document-management tool, workflow application or general-purpose agent. It is the infrastructure beneath these systems.",
+    "Orgni is not intended to be another chatbot, document-management platform, workflow application or general-purpose agent. It is the infrastructure beneath these systems.",
     "",
     "The central argument of this thesis is that organisations will require a shared context and state layer as the number of AI agents and specialised enterprise applications increases. Without such infrastructure, every agent will maintain an incomplete and potentially conflicting version of the organisation.",
     "",
-    "Orgni aims to solve this problem once at the organisational level."
+    "Orgni aims to solve this problem once at the organisational level.",
   ],
-  "sections": [
+  sections: [
     {
-      "title": "1. Introduction",
-      "id": "1-introduction",
-      "content": [
-        "Artificial intelligence systems are becoming increasingly capable of performing complex tasks. Modern systems can search private information, generate documents, call APIs, update records, coordinate workflows and interact with external software.",
+      title: "1. Introduction",
+      id: "1-introduction",
+      content: [
+        "Artificial intelligence systems are becoming increasingly capable of performing complex tasks. Modern systems can search private information, generate outputs, call APIs, update records, coordinate workflows and interact with external software.",
         "",
         "These capabilities are creating a new class of enterprise systems commonly described as AI agents.",
         "",
@@ -55,13 +57,13 @@ export const thesisData = {
         "",
         "This is inefficient, difficult to govern and dangerous when AI systems begin taking consequential actions.",
         "",
-        "Orgni is proposed as the infrastructure that creates and maintains a shared organisational understanding."
-      ]
+        "Orgni is proposed as the infrastructure that creates and maintains a shared organisational understanding.",
+      ],
     },
     {
-      "title": "2. Thesis Statement",
-      "id": "2-thesis-statement",
-      "content": [
+      title: "2. Thesis Statement",
+      id: "2-thesis-statement",
+      content: [
         "The main thesis is:",
         "",
         "> As organisations adopt more AI agents and specialised applications, they will require a shared, governed and continuously updated infrastructure layer that represents how the organisation works.",
@@ -72,13 +74,13 @@ export const thesisData = {
         "",
         "The objective is not to build one agent that understands one workflow.",
         "",
-        "The objective is to build infrastructure that allows many systems to operate from the same trusted organisational context."
-      ]
+        "The objective is to build infrastructure that allows many systems to operate from the same trusted organisational context.",
+      ],
     },
     {
-      "title": "3. The Emerging Problem",
-      "id": "3-the-emerging-problem",
-      "content": [
+      title: "3. The Emerging Problem",
+      id: "3-the-emerging-problem",
+      content: [
         "### Agent development is becoming easier",
         "",
         "The technical barriers to creating AI applications are decreasing.",
@@ -172,7 +174,7 @@ export const thesisData = {
         "",
         "An invoice may reference a payment, while the bank transaction is still pending.",
         "",
-        "A policy may have been uploaded without confirmation that it is the current version.",
+        "A policy may have been submitted without confirmation that it is the current version.",
         "",
         "A reliable system should not silently select one source and discard the others.",
         "",
@@ -185,13 +187,13 @@ export const thesisData = {
         "* their confidence;",
         "* any human review decision.",
         "",
-        "Orgni therefore treats uncertainty as part of organisational reality rather than an error to hide."
-      ]
+        "Orgni therefore treats uncertainty as part of organisational reality rather than an error to hide.",
+      ],
     },
     {
-      "title": "4. The Strategic Opportunity",
-      "id": "4-the-strategic-opportunity",
-      "content": [
+      title: "4. The Strategic Opportunity",
+      id: "4-the-strategic-opportunity",
+      content: [
         "The visible AI market is focused on building agents and applications.",
         "",
         "The deeper opportunity is to provide the infrastructure that these systems require.",
@@ -234,13 +236,13 @@ export const thesisData = {
         "                     → Agent C",
         "```",
         "",
-        "This model reduces duplication and creates a consistent foundation for enterprise AI."
-      ]
+        "This model reduces duplication and creates a consistent foundation for enterprise AI.",
+      ],
     },
     {
-      "title": "5. Positioning Orgni",
-      "id": "5-positioning-orgni",
-      "content": [
+      title: "5. Positioning Orgni",
+      id: "5-positioning-orgni",
+      content: [
         "### Company and infrastructure distinction",
         "",
         "Olyxee is the company responsible for developing, researching and commercialising organisational intelligence infrastructure.",
@@ -249,7 +251,7 @@ export const thesisData = {
         "",
         "This distinction is important because Orgni should not be positioned as a collection of user-facing modules.",
         "",
-        "The tokenizer, ontology, document intelligence pipeline, state engine and context engine are internal components of the same infrastructure.",
+        "The tokenizer, ontology, evidence intelligence pipeline, state engine and context engine are internal components of the same infrastructure.",
         "",
         "Olyxee may build products powered by Orgni, but those products are not Orgni itself.",
         "",
@@ -282,13 +284,13 @@ export const thesisData = {
         "",
         "### Core positioning statement",
         "",
-        "> Olyxee develops infrastructure for organisational intelligence. Orgni maintains the evidence, identity, relationships, history, rules and operational state that applications and AI agents need to work reliably inside an organisation."
-      ]
+        "> Olyxee develops infrastructure for organisational intelligence. Orgni maintains the evidence, identity, relationships, history, rules and operational state that applications and AI agents need to work reliably inside an organisation.",
+      ],
     },
     {
-      "title": "6. What Orgni Is Not",
-      "id": "6-what-orgni-is-not",
-      "content": [
+      title: "6. What Orgni Is Not",
+      id: "6-what-orgni-is-not",
+      content: [
         "Orgni is not primarily:",
         "",
         "* a chatbot;",
@@ -305,13 +307,13 @@ export const thesisData = {
         "",
         "It does not require an organisation to replace its CRM, document repository, financial platform, collaboration tools or workflow systems.",
         "",
-        "It connects evidence from those systems into a shared organisational model."
-      ]
+        "It connects evidence from those systems into a shared organisational model.",
+      ],
     },
     {
-      "title": "7. The Orgni Operating Model",
-      "id": "7-the-orgni-operating-model",
-      "content": [
+      title: "7. The Orgni Operating Model",
+      id: "7-the-orgni-operating-model",
+      content: [
         "Orgni can be understood as a sequence of transformations.",
         "",
         "```",
@@ -332,18 +334,18 @@ export const thesisData = {
         "Applications, people and AI agents",
         "```",
         "",
-        "Each stage has a distinct responsibility."
-      ]
+        "Each stage has a distinct responsibility.",
+      ],
     },
     {
-      "title": "8. Source and Ingestion Layer",
-      "id": "8-source-and-ingestion-layer",
-      "content": [
+      title: "8. Source and Ingestion Layer",
+      id: "8-source-and-ingestion-layer",
+      content: [
         "The first layer receives organisational information.",
         "",
         "Sources may include:",
         "",
-        "* uploaded documents;",
+        "* processed organisational evidence;",
         "* emails;",
         "* APIs;",
         "* databases;",
@@ -366,16 +368,16 @@ export const thesisData = {
         "* recording processing status;",
         "* maintaining an audit trail.",
         "",
-        "The original source must remain available because all later organisational conclusions must be traceable to evidence."
-      ]
+        "The original source must remain available because all later organisational conclusions must be traceable to evidence.",
+      ],
     },
     {
-      "title": "9. Interpretation Layer",
-      "id": "9-interpretation-layer",
-      "content": [
+      title: "9. Interpretation Layer",
+      id: "9-interpretation-layer",
+      content: [
         "The interpretation layer reads source-specific information.",
         "",
-        "For documents, this may include:",
+        "For static evidence, this may include:",
         "",
         "* OCR;",
         "* layout detection;",
@@ -399,13 +401,13 @@ export const thesisData = {
         "* amount;",
         "* due date.",
         "",
-        "The interpretation layer should not automatically conclude that the invoice is currently overdue, because the invoice alone does not know whether it was paid, disputed, cancelled or credited."
-      ]
+        "The interpretation layer should not automatically conclude that the invoice is currently overdue, because the invoice alone does not know whether it was paid, disputed, cancelled or credited.",
+      ],
     },
     {
-      "title": "10. Organisational Tokenisation",
-      "id": "10-organisational-tokenisation",
-      "content": [
+      title: "10. Organisational Tokenisation",
+      id: "10-organisational-tokenisation",
+      content: [
         "The organisational tokenizer converts source-specific information into standard organisational claims and observed events.",
         "",
         "This separates the original source format from the organisational meaning.",
@@ -441,13 +443,13 @@ export const thesisData = {
         "* permissions;",
         "* processor version.",
         "",
-        "The tokenizer must not invent missing information."
-      ]
+        "The tokenizer must not invent missing information.",
+      ],
     },
     {
-      "title": "11. Ontology and Organisational Semantics",
-      "id": "11-ontology-and-organisational-semantics",
-      "content": [
+      title: "11. Ontology and Organisational Semantics",
+      id: "11-ontology-and-organisational-semantics",
+      content: [
         "The ontology defines the organisational language used by Orgni.",
         "",
         "It determines:",
@@ -467,7 +469,7 @@ export const thesisData = {
         "* department;",
         "* role;",
         "* system;",
-        "* document;",
+        "* evidence;",
         "* contract;",
         "* invoice;",
         "* payment;",
@@ -491,13 +493,13 @@ export const thesisData = {
         "",
         "The ontology does not store the entire organisation.",
         "",
-        "It defines how organisational information should be interpreted and validated."
-      ]
+        "It defines how organisational information should be interpreted and validated.",
+      ],
     },
     {
-      "title": "12. Entity Resolution",
-      "id": "12-entity-resolution",
-      "content": [
+      title: "12. Entity Resolution",
+      id: "12-entity-resolution",
+      content: [
         "Entity resolution identifies when different records refer to the same organisational object.",
         "",
         "For example:",
@@ -529,13 +531,13 @@ export const thesisData = {
         "",
         "An incorrect merge can corrupt the organisational model.",
         "",
-        "All merges should therefore be reversible and auditable."
-      ]
+        "All merges should therefore be reversible and auditable.",
+      ],
     },
     {
-      "title": "13. Claims, Events and State",
-      "id": "13-claims-events-and-state",
-      "content": [
+      title: "13. Claims, Events and State",
+      id: "13-claims-events-and-state",
+      content: [
         "Orgni should separate three concepts.",
         "",
         "### Claims",
@@ -574,15 +576,15 @@ export const thesisData = {
         "",
         "State should be calculated by a state engine.",
         "",
-        "It should not be permanently asserted by one document without considering other evidence.",
+        "It should not be permanently asserted by one source without considering other evidence.",
         "",
-        "This separation allows Orgni to replay history and reconstruct the organisation at any previous point in time."
-      ]
+        "This separation allows Orgni to replay history and reconstruct the organisation at any previous point in time.",
+      ],
     },
     {
-      "title": "14. The Organisational Ledger",
-      "id": "14-the-organisational-ledger",
-      "content": [
+      title: "14. The Organisational Ledger",
+      id: "14-the-organisational-ledger",
+      content: [
         "The organisational ledger is the authoritative record of accepted organisational information.",
         "",
         "It should contain:",
@@ -613,13 +615,13 @@ export const thesisData = {
         "* Why is it believed?",
         "* What was believed before?",
         "* Which evidence changed the conclusion?",
-        "* Who approved the correction?"
-      ]
+        "* Who approved the correction?",
+      ],
     },
     {
-      "title": "15. Organisational State Engine",
-      "id": "15-organisational-state-engine",
-      "content": [
+      title: "15. Organisational State Engine",
+      id: "15-organisational-state-engine",
+      content: [
         "The state engine calculates current organisational state from accepted events and claims.",
         "",
         "For a contract-to-payment workflow, states may include:",
@@ -653,13 +655,13 @@ export const thesisData = {
         "INVOICE OVERDUE",
         "```",
         "",
-        "If later evidence confirms payment before the due date, Orgni should update the current state while preserving the previous processing history."
-      ]
+        "If later evidence confirms payment before the due date, Orgni should update the current state while preserving the previous processing history.",
+      ],
     },
     {
-      "title": "16. Organisational Graph",
-      "id": "16-organisational-graph",
-      "content": [
+      title: "16. Organisational Graph",
+      id: "16-organisational-graph",
+      content: [
         "The organisational graph represents relationships between organisational entities.",
         "",
         "Example:",
@@ -690,13 +692,13 @@ export const thesisData = {
         "",
         "However, the graph should initially be a projection of the authoritative organisational ledger.",
         "",
-        "It should be possible to rebuild the graph from stored claims, events and entity-resolution decisions."
-      ]
+        "It should be possible to rebuild the graph from stored claims, events and entity-resolution decisions.",
+      ],
     },
     {
-      "title": "17. Context Engine",
-      "id": "17-context-engine",
-      "content": [
+      title: "17. Context Engine",
+      id: "17-context-engine",
+      content: [
         "The context engine is the layer that makes Orgni useful to applications and AI agents.",
         "",
         "An application should not need to retrieve the entire organisational graph.",
@@ -713,10 +715,10 @@ export const thesisData = {
         "",
         "```",
         "{",
-        "  \"actor\": \"finance-agent\",",
-        "  \"task\": \"review_invoice\",",
-        "  \"resource\": \"INV-101\",",
-        "  \"asOf\": \"2026-07-23\"",
+        '  "actor": "finance-agent",',
+        '  "task": "review_invoice",',
+        '  "resource": "INV-101",',
+        '  "asOf": "2026-07-23"',
         "}",
         "```",
         "",
@@ -743,13 +745,13 @@ export const thesisData = {
         "* reproducible;",
         "* freshness-labelled.",
         "",
-        "The context engine is the primary interface between organisational intelligence and external AI systems."
-      ]
+        "The context engine is the primary interface between organisational intelligence and external AI systems.",
+      ],
     },
     {
-      "title": "18. Interfaces",
-      "id": "18-interfaces",
-      "content": [
+      title: "18. Interfaces",
+      id: "18-interfaces",
+      content: [
         "Orgni should expose its infrastructure through:",
         "",
         "* REST APIs;",
@@ -773,13 +775,13 @@ export const thesisData = {
         "subscribe_to_changes",
         "```",
         "",
-        "This allows Olyxee applications and external developers to consume the same infrastructure."
-      ]
+        "This allows Olyxee applications and external developers to consume the same infrastructure.",
+      ],
     },
     {
-      "title": "19. Target Market Strategy",
-      "id": "19-target-market-strategy",
-      "content": [
+      title: "19. Target Market Strategy",
+      id: "19-target-market-strategy",
+      content: [
         "Orgni should eventually serve businesses, internal development teams, external agent developers, consulting firms and system integrators.",
         "",
         "However, it should not target all of them equally at launch.",
@@ -790,7 +792,7 @@ export const thesisData = {
         "",
         "* multiple departments;",
         "* fragmented systems;",
-        "* significant document volume;",
+        "* significant unstructured evidence volume;",
         "* manual operational reconciliation;",
         "* compliance requirements;",
         "* complex approvals;",
@@ -828,13 +830,13 @@ export const thesisData = {
         "",
         "> Stop rebuilding organisational identity, state, permissions, evidence and memory inside every agent.",
         "",
-        "Developers can use Orgni to access governed organisational context through APIs and MCP."
-      ]
+        "Developers can use Orgni to access governed organisational context through APIs and MCP.",
+      ],
     },
     {
-      "title": "20. Initial Commercial Wedge",
-      "id": "20-initial-commercial-wedge",
-      "content": [
+      title: "20. Initial Commercial Wedge",
+      id: "20-initial-commercial-wedge",
+      content: [
         "Orgni should begin with one focused workflow.",
         "",
         "The recommended starting point is contract, invoice and payment intelligence.",
@@ -875,24 +877,24 @@ export const thesisData = {
         "* disputes;",
         "* operational timelines.",
         "",
-        "This is a commercial application of Orgni’s infrastructure, not the limit of Orgni’s long-term vision."
-      ]
+        "This is a commercial application of Orgni’s infrastructure, not the limit of Orgni’s long-term vision.",
+      ],
     },
     {
-      "title": "21. Existing Technical Foundation",
-      "id": "21-existing-technical-foundation",
-      "content": [
+      title: "21. Existing Technical Foundation",
+      id: "21-existing-technical-foundation",
+      content: [
         "The current Orgni development already includes important components.",
         "",
         "### Ingestion pipeline",
         "",
-        "The ingestion pipeline receives uploaded sources, validates them, calculates checksums, records tenant context and controls processing failures.",
+        "The ingestion pipeline receives submitted sources, validates them, calculates checksums, records tenant context and controls processing failures.",
         "",
-        "### Document intelligence",
+        "### Evidence intelligence",
         "",
-        "Document intelligence classifies documents and extracts structured fields with evidence and confidence.",
+        "Evidence intelligence classifies evidence and extracts structured fields with provenance and confidence.",
         "",
-        "Initial document types include:",
+        "Initial evidence types include:",
         "",
         "* invoices;",
         "* proofs of payment;",
@@ -900,34 +902,34 @@ export const thesisData = {
         "",
         "### Organisational tokenizer",
         "",
-        "The tokenizer converts extracted document information into standard organisational tokens.",
+        "The tokenizer converts extracted information into standard organisational tokens.",
         "",
         "### Organisational ontology",
         "",
         "The ontology defines the entities, relationships, events and states that Orgni should understand.",
         "",
-        "These modules form the beginning of the infrastructure, but they do not yet create a persistent organisational model."
-      ]
+        "These modules form the beginning of the infrastructure, but they do not yet create a persistent organisational model.",
+      ],
     },
     {
-      "title": "22. Required Development Direction",
-      "id": "22-required-development-direction",
-      "content": [
-        "The next phase should not focus mainly on adding more document types.",
+      title: "22. Required Development Direction",
+      id: "22-required-development-direction",
+      content: [
+        "The next phase should not focus mainly on adding more evidence types.",
         "",
         "The priority should be connecting the existing modules into one complete organisational intelligence flow.",
         "",
         "The first complete demonstration should be:",
         "",
-        "> Upload a contract, an invoice and a proof of payment. Orgni identifies the parties, resolves their identities, connects the records, calculates the current obligation state and returns an evidence-backed context package through an API.",
+        "> Submit a contract, an invoice and a proof of payment. Orgni identifies the parties, resolves their identities, connects the records, calculates the current obligation state and returns an evidence-backed context package through an API.",
         "",
-        "This demonstration would validate the central thesis."
-      ]
+        "This demonstration would validate the central thesis.",
+      ],
     },
     {
-      "title": "23. Development Phases",
-      "id": "23-development-phases",
-      "content": [
+      title: "23. Development Phases",
+      id: "23-development-phases",
+      content: [
         "### Phase 1: Canonical contracts",
         "",
         "Create one authoritative schema for:",
@@ -964,7 +966,7 @@ export const thesisData = {
         "",
         "### Phase 4: Entity resolution",
         "",
-        "Create canonical identities across documents and source systems.",
+        "Create canonical identities across evidence and source systems.",
         "",
         "Include confidence, review and reversible merges.",
         "",
@@ -984,13 +986,13 @@ export const thesisData = {
         "",
         "### Phase 8: Platform interfaces",
         "",
-        "Expose REST APIs, SDKs, webhooks, event streams and MCP tools."
-      ]
+        "Expose REST APIs, SDKs, webhooks, event streams and MCP tools.",
+      ],
     },
     {
-      "title": "24. Evaluation",
-      "id": "24-evaluation",
-      "content": [
+      title: "24. Evaluation",
+      id: "24-evaluation",
+      content: [
         "Orgni should be evaluated as infrastructure, not only as an AI demonstration.",
         "",
         "Important metrics include:",
@@ -1010,7 +1012,7 @@ export const thesisData = {
         "* latency;",
         "* processing cost.",
         "",
-        "Golden datasets should represent complete organisational scenarios rather than isolated documents.",
+        "Golden datasets should represent complete organisational scenarios rather than isolated sources.",
         "",
         "A useful evaluation dataset may contain:",
         "",
@@ -1023,14 +1025,14 @@ export const thesisData = {
         "* an expired policy;",
         "* conflicting supplier identities.",
         "",
-        "Orgni should be expected to reconstruct the correct organisational state from this evidence."
-      ]
+        "Orgni should be expected to reconstruct the correct organisational state from this evidence.",
+      ],
     },
     {
-      "title": "25. Defensibility",
-      "id": "25-defensibility",
-      "content": [
-        "Orgni’s long-term defensibility will not come only from document extraction or access to language models.",
+      title: "25. Defensibility",
+      id: "25-defensibility",
+      content: [
+        "Orgni’s long-term defensibility will not come only from parsing or access to language models.",
         "",
         "Those capabilities are becoming widely available.",
         "",
@@ -1051,16 +1053,16 @@ export const thesisData = {
         "",
         "Over time, Orgni may understand not only what information exists, but how each organisation operates, changes and makes decisions.",
         "",
-        "That understanding becomes increasingly valuable as more systems depend on it."
-      ]
+        "That understanding becomes increasingly valuable as more systems depend on it.",
+      ],
     },
     {
-      "title": "26. Risks",
-      "id": "26-risks",
-      "content": [
-        "### Becoming a document product",
+      title: "26. Risks",
+      id: "26-risks",
+      content: [
+        "### Becoming a parsing product",
         "",
-        "Because the first inputs are documents, Orgni may be mistaken for a document intelligence product.",
+        "Because the first inputs are static records, Orgni may be mistaken for a parsing product.",
         "",
         "This risk should be controlled by demonstrating cross-source identity, relationships, state and context.",
         "",
@@ -1092,13 +1094,13 @@ export const thesisData = {
         "",
         "Enterprises may not initially purchase an abstract context layer.",
         "",
-        "Olyxee should enter through a measurable operational problem and gradually expand the infrastructure footprint."
-      ]
+        "Olyxee should enter through a measurable operational problem and gradually expand the infrastructure footprint.",
+      ],
     },
     {
-      "title": "27. Long-Term Vision",
-      "id": "27-long-term-vision",
-      "content": [
+      title: "27. Long-Term Vision",
+      id: "27-long-term-vision",
+      content: [
         "The long-term vision is for Orgni to become the organisational context and state layer beneath enterprise intelligence.",
         "",
         "Applications should not need to rebuild the organisation independently.",
@@ -1121,13 +1123,13 @@ export const thesisData = {
         "",
         "A powerful agent without reliable organisational context may produce incorrect or unsafe actions.",
         "",
-        "A governed organisational model allows agents to operate within real business structures rather than acting from isolated prompts and retrieved documents."
-      ]
+        "A governed organisational model allows agents to operate within real business structures rather than acting from isolated prompts and retrieved evidence.",
+      ],
     },
     {
-      "title": "28. Conclusion",
-      "id": "28-conclusion",
-      "content": [
+      title: "28. Conclusion",
+      id: "28-conclusion",
+      content: [
         "The next phase of enterprise AI will not be defined only by the intelligence of individual models.",
         "",
         "It will also be defined by the quality of the organisational context available to those models.",
@@ -1152,7 +1154,7 @@ export const thesisData = {
         "",
         "Orgni should therefore be understood as infrastructure developed by Olyxee, not as a single application.",
         "",
-        "The document pipeline, organisational tokenizer and ontology are the first components of this infrastructure.",
+        "The processing pipeline, organisational tokenizer and ontology are the first components of this infrastructure.",
         "",
         "The immediate development objective is to connect them to a durable organisational ledger, entity-resolution engine, temporal state engine and context-delivery interface.",
         "",
@@ -1160,9 +1162,9 @@ export const thesisData = {
         "",
         "> Orgni should be able to process multiple pieces of organisational evidence, determine how they relate, calculate what is currently true and provide that understanding to an authorised human, application or AI agent.",
         "",
-        "If this can be achieved reliably, Orgni will move beyond document intelligence and become the foundation for organisational intelligence."
-      ]
-    }
+        "If this can be achieved reliably, Orgni will move beyond basic extraction and become the foundation for organisational intelligence.",
+      ],
+    },
   ],
-  "references": []
+  references: [],
 };

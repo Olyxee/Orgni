@@ -4,9 +4,7 @@
  * Sends the session token as a Bearer header on every authenticated call. The
  * API base URL comes from VITE_API_URL (defaults to the local API on :8080).
  */
-const API_URL = (
-  import.meta.env.VITE_API_URL ?? "http://localhost:8080"
-).replace(/\/+$/, "");
+const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
 
 export interface Session {
   token: string;
@@ -139,6 +137,129 @@ export function getDocument(
   sourceId: string,
 ): Promise<DocumentDetail> {
   return request(`/api/documents/${sourceId}`, { token });
+}
+
+/* ------------------------------------------------------------------ */
+/* Organisational model — aggregated views across all evidence sources */
+/* ------------------------------------------------------------------ */
+
+export interface Provenance {
+  sourceId: string;
+  filename: string;
+  documentType: string | null;
+  uploadedAt: string;
+}
+
+export interface ModelOverview {
+  sources: { total: number; byState: Record<string, number> };
+  entities: number;
+  relationships: number;
+  facts: { total: number; byStatus: Record<string, number> };
+  exceptions: number;
+  reviews: number;
+  latestSources: DocumentSummary[];
+}
+
+export interface EntityEntry {
+  key: string;
+  entity: Record<string, unknown>;
+  occurrences: number;
+  sources: Provenance[];
+}
+
+export interface EntityDetail extends EntityEntry {
+  facts: { fact: Record<string, unknown>; source: Provenance }[];
+  relationships: {
+    relationship: Record<string, unknown>;
+    source: Provenance;
+  }[];
+}
+
+export interface ModelExceptions {
+  conflicts: { conflict: unknown; source: Provenance }[];
+  rejected: { reason: string; source: Provenance }[];
+  warnings: { warning: string; source: Provenance }[];
+  failedSources: {
+    sourceId: string;
+    filename: string;
+    errors: string[];
+    uploadedAt: string;
+  }[];
+}
+
+export type ActivityEvent =
+  | {
+      type: "SOURCE_PROCESSED";
+      at: string;
+      sourceId: string;
+      filename: string;
+      state: string;
+      documentType: string | null;
+    }
+  | {
+      type: "REVIEW";
+      at: string;
+      sourceId: string;
+      fieldPath: string;
+      action: "CORRECT" | "REJECT";
+      reviewer: string;
+    };
+
+export function getOverview(token: string): Promise<ModelOverview> {
+  return request("/api/model/overview", { token });
+}
+
+export function listEntities(
+  token: string,
+): Promise<{ entities: EntityEntry[] }> {
+  return request("/api/model/entities", { token });
+}
+
+export function getEntity(token: string, key: string): Promise<EntityDetail> {
+  return request(`/api/model/entities/${encodeURIComponent(key)}`, { token });
+}
+
+export function listRelationships(token: string): Promise<{
+  relationships: {
+    relationship: Record<string, unknown>;
+    source: Provenance;
+  }[];
+}> {
+  return request("/api/model/relationships", { token });
+}
+
+export function listFacts(token: string): Promise<{
+  facts: { fact: Record<string, unknown>; source: Provenance }[];
+}> {
+  return request("/api/model/facts", { token });
+}
+
+export function getExceptions(token: string): Promise<ModelExceptions> {
+  return request("/api/model/exceptions", { token });
+}
+
+export function getActivity(
+  token: string,
+): Promise<{ events: ActivityEvent[] }> {
+  return request("/api/model/activity", { token });
+}
+
+export function addReview(
+  token: string,
+  sourceId: string,
+  input: {
+    fieldPath: string;
+    action: "CORRECT" | "REJECT";
+    correctedValue?: unknown;
+    reviewer?: string;
+  },
+): Promise<unknown> {
+  return request(`/api/documents/${sourceId}/reviews`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(input),
+    token,
+  });
 }
 
 export { ApiError, API_URL };
