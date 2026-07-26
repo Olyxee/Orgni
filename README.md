@@ -448,10 +448,27 @@ The web application can run on Vercel or Azure Static Web Apps.
 | PostgreSQL                             | Azure Database for PostgreSQL Flexible Server | Private  |
 | Redis                                  | Azure Managed Redis                           | Private  |
 
+### Deploy the backend to Azure
+
+The whole backend deploys with **one click** or **one command** — idempotent, so
+re-running ships a new build:
+
+* **One-click:** GitHub **Actions → "Deploy to Azure" → Run workflow** (after a
+  one-time OIDC + secrets setup).
+* **One command:** `bash infrastructure/azure/deploy.sh` (after `az login`).
+
+Both provision the Container Apps environment, PostgreSQL, Redis, and the
+registry; build the four images; run the DB migration; deploy all services; and
+smoke-test the API. Step-by-step runbook (with the one-time setup):
+[`infrastructure/azure/README.md`](infrastructure/azure/README.md).
+
+Then point the frontend's `VITE_API_URL` at the API URL the deploy prints, and
+set `WEB_ORIGIN` to the frontend URL so CORS allows it.
+
 Deployment documentation:
 
-* [`DEPLOYMENT.md`](DEPLOYMENT.md)
-* [`infrastructure/azure/README.md`](infrastructure/azure/README.md)
+* [`infrastructure/azure/README.md`](infrastructure/azure/README.md) — the deploy runbook
+* [`DEPLOYMENT.md`](DEPLOYMENT.md) — full architecture and env reference
 
 ## Health endpoints
 

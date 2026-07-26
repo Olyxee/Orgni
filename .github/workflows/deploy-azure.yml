@@ -1,0 +1,86 @@
+name: Deploy to Azure
+
+# One-click backend deploy to Azure Container Apps. Run it from the Actions tab
+# ("Deploy to Azure" → Run workflow). Idempotent — re-run to ship a new build.
+#
+# Required GitHub secrets (Settings → Secrets and variables → Actions):
+#   AZURE_CLIENT_ID        - app registration (federated credential) client id
+#   AZURE_TENANT_ID        - Entra tenant id
+#   AZURE_SUBSCRIPTION_ID  - target subscription id
+#   PG_ADMIN_PASSWORD      - PostgreSQL admin password (strong)
+#   AUTH_SECRET            - random string that signs session tokens
+# Optional repo variables (Settings → Variables → Actions), with defaults:
+#   AZURE_RESOURCE_GROUP (orgni-rg), AZURE_LOCATION (westeurope),
+#   AZURE_ACR_NAME (orgniacr), WEB_ORIGIN (frontend URL for CORS)
+#
+# One-time OIDC setup is documented in infrastructure/azure/README.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: "Azure resource group"
+        required: false
+      location:
+        description: "Azure region"
+        required: false
+
+permissions:
+  id-token: write # required for azure/login OIDC
+  contents: read
+
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Provision & deploy backend
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10 --activate
+
+      - name: Install dependencies (for the DB migration)
+        run: pnpm install --frozen-lockfile
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy
+        env:
+          RESOURCE_GROUP: ${{ inputs.resource_group || vars.AZURE_RESOURCE_GROUP || 'orgni-rg' }}
+          LOCATION: ${{ inputs.location || vars.AZURE_LOCATION || 'westeurope' }}
+          ACR_NAME: ${{ vars.AZURE_ACR_NAME || 'orgniacr' }}
+          WEB_ORIGIN: ${{ vars.WEB_ORIGIN }}
+          PG_ADMIN_PASSWORD: ${{ secrets.PG_ADMIN_PASSWORD }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: bash infrastructure/azure/deploy.sh
+
+      - name: Smoke test the API
+        run: |
+          API_FQDN=$(az containerapp show -n orgni-api \
+            -g "${{ inputs.resource_group || vars.AZURE_RESOURCE_GROUP || 'orgni-rg' }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          echo "API: https://$API_FQDN"
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "https://$API_FQDN/api/health" || true)
+            [ "$code" = "200" ] && { echo "Health OK"; exit 0; }
+            echo "attempt $i: $code, retrying…"; sleep 15
+          done
+          echo "Health check failed"; exit 1
