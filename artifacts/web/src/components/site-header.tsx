@@ -34,7 +34,6 @@ const navItems = [
       },
     ],
   },
-  { title: "Research", href: "/research", match: ["/research", "/thesis"] },
 ];
 
 export function SiteHeader({ dark }: { dark?: boolean }) {
