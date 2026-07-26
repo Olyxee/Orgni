@@ -27,13 +27,22 @@ export function IntegrationsSection() {
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex items-center gap-4 mb-12 justify-center"
+          className="flex flex-col items-center gap-6 mb-12"
         >
-          <div className="h-[2px] w-8 bg-primary"></div>
-          <p className="text-center text-xs font-mono font-bold text-primary tracking-widest uppercase">
-            Roadmap: Future sources & connected systems
+          <div className="flex items-center gap-4 justify-center">
+            <div className="h-[2px] w-8 bg-primary"></div>
+            <p className="text-center text-xs font-mono font-bold text-primary tracking-widest uppercase">
+              Where the answers come from
+            </p>
+            <div className="h-[2px] w-8 bg-primary"></div>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-[1.1] tracking-tight text-center">
+            Plugs into the tools you already use.
+          </h2>
+          <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl text-center">
+            No migration, no new system of record. Orgni connects to where your
+            work already lives and keeps its model current as things change.
           </p>
-          <div className="h-[2px] w-8 bg-primary"></div>
         </motion.div>
 
         {/* Orgni hub node */}

@@ -23,7 +23,8 @@ export function FinalCtaSection() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium max-w-2xl mb-12"
         >
-          Give your teams and AI one trusted, live model of your organisation.
+          One question, one answer, one source of truth. Give your teams and
+          AI a live model of your organisation they can trust.
         </motion.p>
 
         <motion.div

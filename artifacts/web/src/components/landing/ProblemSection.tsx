@@ -69,6 +69,13 @@ export function ProblemSection() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-3xl mx-auto mb-16 md:mb-20"
         >
+          <div className="flex items-center gap-4 justify-center mb-6">
+            <div className="h-[2px] w-8 bg-primary"></div>
+            <p className="text-xs font-mono font-bold text-primary tracking-widest uppercase">
+              The problem
+            </p>
+            <div className="h-[2px] w-8 bg-primary"></div>
+          </div>
           <h2 className="text-4xl md:text-5xl xl:text-6xl font-bold text-foreground leading-[1.1] tracking-tight mb-6">
             Your organisation has data.
             <br />

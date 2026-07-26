@@ -15,12 +15,21 @@ export function InfrastructureSection() {
           transition={{ duration: 0.5 }}
           className="mb-16 md:mb-24 text-center mx-auto max-w-3xl"
         >
+          <div className="flex items-center gap-4 justify-center mb-6">
+            <div className="h-[2px] w-8 bg-primary"></div>
+            <p className="text-xs font-mono font-bold text-primary tracking-widest uppercase">
+              How Orgni fixes it
+            </p>
+            <div className="h-[2px] w-8 bg-primary"></div>
+          </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-[1.1] tracking-tight mb-6">
             From scattered tools to one sourced answer.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Orgni reads your team&apos;s existing tools and answers questions
-            right in the conversation, with every figure traced to its source.
+            Instead of four conflicting answers, you get one. Orgni reads your
+            team&apos;s existing tools, links what belongs together, and
+            answers right in the conversation, with every figure traced to its
+            source.
           </p>
         </motion.div>
 
