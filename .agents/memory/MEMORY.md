@@ -1,0 +1,1 @@
+- [Vercel-to-Replit port notes](vercel-port.md) — project was already a pnpm/Vite/Express monorepo; migration copied apps/* and packages/* into artifacts/ and packages/.

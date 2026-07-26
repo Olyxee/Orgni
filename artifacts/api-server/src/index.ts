@@ -1,25 +1,30 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { config } from "./lib/config";
 
-const rawPort = process.env["PORT"];
+const port = config.PORT;
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-app.listen(port, (err) => {
+const server = app.listen(port, "0.0.0.0", (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
     process.exit(1);
   }
 
-  logger.info({ port }, "Server listening");
+  logger.info({ port, nodeEnv: config.NODE_ENV }, "Server listening");
 });
+
+/** Graceful shutdown: stop accepting connections, drain in-flight requests. */
+function shutdown(signal: string) {
+  logger.info({ signal }, "shutting down");
+  server.close((err) => {
+    if (err) {
+      logger.error({ err }, "error during shutdown");
+      process.exit(1);
+    }
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
