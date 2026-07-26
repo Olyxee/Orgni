@@ -1,6 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
-@source "../../../packages/ui/src";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
@@ -90,10 +88,10 @@
   --input: 214 32% 91%;
   --ring: 19 99% 50%;
   
-  --app-font-sans: "Geist", system-ui, sans-serif;
-  --app-font-serif: "Instrument Serif", Georgia, serif;
+  --app-font-sans: 'Geist', sans-serif;
+  --app-font-serif: "Geist", sans-serif;
   --app-font-mono: "Geist Mono", ui-monospace, monospace;
-  --radius: 0rem;
+  --radius: 0.5rem;
 }
 
 .dark {

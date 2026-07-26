@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import healthRouter from "./health";
 import authRouter from "./auth";
 import documentsRouter from "./documents";
+import modelRouter from "./model";
 import { authenticate } from "../lib/authenticate";
 
 const router: IRouter = Router();
@@ -13,5 +14,6 @@ router.use(authRouter);
 // Everything below requires an authenticated session. `authenticate` sets
 // req.principal (and its tenantId), which the document routes read.
 router.use(authenticate, documentsRouter);
+router.use(authenticate, modelRouter);
 
 export default router;

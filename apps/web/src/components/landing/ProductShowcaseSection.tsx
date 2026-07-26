@@ -7,7 +7,8 @@ export function ProductShowcaseSection() {
             The interface to your business reality.
           </h2>
           <p className="text-xl md:text-2xl font-light text-muted-foreground max-w-2xl">
-            Explore the graph, trace the evidence, and understand exactly why a state was inferred.
+            Explore the graph, trace the evidence, and understand exactly why a
+            state was inferred.
           </p>
         </div>
 
@@ -16,10 +17,10 @@ export function ProductShowcaseSection() {
           <div className="absolute -inset-4 md:-inset-8 border border-border/50 bg-background/50 pointer-events-none"></div>
           <div className="absolute -top-10 -left-10 w-20 h-20 border-t border-l border-primary/30 pointer-events-none"></div>
           <div className="absolute -bottom-10 -right-10 w-20 h-20 border-b border-r border-primary/30 pointer-events-none"></div>
-          
-          <img 
-            src="/orgni-product-ui.png" 
-            alt="Orgni Interface" 
+
+          <img
+            src="/orgni-product-ui.png"
+            alt="Orgni Interface"
             className="w-full h-auto border border-border shadow-xl relative z-10"
           />
         </div>

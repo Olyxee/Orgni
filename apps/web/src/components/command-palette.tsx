@@ -52,7 +52,7 @@ type Item = {
   icon: typeof FileText;
 };
 
-const GROUP_ORDER = ["Pages", "Research Thesis", "Documentation", "API Reference"] as const;
+const GROUP_ORDER = ["Pages", "Research Thesis", "Documentation"] as const;
 
 const ITEMS: Item[] = [
   // Pages
@@ -74,12 +74,54 @@ const ITEMS: Item[] = [
     keywords: "contact email reach us support",
   },
   // Thesis sections
-  { id: "t-1", title: "1. The central problem", group: "Research Thesis", path: "/thesis", hash: "the-central-problem", icon: ThesisIcon },
-  { id: "t-2", title: "2. Business context", group: "Research Thesis", path: "/thesis", hash: "business-context", icon: ThesisIcon },
-  { id: "t-3", title: "3. The organisational context gap", group: "Research Thesis", path: "/thesis", hash: "the-organisational-context-gap", icon: ThesisIcon },
-  { id: "t-10", title: "10. The proposed solution", group: "Research Thesis", path: "/thesis", hash: "the-proposed-solution", icon: ThesisIcon },
-  { id: "t-13", title: "13. The contextual architecture", group: "Research Thesis", path: "/thesis", hash: "the-contextual-architecture", icon: ThesisIcon },
-  { id: "t-23", title: "23. Conclusion", group: "Research Thesis", path: "/thesis", hash: "conclusion", icon: ThesisIcon },
+  {
+    id: "t-1",
+    title: "1. The central problem",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "the-central-problem",
+    icon: ThesisIcon,
+  },
+  {
+    id: "t-2",
+    title: "2. Business context",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "business-context",
+    icon: ThesisIcon,
+  },
+  {
+    id: "t-3",
+    title: "3. The organisational context gap",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "the-organisational-context-gap",
+    icon: ThesisIcon,
+  },
+  {
+    id: "t-10",
+    title: "10. The proposed solution",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "the-proposed-solution",
+    icon: ThesisIcon,
+  },
+  {
+    id: "t-13",
+    title: "13. The contextual architecture",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "the-contextual-architecture",
+    icon: ThesisIcon,
+  },
+  {
+    id: "t-23",
+    title: "23. Conclusion",
+    group: "Research Thesis",
+    path: "/thesis",
+    hash: "conclusion",
+    icon: ThesisIcon,
+  },
 
   {
     id: "p-home",
@@ -101,7 +143,8 @@ const ITEMS: Item[] = [
     id: "p-api",
     title: "API Reference",
     group: "Pages",
-    path: "/api-reference",
+    path: "/docs",
+    hash: "authentication",
     icon: Code2,
     keywords: "api rest json endpoints developers",
   },
@@ -183,8 +226,8 @@ const ITEMS: Item[] = [
   {
     id: "a-overview",
     title: "Overview",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "overview",
     icon: Code2,
     keywords: "intro api",
@@ -192,8 +235,8 @@ const ITEMS: Item[] = [
   {
     id: "a-auth",
     title: "Authentication",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "authentication",
     icon: Code2,
     keywords: "api key token bearer auth",
@@ -201,8 +244,8 @@ const ITEMS: Item[] = [
   {
     id: "a-errors",
     title: "Errors",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "errors",
     icon: Code2,
     keywords: "status codes 404 429 500 failures",
@@ -210,8 +253,8 @@ const ITEMS: Item[] = [
   {
     id: "a-orgs",
     title: "Organizations",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "organizations",
     icon: Code2,
     keywords: "org tenant account",
@@ -219,17 +262,17 @@ const ITEMS: Item[] = [
   {
     id: "a-sources",
     title: "Sources",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "sources",
     icon: Code2,
-    keywords: "upload documents ingest",
+    keywords: "submit evidence ingest",
   },
   {
     id: "a-context",
     title: "Context",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "context",
     icon: Code2,
     keywords: "business context query",
@@ -237,8 +280,8 @@ const ITEMS: Item[] = [
   {
     id: "a-map",
     title: "Business Map",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "business-map",
     icon: Code2,
     keywords: "roles departments rules dependencies",
@@ -246,8 +289,8 @@ const ITEMS: Item[] = [
   {
     id: "a-workflows",
     title: "Workflows",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "workflows",
     icon: Code2,
     keywords: "tasks approvals execution",
@@ -255,8 +298,8 @@ const ITEMS: Item[] = [
   {
     id: "a-finance",
     title: "Finance",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "finance",
     icon: Code2,
     keywords: "reconciliation ledger money",
@@ -264,8 +307,8 @@ const ITEMS: Item[] = [
   {
     id: "a-evidence",
     title: "Evidence",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "evidence",
     icon: Code2,
     keywords: "source trail confidence audit",
@@ -273,8 +316,8 @@ const ITEMS: Item[] = [
   {
     id: "a-updates",
     title: "Updates",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "updates",
     icon: Code2,
     keywords: "events stream changes",
@@ -282,8 +325,8 @@ const ITEMS: Item[] = [
   {
     id: "a-webhooks",
     title: "Webhooks",
-    group: "API Reference",
-    path: "/api-reference",
+    group: "Documentation",
+    path: "/docs",
     hash: "webhooks",
     icon: Code2,
     keywords: "callbacks notifications events",
@@ -374,8 +417,8 @@ export function CommandPaletteProvider({ children }: { children: ReactNode }) {
     (item: Item | undefined) => {
       if (!item) return;
       close();
-      if (item.path.startsWith('http')) {
-        window.open(item.path, '_blank');
+      if (item.path.startsWith("http")) {
+        window.open(item.path, "_blank");
         return;
       }
       if (item.path !== location) setLocation(item.path);

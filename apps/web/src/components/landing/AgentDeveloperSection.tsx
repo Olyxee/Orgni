@@ -7,28 +7,36 @@ export function AgentDeveloperSection() {
     "Real-time event subscriptions",
     "Evidence-backed state mutations",
     "Access control and auditing",
-    "Policy validation pre-flight"
+    "Policy validation pre-flight",
   ];
 
   return (
-    <section id="developers" className="py-24 md:py-40 px-6 md:px-12 bg-background border-t border-border scroll-mt-20">
+    <section
+      id="developers"
+      className="py-24 md:py-40 px-6 md:px-12 bg-background border-t border-border scroll-mt-20"
+    >
       <div className="max-w-[1600px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-start">
-          
           <div className="lg:col-span-5 relative">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-foreground leading-[1.05] mb-8">
               A trusted grounding layer for AI agents.
             </h2>
-            
+
             <p className="text-xl md:text-2xl text-foreground font-light leading-snug mb-12">
-              Agents fail without correct context. Orgni provides a live, verifiable model of your business so AI can act safely.
+              Agents fail without correct context. Orgni provides a live,
+              verifiable model of your business so AI can act safely.
             </p>
 
             <div className="space-y-6 mb-12">
-              <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground border-b border-border pb-2">Core Capabilities</h3>
+              <h3 className="font-mono text-xs uppercase tracking-widest text-muted-foreground border-b border-border pb-2">
+                Core Capabilities
+              </h3>
               <ul className="space-y-4">
                 {capabilities.map((cap, i) => (
-                  <li key={i} className="flex items-center gap-4 text-base font-medium">
+                  <li
+                    key={i}
+                    className="flex items-center gap-4 text-base font-medium"
+                  >
                     <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                     {cap}
                   </li>
@@ -36,10 +44,13 @@ export function AgentDeveloperSection() {
               </ul>
             </div>
 
-            <Button asChild variant="outline" size="lg" className="h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none text-base transition-colors">
-              <Link href="/developers">
-                Read the Documentation
-              </Link>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-md text-base transition-colors"
+            >
+              <Link href="/developers">Read the Documentation</Link>
             </Button>
           </div>
 
@@ -50,7 +61,7 @@ export function AgentDeveloperSection() {
               </div>
               <pre className="font-mono text-sm md:text-base leading-relaxed overflow-x-auto text-background/90 pt-8">
                 <code className="language-graphql">
-{`query GetAgentContext($entityId: ID!) {
+                  {`query GetAgentContext($entityId: ID!) {
   organisation(id: $entityId) {
     status
     activePolicies {
@@ -79,7 +90,6 @@ export function AgentDeveloperSection() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>

@@ -20,8 +20,17 @@ What gets deployed:
 Plus **Azure Database for PostgreSQL** (Flexible Server) and **Azure Cache for
 Redis**, and an **Azure Container Registry** for the images.
 
-The frontend is already hosted separately (Vercel / Azure Static Web Apps) — it
-only needs `VITE_API_URL` pointed at the API URL this produces.
+This is a **self-contained backend** — the four services above deploy and scale
+as one group, independent of the frontend. `orgni-api` is the only public entry
+point; the two Python services are internal-only (reachable by the API inside
+the Container Apps environment, never from the internet). The API serves both
+the document pipeline (`/api/documents`) and the console's read-only
+organizational-model views (`/api/model/*`) — both come from the same
+`orgni-api` image, so there is nothing extra to configure or deploy for them.
+
+The frontend is hosted separately (Vercel / Azure Static Web Apps) and is **not**
+part of this deploy. It only needs `VITE_API_URL` pointed at the API URL this
+produces; the console then reads `/api/documents` and `/api/model/*` from it.
 
 ---
 
@@ -109,11 +118,18 @@ It prints the API URL and a health-check command when done.
    ```bash
    API=https://<orgni-api-fqdn>
    curl $API/api/health
-   # log in and upload:
+   # log in:
    TOKEN=$(curl -s -X POST $API/api/auth/login -H 'content-type: application/json' \
      -d '{"email":"you@org.com","organization":"Your Org"}' | jq -r .token)
+   # upload a document (runs the full pipeline → persisted facts):
    curl -X POST $API/api/documents -H "authorization: Bearer $TOKEN" -F "file=@invoice.pdf"
+   # confirm the console's model views are served (drives the /app pages):
+   curl $API/api/model/overview -H "authorization: Bearer $TOKEN"
    ```
+   `/api/model/overview` returning JSON (counts of sources, entities, facts…)
+   confirms the API, database, and console read-path are all wired. A 401 means
+   the token/`AUTH_SECRET` is wrong; a 503 means `DATABASE_URL` isn't reaching
+   Postgres.
 
 ---
 
