@@ -103,12 +103,42 @@ export function HeroSection() {
         >
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-foreground mb-8">
             Ask anything about your{" "}
-            <span className="text-emerald-600 whitespace-nowrap">
-              finances
-              <Calculator
-                className="inline-block ml-2 md:ml-3 h-8 w-8 md:h-12 md:w-12 lg:h-14 lg:w-14 align-baseline -translate-y-1"
+            <span className="relative inline-block whitespace-nowrap">
+              <span className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                finances
+              </span>
+              {/* Hand-drawn green highlight sweep */}
+              <svg
+                className="absolute -bottom-2 left-0 w-full h-4"
+                viewBox="0 0 300 20"
+                preserveAspectRatio="none"
                 aria-hidden="true"
-              />
+              >
+                <path
+                  d="M4 14 C 60 6, 150 4, 296 10"
+                  stroke="#10b981"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  fill="none"
+                  opacity="0.35"
+                />
+              </svg>
+              {/* Floating calculator chip */}
+              <motion.span
+                initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+                animate={{ opacity: 1, scale: 1, rotate: 8 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 200, damping: 12 }}
+                className="absolute -top-5 -right-8 md:-top-7 md:-right-12"
+                aria-hidden="true"
+              >
+                <motion.span
+                  animate={{ y: [0, -6, 0], rotate: [8, 12, 8] }}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="flex items-center justify-center h-10 w-10 md:h-14 md:w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/30 ring-4 ring-white"
+                >
+                  <Calculator className="h-5 w-5 md:h-7 md:w-7 text-white" />
+                </motion.span>
+              </motion.span>
             </span>
             . Get one answer you can trust.
           </h1>
