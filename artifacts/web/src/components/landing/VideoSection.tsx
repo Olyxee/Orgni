@@ -6,7 +6,7 @@ export function VideoSection() {
   const [unavailable, setUnavailable] = useState(false);
 
   return (
-    <section className="py-24 md:py-32 px-6 md:px-12 bg-foreground text-background border-t border-border">
+    <section className="py-24 md:py-32 px-6 md:px-12 bg-background text-foreground border-t border-border">
       <div className="max-w-[1600px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -21,7 +21,7 @@ export function VideoSection() {
             </h2>
           </div>
           <div className="lg:col-span-6 lg:col-start-7">
-            <p className="text-xl md:text-2xl font-medium text-background/80 leading-relaxed">
+            <p className="text-xl md:text-2xl font-medium text-muted-foreground leading-relaxed">
               See how connected data changes the way businesses execute.
             </p>
           </div>
@@ -32,7 +32,7 @@ export function VideoSection() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative w-full aspect-video bg-background/5 border border-background/20 rounded-xl overflow-hidden shadow-2xl group"
+          className="relative w-full aspect-video bg-muted border border-border rounded-xl overflow-hidden shadow-xl group"
         >
           {/* Poster */}
           <img
