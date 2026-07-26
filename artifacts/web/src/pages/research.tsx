@@ -3,14 +3,46 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowRight, FileText } from "lucide-react";
+import {
+  ArrowRight,
+  FileText,
+  Database,
+  ShieldCheck,
+  Network,
+} from "lucide-react";
 import { thesisData } from "@/data/thesis";
+import { motion } from "framer-motion";
+
+const authors = [
+  { name: "Lethabo Scofield", role: "Research Scientist" },
+  { name: "Alisha Fatima", role: "Founding AI Infrastructure Engineer" },
+  { name: "Mosa Maseko", role: "Founding Data Engineer" },
+  { name: "Emmanuel Stakio", role: "Theoretical Research Scientist" },
+];
+
+const themes = [
+  {
+    icon: Database,
+    title: "Organisational memory",
+    desc: "How the facts of a business, its contracts, invoices, payments and decisions, can be captured into one living record that never goes stale.",
+  },
+  {
+    icon: Network,
+    title: "Verified context for AI",
+    desc: "What it takes for an AI agent to answer with evidence: entity resolution, provenance, and a queryable model of how the organisation actually works.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Safe autonomy",
+    desc: "How agents can act inside a company without breaking its rules, with permission-aware context, applicable policies and human checkpoints built in.",
+  },
+];
 
 export default function Research() {
   useSeo({
     title: "Research - Orgni",
     description:
-      "Why we build Orgni: our vision, our mission, and the research behind organisational intelligence infrastructure.",
+      "Why we build Orgni: our vision, our mission, the questions we study, and the research behind organisational intelligence infrastructure.",
     path: "/research",
   });
 
@@ -19,7 +51,12 @@ export default function Research() {
       <SiteHeader />
       <main className="flex-1 pt-16">
         {/* Vision & Mission */}
-        <section className="pt-24 pb-16 md:pt-32 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          className="pt-24 pb-20 md:pt-32 md:pb-28 px-6 md:px-12 max-w-[1600px] mx-auto"
+        >
           <div className="max-w-4xl">
             <div className="mb-6 flex items-center gap-4">
               <div className="h-[1px] w-12 bg-foreground"></div>
@@ -27,12 +64,18 @@ export default function Research() {
                 Why we do this work
               </p>
             </div>
-            <h1 className="text-4xl md:text-6xl font-serif leading-[1.1] tracking-tight mb-16 text-foreground max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-serif leading-[1.1] tracking-tight mb-6 text-foreground max-w-3xl">
               Organisations should never lose what they know.
             </h1>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-16">
+              Every company runs on knowledge that lives in inboxes, ledgers
+              and people's heads. Our research asks a single question: what
+              would it take to make that knowledge permanent, verified and
+              usable by anyone, human or machine?
+            </p>
             <div className="grid md:grid-cols-2 gap-12 md:gap-16">
-              <div>
-                <h2 className="text-xs font-mono tracking-widest uppercase text-primary mb-4">
+              <div className="border-l-2 border-foreground/80 pl-6 md:pl-8">
+                <h2 className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">
                   Our vision
                 </h2>
                 <p className="text-xl md:text-2xl font-serif leading-snug text-foreground">
@@ -41,8 +84,8 @@ export default function Research() {
                   verified fact instead of guesswork.
                 </p>
               </div>
-              <div>
-                <h2 className="text-xs font-mono tracking-widest uppercase text-primary mb-4">
+              <div className="border-l-2 border-foreground/80 pl-6 md:pl-8">
+                <h2 className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-4">
                   Our mission
                 </h2>
                 <p className="text-xl md:text-2xl font-serif leading-snug text-foreground">
@@ -54,71 +97,99 @@ export default function Research() {
               </div>
             </div>
           </div>
+        </motion.section>
+
+        {/* Research themes */}
+        <section className="py-20 md:py-28 px-6 md:px-12 bg-muted/30 border-y border-border">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="max-w-4xl mb-14">
+              <div className="mb-6 flex items-center gap-4">
+                <div className="h-[1px] w-12 bg-foreground"></div>
+                <p className="text-xs font-mono tracking-widest uppercase">
+                  What we study
+                </p>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-serif leading-tight tracking-tight text-foreground">
+                Three questions drive the work.
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl">
+              {themes.map((t) => (
+                <div
+                  key={t.title}
+                  className="bg-white border border-border rounded-xl p-8"
+                >
+                  <div className="w-11 h-11 rounded-md bg-muted border border-border flex items-center justify-center mb-6">
+                    <t.icon className="text-foreground/70" size={20} />
+                  </div>
+                  <h3 className="text-lg font-medium mb-3 text-foreground">
+                    {t.title}
+                  </h3>
+                  <p className="text-[15px] text-muted-foreground leading-relaxed">
+                    {t.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
 
-        {/* Paper teaser */}
-        <section className="py-16 md:py-24 px-6 md:px-12 max-w-[1600px] mx-auto border-t border-border">
+        {/* Paper */}
+        <section className="py-20 md:py-28 px-6 md:px-12 max-w-[1600px] mx-auto">
           <div className="max-w-4xl">
             <div className="mb-6 flex items-center gap-4">
-              <div className="h-[1px] w-12 bg-primary"></div>
-              <p className="text-xs font-mono tracking-widest uppercase text-primary">
+              <div className="h-[1px] w-12 bg-foreground"></div>
+              <p className="text-xs font-mono tracking-widest uppercase">
                 The research paper
               </p>
             </div>
-            <div className="border border-border bg-muted/20 p-8 md:p-12 rounded-xl">
-              <div className="w-12 h-12 rounded-md bg-muted border border-border flex items-center justify-center mb-6">
-                <FileText className="text-foreground/70" size={24} />
+            <div className="border border-border bg-muted/20 rounded-xl overflow-hidden">
+              <div className="p-8 md:p-12">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="w-11 h-11 rounded-md bg-muted border border-border flex items-center justify-center">
+                    <FileText className="text-foreground/70" size={20} />
+                  </div>
+                  <span className="text-xs font-mono tracking-widest uppercase text-muted-foreground">
+                    Olyxee Research · {thesisData.sections.length} sections
+                  </span>
+                </div>
+                <h2 className="text-3xl md:text-5xl font-serif leading-tight tracking-tight mb-6 text-foreground">
+                  {thesisData.title}
+                </h2>
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-8">
+                  {thesisData.subtitle}
+                </p>
+                <p className="text-base md:text-lg text-foreground/80 leading-relaxed max-w-3xl mb-10 border-l-2 border-border pl-6">
+                  {thesisData.abstract[0]}
+                </p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground group"
+                >
+                  <Link href="/thesis">
+                    Read the paper
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </Button>
               </div>
-              <h2 className="text-3xl md:text-5xl font-serif leading-tight tracking-tight mb-6 text-foreground">
-                {thesisData.title}
-              </h2>
-              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mb-8">
-                {thesisData.subtitle}
-              </p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-6 sm:gap-10 mb-10">
-                <div>
-                  <span className="block font-medium text-foreground">
-                    Lethabo Scofield
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Research Scientist
-                  </span>
-                </div>
-                <div>
-                  <span className="block font-medium text-foreground">
-                    Alisha Fatima
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Founding AI Infrastructure Engineer
-                  </span>
-                </div>
-                <div>
-                  <span className="block font-medium text-foreground">
-                    Mosa Maseko
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Founding Data Engineer
-                  </span>
-                </div>
-                <div>
-                  <span className="block font-medium text-foreground">
-                    Emmanuel Stakio
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Theoretical Research Scientist
-                  </span>
+              <div className="border-t border-border bg-white px-8 md:px-12 py-8">
+                <p className="text-xs font-mono tracking-widest uppercase text-muted-foreground mb-6">
+                  Authors
+                </p>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  {authors.map((a) => (
+                    <div key={a.name}>
+                      <span className="block font-medium text-foreground">
+                        {a.name}
+                      </span>
+                      <span className="text-sm text-muted-foreground leading-snug">
+                        {a.role}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <Button
-                asChild
-                size="lg"
-                className="h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground group"
-              >
-                <Link href="/thesis">
-                  Read the paper
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
             </div>
           </div>
         </section>
