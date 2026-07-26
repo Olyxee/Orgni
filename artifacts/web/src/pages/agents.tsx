@@ -97,12 +97,12 @@ function Hero() {
         Agents
       </div>
       <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight text-foreground mb-6 max-w-4xl leading-[1.1]">
-        Agents that act on how your organisation actually works
+        Give your agent real company data
       </h1>
       <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-        Orgni gives your agents verified context — identity, policies,
-        obligations, and evidence — so they stop guessing and start executing
-        safely.
+        Building an AI agent? Orgni is the API it calls to know your
+        company&apos;s contracts, invoices, people and rules. No guessing, no
+        hallucinated answers.
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
         <Button
@@ -129,23 +129,23 @@ function Capabilities() {
   const items = [
     {
       icon: Search,
-      title: "Grounded answers",
-      desc: "Agents query the live organisational model and always get cited, source-linked answers.",
+      title: "Answers with receipts",
+      desc: "Your agent asks a question and gets the answer plus the documents that prove it.",
     },
     {
       icon: ShieldCheck,
-      title: "Permission-aware",
-      desc: "Every call is scoped to what the acting principal is allowed to see. No accidental data leaks.",
+      title: "Built-in permissions",
+      desc: "Your agent only sees what it is allowed to see. You don't write that logic yourself.",
     },
     {
       icon: GitBranch,
-      title: "Relationship traversal",
-      desc: "Follow contracts to invoices to payments to owners — the graph is one query away.",
+      title: "Connected records",
+      desc: "One call returns a contract with its invoices, payments and owners already linked.",
     },
     {
       icon: Scale,
-      title: "Policy checks",
-      desc: "Ask \u201Cis this action allowed?\u201D before executing. Orgni evaluates the applicable rules for you.",
+      title: "\u201CAm I allowed?\u201D checks",
+      desc: "Ask Orgni if an action is allowed before your agent does it. It checks the rules for you.",
     },
   ];
 
@@ -153,11 +153,11 @@ function Capabilities() {
     <section className="py-24 px-6 max-w-screen-xl mx-auto border-t border-border">
       <div className="max-w-2xl mb-16">
         <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
-          What agents can do with Orgni
+          What your agent gets
         </h2>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          One context layer, four superpowers for any agent framework you
-          already use.
+          Works with any framework: LangChain, the OpenAI SDK, or plain fetch
+          calls.
         </p>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -216,11 +216,11 @@ if (context.permittedActions.includes("approve")) {
             Two ways to connect
           </div>
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
-            Connect in minutes
+            Two ways to connect, pick one
           </h2>
           <p className="text-lg text-white/60 leading-relaxed">
-            Point your agent at the Orgni MCP server, or call the Agent Context
-            API directly with the SDK. Both respect the same permission model.
+            Using Claude, Cursor or another MCP client? Paste the config.
+            Writing your own code? Install the SDK. Same data either way.
           </p>
         </div>
 
@@ -230,7 +230,7 @@ if (context.permittedActions.includes("approve")) {
               <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
                 1
               </span>
-              MCP server — works with any MCP client
+              MCP: paste this config, done
             </h3>
             <CodeBlock title="mcp.json" copyText={mcpConfig}>
               <pre className="text-white/80 leading-relaxed text-xs md:text-sm font-mono whitespace-pre">
@@ -243,7 +243,7 @@ if (context.permittedActions.includes("approve")) {
               <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center">
                 2
               </span>
-              Agent Context API — full control via SDK
+              SDK: one call gets the context
             </h3>
             <CodeBlock title="agent.ts" copyText={sdkExample}>
               <pre className="text-white/80 leading-relaxed text-xs md:text-sm font-mono whitespace-pre">
@@ -260,20 +260,20 @@ if (context.permittedActions.includes("approve")) {
 function Guardrails() {
   const rows = [
     {
-      title: "Scoped identity",
-      desc: "Agents act as named principals with explicit roles — never as superusers.",
+      title: "Your agent has its own login",
+      desc: "It acts under its own name with its own role, never as an all-access admin.",
     },
     {
-      title: "Evidence on every answer",
-      desc: "Responses carry source references so downstream decisions are auditable.",
+      title: "Every answer shows its sources",
+      desc: "Responses link back to the original documents, so anyone can verify them.",
     },
     {
-      title: "Conflicts surfaced, not hidden",
-      desc: "When sources disagree, agents see the conflict and can escalate to a human.",
+      title: "Disagreements are flagged",
+      desc: "If two systems say different things, your agent sees both and can ask a human.",
     },
     {
-      title: "Full decision trail",
-      desc: "Every context read and permitted-action check is logged for review.",
+      title: "Everything is logged",
+      desc: "Every question your agent asked and every check it ran is recorded for review.",
     },
   ];
 
@@ -285,11 +285,11 @@ function Guardrails() {
             <ShieldCheck className="text-primary" size={24} />
           </div>
           <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
-            Guardrails built in
+            Safety you don&apos;t have to build
           </h2>
           <p className="text-lg text-muted-foreground max-w-md leading-relaxed">
-            Autonomy without governance is a liability. Orgni makes every agent
-            action explainable, permissioned, and reviewable by default.
+            The scary parts of shipping an agent, permissions, audit logs and
+            &quot;why did it do that?&quot;, are handled for you.
           </p>
         </div>
         <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">

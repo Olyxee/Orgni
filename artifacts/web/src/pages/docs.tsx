@@ -61,128 +61,42 @@ function CopyButton({
   );
 }
 
-const usableBy = [
-  "Operational workflows",
-  "Finance teams",
-  "Internal dashboards",
-  "External AI systems",
-  "Business applications",
-  "Automation tools",
-];
-
-const flow = [
-  {
-    title: "Business inputs",
-    desc: "You provide organisational evidence, spreadsheets, notes, voice, or connected systems.",
-  },
-  {
-    title: "Orgni reads and extracts context",
-    desc: "It continuously processes your sources and extracts the facts that matter.",
-  },
-  {
-    title: "Orgni builds a business map",
-    desc: "Roles, departments, rules, and relationships are structured into one model.",
-  },
-  {
-    title: "Orgni identifies workflows and finance logic",
-    desc: "Approvals, handovers, exceptions, and review trails are detected.",
-  },
-  {
-    title: "Orgni creates structured outputs",
-    desc: "Everything becomes machine-readable context with an evidence trail.",
-  },
-  {
-    title: "Tools and AI systems execute safely",
-    desc: "Your applications act on context they can trust.",
-  },
-];
-
 const quickstart = [
   {
     step: "Create an organization",
-    desc: "Set up the workspace that represents your business.",
+    desc: "The workspace that represents your business.",
   },
   {
-    step: "Submit business sources",
-    desc: "Add organisational evidence, spreadsheets, notes, or connect a system.",
+    step: "Submit sources",
+    desc: "Documents, spreadsheets, notes, or a connected system.",
   },
   {
-    step: "Review extracted context",
-    desc: "Check the roles, rules, and processes Orgni found.",
+    step: "Review what Orgni found",
+    desc: "Confirm the roles, rules, and workflows it extracted.",
   },
   {
-    step: "Confirm roles, rules, and workflows",
-    desc: "Verify the operating logic before it goes live.",
-  },
-  {
-    step: "Connect workflow or finance modules",
-    desc: "Turn on execution where you need it.",
-  },
-  {
-    step: "Use the API to retrieve context",
-    desc: "Pull structured context into your own systems.",
+    step: "Retrieve context via the API",
+    desc: "Pull structured, evidence-backed context into your systems.",
   },
 ];
 
 const concepts = [
-  { name: "Organization", desc: "The business or company using Orgni." },
+  { name: "Organization", desc: "The business using Orgni." },
   {
     name: "Sources",
-    desc: "Organisational evidence, spreadsheets, notes, voice, connected systems, and manual submissions.",
+    desc: "The raw inputs Orgni reads: documents, spreadsheets, notes, and connected systems.",
   },
   {
     name: "Business Context",
-    desc: "The structured understanding of how the business works.",
-  },
-  {
-    name: "Workflows",
-    desc: "Processes, approvals, handovers, tasks, escalations, and next actions.",
-  },
-  {
-    name: "Finance Context",
-    desc: "Statements, ledgers, invoices, matches, exceptions, and review trails.",
+    desc: "The structured model Orgni builds: roles, rules, workflows, and finance records.",
   },
   {
     name: "Evidence Trail",
-    desc: "A record showing where each extracted fact came from.",
-  },
-  {
-    name: "Confidence",
-    desc: "A score showing how reliable Orgni believes a fact is.",
+    desc: "Every extracted fact links back to its source, with a confidence score.",
   },
   {
     name: "Exceptions",
-    desc: "Items that need human review when Orgni can't fully verify them.",
-  },
-];
-
-const outputs = [
-  "Roles",
-  "Departments",
-  "Rules",
-  "Policies",
-  "Workflows",
-  "Approval paths",
-  "Finance records",
-  "Exceptions",
-];
-
-const useCases = [
-  {
-    tag: "Operations",
-    desc: "Submit operational evidence and Orgni identifies tasks, approvals, roles, and escalation paths.",
-  },
-  {
-    tag: "Finance",
-    desc: "Submit statements, ledgers, and invoices. Orgni helps identify matches, exceptions, and evidence.",
-  },
-  {
-    tag: "AI enablement",
-    desc: "Give AI systems reliable business context before they generate outputs or take action.",
-  },
-  {
-    tag: "Legacy businesses",
-    desc: "Help companies with old systems, spreadsheets, and manual processes become AI-ready.",
+    desc: "Items Orgni can't fully verify, flagged for human review.",
   },
 ];
 
@@ -430,11 +344,8 @@ const resources = [
 
 const sections = [
   { id: "introduction", label: "Introduction", group: "Get started" },
-  { id: "how-it-works", label: "How it works", group: "Get started" },
   { id: "quickstart", label: "Quickstart", group: "Get started" },
-  { id: "core-concepts", label: "Core concepts", group: "Concepts" },
-  { id: "structured-outputs", label: "Structured outputs", group: "Concepts" },
-  { id: "use-cases", label: "Use cases", group: "Concepts" },
+  { id: "core-concepts", label: "Core concepts", group: "Get started" },
   { id: "authentication", label: "Authentication", group: "API Basics" },
   { id: "errors", label: "Errors", group: "API Basics" },
   ...resources.map((r) => ({ id: r.id, label: r.title, group: r.group })),
@@ -543,68 +454,12 @@ export default function Docs() {
               <h1 className="text-4xl font-bold tracking-tight mb-5">
                 Introduction
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                Orgni helps businesses turn scattered information into
-                structured context that workflows, finance tools, and AI systems
-                can use. This reference covers both the core concepts of the
-                platform and the REST API to access it.
+              <p className="text-lg text-muted-foreground leading-relaxed mb-2">
+                Orgni reads your business sources (documents, spreadsheets,
+                notes, connected systems) and turns them into structured
+                context your tools and AI can query over a REST API. Every
+                answer links back to its source.
               </p>
-              <p className="text-[15px] text-muted-foreground leading-7 mb-5">
-                Orgni reads organisational evidence, workflows, roles, rules,
-                approvals, finance records, and operational explanations, then
-                makes that knowledge usable across your stack:
-              </p>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 mb-2">
-                {usableBy.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-center gap-2.5 text-[15px]"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {/* How it works */}
-            <section
-              id="how-it-works"
-              className="scroll-mt-24 border-t border-border mt-14 pt-12"
-            >
-              <h2 className="text-2xl font-bold tracking-tight mb-3">
-                How it works
-              </h2>
-              <p className="text-[15px] text-muted-foreground leading-7 mb-8">
-                Orgni moves your business knowledge from raw inputs to safe
-                execution in six stages.
-              </p>
-              <ol className="space-y-0">
-                {flow.map((f, i) => (
-                  <li
-                    key={f.title}
-                    className="flex gap-4 pb-8 last:pb-0 relative"
-                  >
-                    {i < flow.length - 1 && (
-                      <span
-                        className="absolute left-[15px] top-9 bottom-0 w-px bg-border"
-                        aria-hidden="true"
-                      />
-                    )}
-                    <span className="font-mono text-xs font-bold text-primary bg-primary/10 h-8 w-8 rounded-sm flex items-center justify-center shrink-0 z-10">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="pt-1">
-                      <h3 className="text-[15px] font-semibold mb-1">
-                        {f.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground leading-6">
-                        {f.desc}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
             </section>
 
             {/* Quickstart */}
@@ -616,8 +471,7 @@ export default function Docs() {
                 Quickstart
               </h2>
               <p className="text-[15px] text-muted-foreground leading-7 mb-8">
-                Get from a new workspace to structured context your systems can
-                read in six steps.
+                From new workspace to your first API response in four steps.
               </p>
               <ol className="space-y-5 mb-10">
                 {quickstart.map((s, i) => (
@@ -638,8 +492,7 @@ export default function Docs() {
               </ol>
 
               <p className="text-[15px] text-muted-foreground leading-7 mb-3">
-                Once context is built, retrieve it from your own systems with a
-                single request:
+                Then retrieve context with a single request:
               </p>
               <CodeBlock title="RETRIEVE CONTEXT">{`curl https://api.orgni.com/v1/business-map \\
   -H "Authorization: Bearer org_sk_live_..." \\
@@ -655,7 +508,7 @@ export default function Docs() {
                 Core concepts
               </h2>
               <p className="text-[15px] text-muted-foreground leading-7 mb-6">
-                A shared vocabulary for everything Orgni extracts and exposes.
+                Five terms cover everything in this API.
               </p>
               <dl className="divide-y divide-border border-t border-border">
                 {concepts.map((c) => (
@@ -672,59 +525,6 @@ export default function Docs() {
               </dl>
             </section>
 
-            {/* Structured outputs */}
-            <section
-              id="structured-outputs"
-              className="scroll-mt-24 border-t border-border mt-14 pt-12"
-            >
-              <h2 className="text-2xl font-bold tracking-tight mb-3">
-                Structured outputs
-              </h2>
-              <p className="text-[15px] text-muted-foreground leading-7 mb-6">
-                Everything Orgni learns is exposed as structured,
-                machine-readable output, each backed by an evidence trail and a
-                confidence score.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {outputs.map((o) => (
-                  <span
-                    key={o}
-                    className="font-mono text-xs bg-muted border border-border px-3 py-1.5 rounded-sm"
-                  >
-                    {o}
-                  </span>
-                ))}
-              </div>
-            </section>
-
-            {/* Use cases */}
-            <section
-              id="use-cases"
-              className="scroll-mt-24 border-t border-border mt-14 pt-12"
-            >
-              <h2 className="text-2xl font-bold tracking-tight mb-3">
-                Use cases
-              </h2>
-              <p className="text-[15px] text-muted-foreground leading-7 mb-6">
-                What teams build once their business context is structured.
-              </p>
-              <div className="space-y-4">
-                {useCases.map((u) => (
-                  <div
-                    key={u.tag}
-                    className="border border-border rounded-md p-5 bg-card"
-                  >
-                    <h3 className="font-mono text-xs font-bold uppercase tracking-wide text-primary mb-2">
-                      {u.tag}
-                    </h3>
-                    <p className="text-[15px] text-muted-foreground leading-6">
-                      {u.desc}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             {/* API: Authentication */}
             <section
               id="authentication"
@@ -733,13 +533,9 @@ export default function Docs() {
               <h2 className="text-2xl font-bold tracking-tight mb-3">
                 Authentication
               </h2>
-              <p className="text-[15px] text-muted-foreground leading-7 mb-2">
-                Authenticate every API request with a secret API key sent as a
-                bearer token. Keys are scoped to a single organization, and each
-                key carries explicit permission scopes.
-              </p>
               <p className="text-[15px] text-muted-foreground leading-7 mb-6">
-                Pass the target organization with the{" "}
+                Send your secret API key as a bearer token, and the target
+                organization in the{" "}
                 <span className="font-mono text-[13px] bg-muted px-1 py-0.5 rounded-sm">
                   X-Org-Id
                 </span>{" "}
@@ -775,12 +571,11 @@ export default function Docs() {
             >
               <h2 className="text-2xl font-bold tracking-tight mb-3">Errors</h2>
               <p className="text-[15px] text-muted-foreground leading-7 mb-6">
-                Orgni uses conventional HTTP status codes. Every error returns a
-                JSON body with a stable{" "}
+                Standard HTTP status codes, with a JSON body carrying a stable{" "}
                 <span className="font-mono text-[13px] bg-muted px-1 py-0.5 rounded-sm">
                   code
                 </span>{" "}
-                and a human-readable{" "}
+                and readable{" "}
                 <span className="font-mono text-[13px] bg-muted px-1 py-0.5 rounded-sm">
                   message
                 </span>

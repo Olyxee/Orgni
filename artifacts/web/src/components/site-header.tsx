@@ -8,11 +8,6 @@ import { LOGIN_URL } from "@/lib/links";
 
 const navItems = [
   {
-    title: "Use Cases",
-    href: "/use-cases",
-    match: ["/use-cases", "/infrastructure"],
-  },
-  {
     title: "Developers",
     href: "/developers",
     match: ["/developers", "/docs", "/api-reference", "/agents"],
