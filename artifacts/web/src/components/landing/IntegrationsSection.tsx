@@ -36,33 +36,60 @@ export function IntegrationsSection() {
           <div className="h-[2px] w-8 bg-primary"></div>
         </motion.div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-4">
+        {/* Orgni hub node */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center"
+        >
+          <div className="flex items-center gap-3 px-6 py-3 rounded-full border border-primary/30 bg-primary/5 shadow-sm">
+            <img
+              src={`${import.meta.env.BASE_URL}orgni-logo.png`}
+              alt="Orgni logo"
+              className="h-6 w-6 object-cover"
+            />
+            <span className="font-serif text-lg font-bold tracking-tight text-foreground">
+              Orgni
+            </span>
+          </div>
+          {/* Connector from hub down to the bus line */}
+          <div className="w-px h-10 bg-gradient-to-b from-primary/60 to-primary/25"></div>
+        </motion.div>
+
+        {/* Horizontal bus line the sources plug into */}
+        <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent mb-0"></div>
+
+        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-x-4 gap-y-4">
           {integrations.map((tool, i) => (
-            <motion.div
-              key={tool.name}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.03, duration: 0.3 }}
-              className="flex flex-col items-center justify-center p-6 gap-4 bg-secondary/10 rounded-md border border-border hover:border-primary/40 hover:bg-secondary/20 transition-all duration-300"
-              title={tool.name}
-            >
-              <img
-                src={`${import.meta.env.BASE_URL}integrations/${tool.file}`}
-                alt={`${tool.name} logo`}
-                className="h-8 w-8 object-contain grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                loading="lazy"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                  e.currentTarget.parentElement!.querySelector(
-                    "span",
-                  )!.style.opacity = "1";
-                }}
-              />
-              <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase opacity-70">
-                {tool.name}
-              </span>
-            </motion.div>
+            <div key={tool.name} className="flex flex-col items-center">
+              {/* Tick connecting each source card to the bus */}
+              <div className="w-px h-5 bg-primary/25"></div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.03, duration: 0.3 }}
+                className="w-full flex flex-col items-center justify-center p-6 gap-4 bg-secondary/10 rounded-md border border-border hover:border-primary/40 hover:bg-secondary/20 hover:shadow-sm transition-all duration-300"
+                title={tool.name}
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}integrations/${tool.file}`}
+                  alt={`${tool.name} logo`}
+                  className="h-8 w-8 object-contain"
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.parentElement!.querySelector(
+                      "span",
+                    )!.style.opacity = "1";
+                  }}
+                />
+                <span className="text-[10px] font-mono font-bold text-muted-foreground uppercase opacity-70">
+                  {tool.name}
+                </span>
+              </motion.div>
+            </div>
           ))}
         </div>
       </div>

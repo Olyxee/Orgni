@@ -1,19 +1,54 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { LOGIN_URL } from "@/lib/links";
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export function HeroSection() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   return (
-    <section className="relative pt-24 pb-16 md:pt-40 md:pb-32 px-6 md:px-12 max-w-[1600px] mx-auto overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <section className="relative pt-24 pb-16 md:pt-40 md:pb-32 px-6 md:px-12 overflow-hidden">
+      {/* Orange waves crossing through the background */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <svg
+          className="w-full h-full"
+          viewBox="0 0 1440 800"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          {/* Broad wave band sweeping through the middle */}
+          <path
+            d="M0 420 C 240 300, 480 540, 720 420 C 960 300, 1200 540, 1440 400 L 1440 560 C 1200 690, 960 460, 720 580 C 480 700, 240 470, 0 590 Z"
+            fill="hsl(var(--primary))"
+            opacity="0.05"
+          />
+          {/* Second offset band for depth */}
+          <path
+            d="M0 500 C 260 390, 520 610, 780 490 C 1040 375, 1240 590, 1440 480 L 1440 600 C 1240 700, 1040 500, 780 610 C 520 720, 260 520, 0 630 Z"
+            fill="hsl(var(--primary))"
+            opacity="0.07"
+          />
+          {/* Crisp wave lines crossing the whole hero */}
+          <path
+            d="M0 380 C 240 260, 480 500, 720 380 C 960 260, 1200 500, 1440 360"
+            stroke="hsl(var(--primary))"
+            strokeWidth="2.5"
+            opacity="0.35"
+          />
+          <path
+            d="M0 440 C 240 320, 480 560, 720 440 C 960 320, 1200 560, 1440 420"
+            stroke="hsl(var(--primary))"
+            strokeWidth="2"
+            opacity="0.22"
+          />
+          <path
+            d="M0 520 C 260 410, 520 630, 780 510 C 1040 395, 1240 610, 1440 500"
+            stroke="hsl(var(--primary))"
+            strokeWidth="1.5"
+            opacity="0.14"
+          />
+        </svg>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center max-w-[1600px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -27,17 +62,14 @@ export function HeroSection() {
             </p>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight text-foreground mb-8">
-            Build AI on top of how your organisation{" "}
-            <span className={`draw-underline ${mounted ? "active" : ""}`}>
-              actually works
-            </span>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-foreground mb-8">
+            Ask anything about your finances. Get one answer you can trust.
           </h1>
 
           <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mb-10 font-medium">
-            A live, evidence-backed model of your people, processes, systems,
-            policies and obligations: trusted context for teams, applications
-            and AI agents.
+            Orgni connects your contracts, invoices, payments and approvals
+            into one live picture of your operations — so your team and your
+            AI always know what&apos;s true, and where it came from.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -46,7 +78,7 @@ export function HeroSection() {
               size="lg"
               className="w-full sm:w-auto h-14 px-8 font-bold shadow-sm rounded-md text-base bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
-              <a href={LOGIN_URL}>Request a demonstration</a>
+              <a href={LOGIN_URL}>Request demo</a>
             </Button>
             <Button
               asChild
@@ -54,7 +86,7 @@ export function HeroSection() {
               size="lg"
               className="w-full sm:w-auto h-14 px-8 font-bold border-border text-foreground hover:bg-secondary rounded-md text-base transition-colors"
             >
-              <Link href="/use-cases">See how Orgni works</Link>
+              <a href={LOGIN_URL}>Join the waiting list</a>
             </Button>
           </div>
         </motion.div>

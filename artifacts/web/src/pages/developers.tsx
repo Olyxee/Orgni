@@ -29,6 +29,7 @@ function CopyButton({ text }: { text: string }) {
       }}
       className="text-white/40 hover:text-white transition-colors flex items-center justify-center w-6 h-6"
       title="Copy code"
+      aria-label="Copy code"
     >
       {copied ? (
         <Check size={14} className="text-green-400" />

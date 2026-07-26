@@ -4,17 +4,14 @@ import { motion } from "framer-motion";
 
 export function FinalCtaSection() {
   return (
-    <section className="relative py-32 md:py-48 px-6 md:px-12 bg-foreground text-background overflow-hidden border-t border-border">
-      {/* Subtle background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl aspect-[2/1] bg-primary/20 blur-[100px] rounded-[100%] pointer-events-none opacity-50"></div>
-
-      <div className="max-w-[1200px] mx-auto text-center relative z-10 flex flex-col items-center">
+    <section className="relative py-20 md:py-28 px-6 md:px-12 bg-background overflow-hidden border-t border-border">
+      <div className="max-w-[1200px] mx-auto text-center relative z-10 flex flex-col items-center bg-muted/60 border border-border rounded-2xl px-6 md:px-16 py-16 md:py-24 shadow-sm">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-5xl md:text-7xl lg:text-[6rem] font-bold leading-[1.05] tracking-tight mb-8"
+          className="text-5xl md:text-7xl lg:text-[6rem] font-bold leading-[1.05] tracking-tight mb-8 text-foreground"
         >
           Operate on <span className="text-primary">reality.</span>
         </motion.h2>
@@ -24,7 +21,7 @@ export function FinalCtaSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-xl md:text-2xl text-background/80 leading-relaxed font-medium max-w-2xl mb-12"
+          className="text-xl md:text-2xl text-muted-foreground leading-relaxed font-medium max-w-2xl mb-12"
         >
           Equip your teams and AI agents with a trusted, live model of your
           organisation.
@@ -48,7 +45,7 @@ export function FinalCtaSection() {
             asChild
             variant="outline"
             size="lg"
-            className="w-full sm:w-auto h-16 px-10 font-bold border-background/30 text-background hover:bg-background hover:text-foreground rounded-md text-lg transition-colors bg-transparent"
+            className="w-full sm:w-auto h-16 px-10 font-bold border-border text-foreground hover:bg-secondary rounded-md text-lg transition-colors bg-background"
           >
             <a href="mailto:hello@olyxee.com">Contact Sales</a>
           </Button>

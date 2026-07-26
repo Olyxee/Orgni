@@ -125,6 +125,19 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                   key={item.title}
                   className="relative h-full flex items-center"
                   onMouseEnter={() => setActiveDropdown(item.title)}
+                  onFocus={() =>
+                    item.dropdown
+                      ? setActiveDropdown(item.title)
+                      : setActiveDropdown(null)
+                  }
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setActiveDropdown(null);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setActiveDropdown(null);
+                  }}
                 >
                   {"external" in item && item.external ? (
                     <a
@@ -145,6 +158,8 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                           ? "text-foreground"
                           : "text-foreground/70 hover:text-foreground"
                       }`}
+                      aria-expanded={item.dropdown ? isHovered : undefined}
+                      aria-haspopup={item.dropdown ? "menu" : undefined}
                     >
                       {item.title}
                       {item.dropdown && (
