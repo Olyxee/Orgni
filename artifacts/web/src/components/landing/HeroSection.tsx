@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { LOGIN_URL } from "@/lib/links";
 import { motion } from "framer-motion";
+import { Calculator } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -19,32 +20,77 @@ export function HeroSection() {
             d="M0 420 C 240 300, 480 540, 720 420 C 960 300, 1200 540, 1440 400 L 1440 560 C 1200 690, 960 460, 720 580 C 480 700, 240 470, 0 590 Z"
             fill="hsl(var(--primary))"
             opacity="0.05"
-          />
+          >
+            <animate
+              attributeName="d"
+              dur="12s"
+              repeatCount="indefinite"
+              values="M0 420 C 240 300, 480 540, 720 420 C 960 300, 1200 540, 1440 400 L 1440 560 C 1200 690, 960 460, 720 580 C 480 700, 240 470, 0 590 Z;
+                      M0 460 C 240 350, 480 480, 720 380 C 960 290, 1200 580, 1440 440 L 1440 600 C 1200 640, 960 510, 720 610 C 480 660, 240 520, 0 550 Z;
+                      M0 420 C 240 300, 480 540, 720 420 C 960 300, 1200 540, 1440 400 L 1440 560 C 1200 690, 960 460, 720 580 C 480 700, 240 470, 0 590 Z"
+            />
+          </path>
           {/* Second offset band for depth */}
           <path
             d="M0 500 C 260 390, 520 610, 780 490 C 1040 375, 1240 590, 1440 480 L 1440 600 C 1240 700, 1040 500, 780 610 C 520 720, 260 520, 0 630 Z"
             fill="hsl(var(--primary))"
             opacity="0.07"
-          />
+          >
+            <animate
+              attributeName="d"
+              dur="15s"
+              repeatCount="indefinite"
+              values="M0 500 C 260 390, 520 610, 780 490 C 1040 375, 1240 590, 1440 480 L 1440 600 C 1240 700, 1040 500, 780 610 C 520 720, 260 520, 0 630 Z;
+                      M0 540 C 260 450, 520 550, 780 450 C 1040 360, 1240 630, 1440 520 L 1440 640 C 1240 660, 1040 560, 780 650 C 520 690, 260 580, 0 590 Z;
+                      M0 500 C 260 390, 520 610, 780 490 C 1040 375, 1240 590, 1440 480 L 1440 600 C 1240 700, 1040 500, 780 610 C 520 720, 260 520, 0 630 Z"
+            />
+          </path>
           {/* Crisp wave lines crossing the whole hero */}
           <path
             d="M0 380 C 240 260, 480 500, 720 380 C 960 260, 1200 500, 1440 360"
             stroke="hsl(var(--primary))"
             strokeWidth="2.5"
             opacity="0.35"
-          />
+          >
+            <animate
+              attributeName="d"
+              dur="10s"
+              repeatCount="indefinite"
+              values="M0 380 C 240 260, 480 500, 720 380 C 960 260, 1200 500, 1440 360;
+                      M0 340 C 240 320, 480 420, 720 420 C 960 320, 1200 440, 1440 400;
+                      M0 380 C 240 260, 480 500, 720 380 C 960 260, 1200 500, 1440 360"
+            />
+          </path>
           <path
             d="M0 440 C 240 320, 480 560, 720 440 C 960 320, 1200 560, 1440 420"
             stroke="hsl(var(--primary))"
             strokeWidth="2"
             opacity="0.22"
-          />
+          >
+            <animate
+              attributeName="d"
+              dur="13s"
+              repeatCount="indefinite"
+              values="M0 440 C 240 320, 480 560, 720 440 C 960 320, 1200 560, 1440 420;
+                      M0 480 C 240 380, 480 480, 720 480 C 960 400, 1200 500, 1440 460;
+                      M0 440 C 240 320, 480 560, 720 440 C 960 320, 1200 560, 1440 420"
+            />
+          </path>
           <path
             d="M0 520 C 260 410, 520 630, 780 510 C 1040 395, 1240 610, 1440 500"
             stroke="hsl(var(--primary))"
             strokeWidth="1.5"
             opacity="0.14"
-          />
+          >
+            <animate
+              attributeName="d"
+              dur="17s"
+              repeatCount="indefinite"
+              values="M0 520 C 260 410, 520 630, 780 510 C 1040 395, 1240 610, 1440 500;
+                      M0 560 C 260 470, 520 560, 780 560 C 1040 460, 1240 560, 1440 540;
+                      M0 520 C 260 410, 520 630, 780 510 C 1040 395, 1240 610, 1440 500"
+            />
+          </path>
         </svg>
       </div>
 
@@ -56,7 +102,15 @@ export function HeroSection() {
           className="lg:col-span-7 relative z-10"
         >
           <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.05] tracking-tight text-foreground mb-8">
-            Ask anything about your finances. Get one answer you can trust.
+            Ask anything about your{" "}
+            <span className="text-emerald-600 whitespace-nowrap">
+              finances
+              <Calculator
+                className="inline-block ml-2 md:ml-3 h-8 w-8 md:h-12 md:w-12 lg:h-14 lg:w-14 align-baseline -translate-y-1"
+                aria-hidden="true"
+              />
+            </span>
+            . Get one answer you can trust.
           </h1>
 
           <p className="text-lg md:text-xl text-foreground/80 leading-relaxed max-w-2xl mb-10 font-medium">
