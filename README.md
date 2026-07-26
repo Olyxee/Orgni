@@ -46,6 +46,26 @@ The platform is divided into two main parts:
 
 Both parts use one canonical organizational contract.
 
+## Where each part runs
+
+Two halves, two clouds. The **frontend deploys to Vercel**; the **backend deploys
+to Azure**. Nothing else moves between them except the API URL.
+
+| Part | Path | What it is | Deploys to |
+|------|------|-----------|------------|
+| Marketing site + console | `apps/web` | React + Vite SPA | **Vercel** (`vercel.json`) |
+| API | `apps/api` | Express — the only public backend entry point | **Azure** Container Apps (`orgni-api`) |
+| Worker | `apps/worker` | Pipeline orchestration (runs the tokenizer) | **Azure** Container Apps (`orgni-worker`) |
+| Document Intelligence | `intelligence/document-intelligence` | Python — OCR, classification, extraction | **Azure** Container Apps (internal) |
+| Ontology | `intelligence/organizational-ontology` | Python — tokens → validated facts | **Azure** Container Apps (internal) |
+| Tokenizer | `intelligence/organizational-tokenizer` | TypeScript **library** — bundled into the worker/API, not its own service | ships inside **Azure** worker/API |
+| Postgres + Redis | — | Managed data stores | **Azure** (Flexible Server + Cache) |
+
+* **Frontend → Vercel:** builds `apps/web`, set `VITE_API_URL` to the API's URL.
+  See [`docs/deployment/vercel.md`](docs/deployment/vercel.md).
+* **Backend → Azure:** one command or one click provisions all four services
+  plus Postgres and Redis. See [`infrastructure/azure/README.md`](infrastructure/azure/README.md).
+
 ## Repository structure
 
 ```text

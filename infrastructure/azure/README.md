@@ -20,6 +20,12 @@ What gets deployed:
 Plus **Azure Database for PostgreSQL** (Flexible Server) and **Azure Cache for
 Redis**, and an **Azure Container Registry** for the images.
 
+> **Where's the tokenizer?** The organizational **tokenizer**
+> (`intelligence/organizational-tokenizer`) is a TypeScript *library*, not its
+> own service — it's bundled into `orgni-worker` (and the API), which run the
+> pipeline `document-intelligence → tokenizer → ontology`. So the deployable
+> Azure units are exactly the four above; the tokenizer ships inside them.
+
 This is a **self-contained backend** — the four services above deploy and scale
 as one group, independent of the frontend. `orgni-api` is the only public entry
 point; the two Python services are internal-only (reachable by the API inside
