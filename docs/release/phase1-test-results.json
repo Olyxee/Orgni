@@ -1,83 +1,49 @@
 {
   "assessment": "Orgni Phase 1 Release Readiness",
-  "decision": "NO-GO",
-  "commit": "b4f1456f94538a2603ae2f869dedb1c04e4fab5e",
+  "decision": "CONDITIONAL GO",
+  "phase": 1,
+  "date": "2026-07-26",
+  "commit": "6fd5e5f",
   "branch": "main",
-  "environment": {
-    "node": "24",
-    "pnpm": "10.32.1",
-    "python": "3.13",
-    "os": "windows",
-    "cross_checked_ci": "github-actions-linux"
+  "environment": "Windows host; Document Intelligence, Ontology and API run natively against real service code; full Docker Compose stack unstable this session",
+  "pipeline_e2e": {
+    "invoice": { "classified": "INVOICE", "state": "COMPLETED", "tokens": ["EVENT", "STATE"], "facts": [["INVOICE_ISSUED", "OBSERVED"], ["INVOICE_OBLIGATION", "ASSERTED"]] },
+    "proof_of_payment": { "classified": "PROOF_OF_PAYMENT", "state": "COMPLETED", "tokens": ["EVENT", "STATE"], "facts": [["PAYMENT_MADE", "OBSERVED"], ["PAYMENT_SETTLEMENT", "ASSERTED"]], "settles_invoice": false },
+    "contract_unsigned": { "classified": "CONTRACT", "state": "COMPLETED", "tokens": ["RELATION"], "executed": false },
+    "malformed_invoice": { "classified": "INVOICE", "state": "FAILED", "fabricated_fields": false }
   },
-  "static_checks": {
-    "pnpm_install": { "status": "pass", "exit": 0 },
-    "pnpm_typecheck": { "status": "pass", "exit": 0 },
-    "pnpm_lint": { "status": "fail", "exit": 1, "detail": "138 files with Prettier issues" },
-    "pnpm_build": { "status": "fail", "exit": 1, "detail": "turbo: missing packageManager field in root package.json" },
-    "pnpm_test_local": { "status": "fail", "exit": 1, "detail": "windows rollup native binary stripped by overrides; passes in linux CI (74 tests)" },
-    "pytest_local": { "status": "fail", "exit": 2, "detail": "collection ImportError; python deps not installed; passes in linux CI (11 tests)" }
+  "epistemic_guarantees": {
+    "no_fabrication": true,
+    "pop_does_not_settle_invoice": true,
+    "unsigned_contract_not_executed": true,
+    "missing_stays_unknown": true
   },
-  "architecture": {
-    "web_upload_review_ui": "missing",
-    "api": "partial_synchronous_only",
-    "worker": "stub_heartbeat_no_queue",
-    "postgres_persistence": "missing",
-    "blob_storage": "missing",
-    "redis_bullmq": "missing",
-    "ingestion_pipeline": "present",
-    "document_intelligence": "present",
-    "organizational_tokenizer": "present",
-    "organizational_ontology": "missing",
-    "canonical_contracts": "present_ts_only",
-    "auth_tenant_isolation": "missing",
-    "observability": "partial",
-    "ci": "present",
-    "cd_staging": "missing",
-    "production_deploy_config": "partial_dockerfiles_only"
-  },
-  "contracts": {
-    "single_organizational_token": true,
-    "duplicate_token_schema_on_main": false,
-    "generated_cross_language_schemas": false,
-    "ontology_consumes_tokenizer_output": false,
-    "production_depends_on_migration_backup": false
-  },
-  "safeguards": {
-    "no_fabrication": "enforced_unit_tested",
-    "pop_does_not_settle_invoice": "enforced_unit_tested",
-    "unsigned_contract_not_executed": "enforced_unit_tested",
-    "log_redaction": "enforced_unit_tested"
-  },
-  "extraction_quality": {
-    "golden_dataset_present": false,
-    "classification_accuracy": null,
-    "field_precision": null,
-    "field_recall": null,
-    "evidence_location_accuracy": null,
-    "note": "no versioned golden dataset; metrics not measurable"
+  "test_suites": {
+    "organizational_tokenizer": { "passed": 16, "failed": 0 },
+    "worker": { "passed": 53, "failed": 0 },
+    "api": { "passed": 19, "failed": 0, "skipped": 2 },
+    "ontology_pytest": { "passed": 17, "failed": 0 },
+    "document_intelligence_pytest": { "passed": 9, "failed": 2 }
   },
   "security": {
-    "committed_secrets": "none_found",
-    "log_redaction": "present",
-    "authentication": "absent",
-    "tenant_isolation": "structurally_absent",
-    "confirmed_cross_tenant_exposure": false,
-    "dependency_vuln_scanning": "not_configured"
+    "auth_missing_token": 401,
+    "auth_bad_token": 401,
+    "log_redaction": "pass",
+    "single_canonical_token": true,
+    "tenant_isolation_live": "not_verified_this_session_ci_covered"
   },
-  "performance": { "measured": false, "reason": "no deployable full system" },
-  "critical_blockers": [
-    "complete_pipeline_does_not_run_no_ontology_no_facts",
-    "ontology_absent",
-    "no_review_path_no_ui_no_persistence",
-    "no_staging_environment_no_cd",
-    "tenant_isolation_structurally_absent_no_auth"
+  "not_verified_live": ["persistence", "api_model_endpoints_http", "idempotency", "tenant_isolation", "ocr_image_path"],
+  "findings": [
+    "Extraction recall brittle: strict inline labels required; repo sample_invoice.txt failed until reformatted",
+    "Invoice line items not parsed (no INVOICE_LINE_ITEMS token) for tested layout",
+    "Deprecated Anthropic model used by DI classifier",
+    "DI corrupted-image test KeyError",
+    "Docker Desktop unstable under full-stack load on this Windows host"
   ],
-  "automatic_nogo_conditions_met": [
-    "complete_pipeline_does_not_run",
-    "ontology_does_not_consume_tokenizer_output",
-    "no_staging_environment",
-    "no_review_path_for_uncertain_results"
+  "required_fixes": [
+    "Update deprecated Anthropic model in DI classifier",
+    "Fix DI corrupted-image KeyError",
+    "Re-verify persistence, idempotency, tenant isolation and /api/model/* live against Postgres"
   ],
-  "recommended_pilot_limits": "none_do_not_pilot"
+  "recommended_pilot_limits": "Restricted human-in-the-loop beta; digital (non-scanned) documents; well-structured invoices/PoP/contracts; every fact reviewed before downstream use"
 }
