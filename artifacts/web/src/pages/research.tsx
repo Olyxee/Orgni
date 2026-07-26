@@ -44,6 +44,31 @@ export default function Research() {
     description:
       "Why we build Orgni: our vision, our mission, the questions we study, and the research behind organisational intelligence infrastructure.",
     path: "/research",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Orgni Research",
+      description:
+        "Our vision, mission, research themes and the research paper behind Orgni's organisational intelligence infrastructure.",
+      url: "https://orgni.com/research",
+      isPartOf: { "@type": "WebSite", name: "Orgni", url: "https://orgni.com" },
+      publisher: {
+        "@type": "Organization",
+        name: "Olyxee",
+        url: "https://www.olyxee.com",
+      },
+      mainEntity: {
+        "@type": "ScholarlyArticle",
+        headline: thesisData.title,
+        description: thesisData.subtitle,
+        url: "https://orgni.com/thesis",
+        author: authors.map((a) => ({
+          "@type": "Person",
+          name: a.name,
+          jobTitle: a.role,
+        })),
+      },
+    },
   });
 
   return (
