@@ -211,13 +211,22 @@ _CURRENCY_SYMBOLS = {
     "R": "ZAR", "$": "USD", "€": "EUR", "£": "GBP", "¥": "JPY",
 }
 
+# ISO-4217 codes we accept. A 3-letter uppercase token that is not in this set
+# (e.g. "DUE", "TAX", "SUB", "VAT") is NOT a currency and must be rejected —
+# accepting it would assert a false currency fact.
+_CURRENCY_CODES = {
+    "ZAR", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "CNY", "INR",
+    "NGN", "KES", "GHS", "BWP", "NAD", "ZMW", "MUR", "AED", "SAR", "SGD",
+    "HKD", "NZD", "SEK", "NOK", "DKK", "BRL", "MXN", "TRY", "RUB",
+}
+
 
 def normalise_currency(raw: str) -> str | None:
-    """Normalize a currency symbol or code to an ISO-4217 code."""
+    """Normalize a currency symbol or code to an ISO-4217 code, or None."""
     token = raw.strip().upper()
     if token in _CURRENCY_SYMBOLS:
         return _CURRENCY_SYMBOLS[token]
-    if re.fullmatch(r"[A-Z]{3}", token):
+    if token in _CURRENCY_CODES:
         return token
     symbol = raw.strip()
     return _CURRENCY_SYMBOLS.get(symbol)

@@ -106,6 +106,47 @@ def _line_items(text: str, pages: list[dict]) -> list[dict[str, Field]]:
     return items
 
 
+# Lines that are document headings, not entity names — never used as a vendor.
+_HEADING_RE = re.compile(
+    r"^(?:tax\s+)?invoice$|^statement$|^proof\s+of\s+payment$|^receipt$|"
+    r"^remittance(?:\s+advice)?$|^credit\s+note$",
+    re.IGNORECASE,
+)
+# A letterhead line should look like an organisation name.
+_ENTITY_HINT_RE = re.compile(
+    r"\((?:Pty|Proprietary)\)|(?:\bLtd\b|\bCC\b|\bInc\b|\bLLC\b|\bLimited\b|\bPLC\b)",
+    re.IGNORECASE,
+)
+
+
+def _letterhead_vendor(text: str, pages: list[dict]) -> Field | None:
+    """
+    When no explicit vendor label exists, treat the letterhead (the first
+    entity-looking line, e.g. `ABC Logistics (Pty) Ltd`) as a low-confidence
+    vendor candidate. Skips document-type headings. Always paired with a warning
+    by the caller so nothing is asserted silently.
+    """
+    offset = 0
+    for line in text.split("\n"):
+        stripped = line.strip()
+        start = text.find(stripped, offset) if stripped else offset
+        offset = start + len(stripped)
+        if not stripped or _HEADING_RE.match(stripped):
+            continue
+        if len(stripped) < 2 or len(stripped) > 80:
+            continue
+        if not _ENTITY_HINT_RE.search(stripped):
+            # Only infer when the line clearly names a company, to avoid picking
+            # up addresses or free text.
+            continue
+        return Field(
+            value=stripped, confidence=0.55, method=RULE_MATCH,
+            page=page_for_offset(pages, start), section="parties",
+            raw=stripped, span=(start, start + len(stripped)),
+        )
+    return None
+
+
 def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
     out = ExtractionOutcome()
 
@@ -129,11 +170,25 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
         pages, confidence=0.88, section="header", transform=normalise_date,
     ))
 
-    out.add("vendorName", find(
+    # Vendor: try an explicit label (value on the same line OR the next line);
+    # fall back to the letterhead (first entity-looking line) with a warning so
+    # the inference is flagged for review rather than asserted silently.
+    vendor = find(
         text,
-        [r"\b(?:from|supplier|vendor|issued\s+by)[^\S\n]*[:\-][^\S\n]*([^\n]{2,80})"],
+        [
+            r"\b(?:from|supplier|vendor|issued\s+by)[^\S\n]*[:\-][^\S\n]*([^\n]{2,80})",
+            r"\b(?:from|supplier|vendor|issued\s+by)[^\S\n]*[:\-]?[^\S\n]*\n[^\S\n]*([^\n]{2,80})",
+        ],
         pages, confidence=0.8, section="parties",
-    ))
+    )
+    if vendor is None:
+        vendor = _letterhead_vendor(text, pages)
+        if vendor is not None:
+            out.warnings.append(
+                "vendor_name_inferred_from_letterhead: no explicit vendor label; "
+                "used the document letterhead - verify before use"
+            )
+    out.add("vendorName", vendor)
     out.add("vendorVatNumber", find(
         text,
         [r"\bvat\s*(?:no\.?|number|reg)?[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9]{8,15})"],
@@ -141,7 +196,10 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
     ))
     out.add("buyerName", find(
         text,
-        [r"\b(?:bill\s+to|customer|client|sold\s+to)[^\S\n]*[:\-][^\S\n]*([^\n]{2,80})"],
+        [
+            r"\b(?:bill\s+to|customer|client|sold\s+to)[^\S\n]*[:\-][^\S\n]*([^\n]{2,80})",
+            r"\b(?:bill\s+to|customer|client|sold\s+to)[^\S\n]*[:\-]?[^\S\n]*\n[^\S\n]*([^\n]{2,80})",
+        ],
         pages, confidence=0.8, section="parties",
     ))
 
