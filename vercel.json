@@ -3,5 +3,18 @@
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter @workspace/web run build",
   "outputDirectory": "apps/web/dist/public",
-  "rewrites": [{ "source": "/:path*", "destination": "/index.html" }]
+  "routes": [
+    {
+      "src": "/agents/?",
+      "status": 308,
+      "headers": { "Location": "/developers" }
+    },
+    {
+      "src": "/api-reference/?",
+      "status": 308,
+      "headers": { "Location": "/docs" }
+    },
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
 }

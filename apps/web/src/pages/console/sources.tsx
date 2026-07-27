@@ -64,8 +64,8 @@ export default function Sources({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="w-full sm:w-auto">
           {!embedded && (
             <>
               <h1 className="text-2xl font-semibold tracking-tight mb-2">
@@ -86,7 +86,11 @@ export default function Sources({ embedded = false }: { embedded?: boolean }) {
             className="hidden"
             accept=".pdf,.docx,.xlsx,.pptx,.rtf,.txt,.md,.csv,.tsv,.json,.xml,.html,.htm,.png,.jpg,.jpeg"
           />
-          <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
+          <Button
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="w-full sm:w-auto"
+          >
             {uploading ? (
               `Processing ${uploadProgress?.current ?? 0}/${uploadProgress?.total ?? 0}`
             ) : (
@@ -96,7 +100,7 @@ export default function Sources({ embedded = false }: { embedded?: boolean }) {
               </>
             )}
           </Button>
-          <p className="mt-2 text-right text-xs text-muted-foreground">
+          <p className="mt-2 text-left text-xs text-muted-foreground sm:text-right">
             Select one or multiple PDF, Office, text, data, or image files
           </p>
         </div>
@@ -130,16 +134,16 @@ export default function Sources({ embedded = false }: { embedded?: boolean }) {
         <div className="rounded-lg border border-border divide-y divide-border bg-card">
           {sources.map((s) => (
             <Link key={s.sourceId} href={`/app/sources/${s.sourceId}`}>
-              <div className="px-4 py-4 flex items-center justify-between text-sm hover:bg-muted/30 transition-colors cursor-pointer group">
-                <div>
-                  <div className="font-medium group-hover:text-primary transition-colors">
+              <div className="group flex cursor-pointer flex-col gap-3 px-4 py-4 text-sm transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="break-words font-medium transition-colors group-hover:text-primary">
                     {s.filename}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1 font-mono">
                     {new Date(s.uploadedAt).toLocaleString()}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
                   <Badge
                     variant="secondary"
                     className="font-mono text-xs font-normal"

@@ -18,6 +18,7 @@ export default function Research() {
     description:
       "Research on organisational intelligence, verified context, and reliable infrastructure for AI systems.",
     path: "/research",
+    type: "article",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "WebPage",

@@ -187,14 +187,14 @@ export function FactCard({
 
       {/* Value / extra readable fields */}
       {(valueRows.length > 0 || extra.length > 0 || validFrom != null) && (
-        <dl className="mt-3 grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 text-sm">
+        <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-[auto,1fr] sm:gap-y-1">
           {valueRows.map(([k, v]) => (
             <FieldRow key={k} label={humanizeType(k)} value={v} />
           ))}
           {validFrom != null && (
             <>
               <dt className="text-muted-foreground">Valid from</dt>
-              <dd>{String(validFrom)}</dd>
+              <dd className="break-words">{String(validFrom)}</dd>
             </>
           )}
           {extra.map(([k, v]) => (
@@ -205,11 +205,11 @@ export function FactCard({
 
       {/* Meta row: confidence %, source, evidence */}
       <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5">
+        <span className="inline-flex min-w-0 flex-wrap items-center gap-1.5">
           <FileText className="w-3 h-3 shrink-0" />
           <Link
             href={`/app/sources/${source.sourceId}`}
-            className="hover:underline truncate max-w-[220px]"
+            className="max-w-[180px] truncate hover:underline sm:max-w-[220px]"
           >
             {source.filename}
           </Link>
@@ -218,7 +218,7 @@ export function FactCard({
           )}
           {reviewState && <span>· {reviewState}</span>}
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex w-full flex-wrap items-center gap-1 sm:w-auto">
           <Button
             asChild
             size="sm"
@@ -284,7 +284,7 @@ function FieldRow({ label, value }: { label: string; value: unknown }) {
   return (
     <>
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="break-words">
+      <dd className="min-w-0 break-words">
         {typeof value === "object" ? JSON.stringify(value) : String(value)}
       </dd>
     </>

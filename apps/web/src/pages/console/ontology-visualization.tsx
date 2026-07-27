@@ -287,7 +287,7 @@ export default function OntologyVisualization() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
-        <div className="h-[620px] overflow-hidden rounded-md border border-border bg-white">
+        <div className="h-[460px] overflow-hidden rounded-md border border-border bg-white sm:h-[560px] xl:h-[620px]">
           <ReactFlow
             nodes={graph.nodes}
             edges={graph.edges}
@@ -322,7 +322,7 @@ export default function OntologyVisualization() {
           </ReactFlow>
         </div>
 
-        <aside className="rounded-md border border-border bg-card p-4">
+        <aside className="min-h-36 rounded-md border border-border bg-card p-4 xl:min-h-0">
           {selected ? (
             <>
               <p className="text-xs font-medium uppercase text-muted-foreground">

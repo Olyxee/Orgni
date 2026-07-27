@@ -108,7 +108,7 @@ export function SectionTabs({
   return (
     <nav
       aria-label="Section views"
-      className="flex overflow-x-auto border-b border-border"
+      className="-mx-4 flex overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0"
     >
       {tabs.map((tab) =>
         tab.disabled ? (
@@ -116,7 +116,7 @@ export function SectionTabs({
             key={tab.href}
             aria-disabled="true"
             title="Not available yet"
-            className="shrink-0 cursor-not-allowed border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground/45"
+            className="shrink-0 cursor-not-allowed border-b-2 border-transparent px-3 py-3 text-sm font-medium text-muted-foreground/45 sm:px-4"
           >
             {tab.label}
           </span>
@@ -124,7 +124,7 @@ export function SectionTabs({
           <Link
             key={tab.href}
             href={tab.href}
-            className={`shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+            className={`shrink-0 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:px-4 ${
               location === tab.href
                 ? "border-primary text-foreground"
                 : "border-transparent text-muted-foreground hover:text-foreground"

@@ -46,7 +46,7 @@ export default function Activity({ embedded = false }: { embedded?: boolean }) {
               </div>
 
               {e.type === "SOURCE_PROCESSED" ? (
-                <div className="p-4 border border-border rounded-lg bg-card mt-2 inline-block min-w-[300px]">
+                <div className="mt-2 inline-block w-full min-w-0 rounded-lg border border-border bg-card p-4 sm:w-auto sm:min-w-[300px]">
                   <div className="flex items-center gap-2 text-sm font-medium mb-2 border-b border-border/50 pb-2">
                     <FileText className="w-4 h-4 text-muted-foreground" />
                     Source Processed
@@ -64,7 +64,7 @@ export default function Activity({ embedded = false }: { embedded?: boolean }) {
                   </div>
                 </div>
               ) : (
-                <div className="p-4 border border-border rounded-lg bg-card mt-2 inline-block min-w-[300px]">
+                <div className="mt-2 inline-block w-full min-w-0 rounded-lg border border-border bg-card p-4 sm:w-auto sm:min-w-[300px]">
                   <div className="flex items-center gap-2 text-sm font-medium mb-2 border-b border-border/50 pb-2">
                     <Edit3 className="w-4 h-4 text-muted-foreground" />
                     Human Review

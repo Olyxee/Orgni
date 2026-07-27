@@ -170,6 +170,7 @@ export default function Thesis() {
     title: `${thesisData.title} - Olyxee`,
     description: thesisData.subtitle,
     path: "/thesis",
+    type: "article",
     jsonLd: {
       "@context": "https://schema.org",
       "@type": "ScholarlyArticle",

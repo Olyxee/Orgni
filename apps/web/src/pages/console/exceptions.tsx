@@ -64,7 +64,7 @@ export default function Exceptions({
                     key={s.sourceId}
                     className="p-4 border border-destructive/20 bg-destructive/5 rounded-lg"
                   >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                       <Link
                         href={`/app/sources/${s.sourceId}`}
                         className="font-medium text-destructive hover:underline"
@@ -126,14 +126,14 @@ export default function Exceptions({
                 {data.rejected.map((r, i) => (
                   <div
                     key={i}
-                    className="p-4 border border-border rounded-lg bg-card flex justify-between items-start gap-4"
+                    className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                   >
                     <p className="text-sm text-foreground/80 leading-relaxed">
                       {r.reason}
                     </p>
                     <Link
                       href={`/app/sources/${r.source.sourceId}`}
-                      className="text-xs text-muted-foreground shrink-0 hover:underline flex items-center gap-1 mt-1"
+                      className="mt-1 flex min-w-0 items-center gap-1 text-xs text-muted-foreground hover:underline sm:shrink-0"
                     >
                       <FileText className="w-3 h-3" />{" "}
                       <span className="truncate max-w-[150px]">
@@ -155,12 +155,12 @@ export default function Exceptions({
                 {data.warnings.map((w, i) => (
                   <div
                     key={i}
-                    className="p-3 flex justify-between items-center border-b border-border/50 last:border-0 text-sm"
+                    className="flex flex-col items-start gap-2 border-b border-border/50 p-3 text-sm last:border-0 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <span className="text-muted-foreground">{w.warning}</span>
                     <Link
                       href={`/app/sources/${w.source.sourceId}`}
-                      className="text-xs shrink-0 hover:underline flex items-center gap-1 ml-4"
+                      className="flex min-w-0 items-center gap-1 text-xs hover:underline sm:ml-4 sm:shrink-0"
                     >
                       <FileText className="w-3 h-3" />{" "}
                       <span className="truncate max-w-[150px]">

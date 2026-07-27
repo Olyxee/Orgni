@@ -37,7 +37,7 @@ export default function Overview() {
         title="Infrastructure Home"
         description="A concise view of whether organisational context is flowing and where technical attention is required."
       />
-      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">
         <div>
           <div className="text-sm font-medium">Orgni infrastructure</div>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -58,7 +58,7 @@ export default function Overview() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-semibold leading-tight">
+                <div className="break-words text-xl font-semibold leading-tight">
                   {value}
                 </div>
               </CardContent>

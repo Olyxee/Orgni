@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Redirect, Route, Switch, Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
+import { useSeo } from "@/hooks/use-seo";
 import {
   Braces,
   Database,
@@ -20,22 +21,30 @@ import EntityDetail from "./console/entity-detail";
 import Settings from "./console/settings";
 
 const nav = [
-  { name: "Home", href: "/app", icon: Home, exact: true },
-  { name: "Connections", href: "/app/connections", icon: Plug },
+  { name: "Home", mobileName: "Home", href: "/app", icon: Home, exact: true },
+  {
+    name: "Connections",
+    mobileName: "Connect",
+    href: "/app/connections",
+    icon: Plug,
+  },
   {
     name: "Context Model",
+    mobileName: "Context",
     href: "/app/context-model/visualization",
     match: "/app/context-model",
     icon: Database,
   },
   {
     name: "Data Quality",
+    mobileName: "Quality",
     href: "/app/data-quality/issues",
     match: "/app/data-quality",
     icon: ShieldCheck,
   },
   {
     name: "Developer",
+    mobileName: "Dev",
     href: "/app/developer",
     match: "/app/developer",
     icon: Braces,
@@ -56,14 +65,16 @@ function NavLink({
   return (
     <Link
       href={item.href}
-      className={`${mobile ? "shrink-0" : ""} flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+      className={`${mobile ? "min-w-0 flex-1 flex-col justify-center gap-1 px-1 py-2 text-[11px]" : "gap-3 px-3 py-2 text-sm"} flex items-center rounded-md font-medium transition-colors ${
         active
           ? "bg-accent/50 text-foreground"
           : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
       }`}
     >
-      <item.icon className="size-4" />
-      {item.name}
+      <item.icon className={mobile ? "size-[18px]" : "size-4"} />
+      <span className={mobile ? "w-full truncate text-center" : ""}>
+        {mobile ? item.mobileName : item.name}
+      </span>
     </Link>
   );
 }
@@ -90,6 +101,12 @@ function Sidebar() {
 }
 
 export default function Console() {
+  useSeo({
+    title: "Orgni Console",
+    description: "Private Orgni organisational intelligence workspace.",
+    path: "/app",
+    robots: "noindex, nofollow, noarchive",
+  });
   const { session } = useAuth();
   const [, navigate] = useLocation();
   useEffect(() => {
@@ -100,7 +117,7 @@ export default function Console() {
   return (
     <div className="orgni-console flex min-h-[100dvh] flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4">
           <Link href="/app">
             <div className="text-base font-semibold tracking-tight">
               Orgni Console
@@ -109,21 +126,20 @@ export default function Console() {
               Operational intelligence infrastructure
             </div>
           </Link>
-          <div className="text-sm font-medium text-muted-foreground">
-            {session.organization}
-          </div>
+          <Link
+            href="/app/settings"
+            className="flex min-w-0 items-center gap-2 truncate text-right text-sm font-medium text-muted-foreground hover:text-foreground"
+            aria-label="Open workspace settings"
+          >
+            <span className="max-w-36 truncate sm:max-w-64">
+              {session.organization}
+            </span>
+            <SettingsIcon className="size-4 shrink-0 md:hidden" />
+          </Link>
         </div>
-        <nav
-          className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-3 pb-2 md:hidden"
-          aria-label="Console navigation"
-        >
-          {nav.map((item) => (
-            <NavLink key={item.name} item={item} mobile />
-          ))}
-        </nav>
       </header>
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 py-6 pb-24 sm:py-8 sm:pb-24 md:pb-8">
         <div className="hidden md:block">
           <Sidebar />
         </div>
@@ -180,6 +196,15 @@ export default function Console() {
           </Switch>
         </main>
       </div>
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-20 flex gap-1 border-t border-border bg-background/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur md:hidden"
+        aria-label="Console navigation"
+      >
+        {nav.map((item) => (
+          <NavLink key={item.name} item={item} mobile />
+        ))}
+      </nav>
     </div>
   );
 }

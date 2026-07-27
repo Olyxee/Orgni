@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/lib/auth";
+import { useSeo } from "@/hooks/use-seo";
 import { ApiError } from "@/lib/api";
 
 /**
@@ -12,6 +13,12 @@ import { ApiError } from "@/lib/api";
  * console. This is the surface a real OIDC redirect flow replaces later.
  */
 export default function Login() {
+  useSeo({
+    title: "Sign in - Orgni",
+    description: "Sign in to your private Orgni workspace.",
+    path: "/login",
+    robots: "noindex, nofollow, noarchive",
+  });
   const { login } = useAuth();
   const [, navigate] = useLocation();
   const [email, setEmail] = useState("");

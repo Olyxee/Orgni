@@ -48,8 +48,8 @@ export default function Entities({ embedded = false }: { embedded?: boolean }) {
           }
         />
       ) : (
-        <div className="rounded-lg border border-border divide-y divide-border overflow-hidden bg-card">
-          <table className="w-full text-sm">
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <table className="hidden w-full text-sm sm:table">
             <thead className="bg-muted/30">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground w-1/2">
@@ -86,6 +86,33 @@ export default function Entities({ embedded = false }: { embedded?: boolean }) {
               ))}
             </tbody>
           </table>
+          <div className="divide-y divide-border sm:hidden">
+            {entities.map((entity) => (
+              <Link
+                key={entity.key}
+                href={`/app/entities/${encodeURIComponent(entity.key)}`}
+                className="block px-4 py-4 transition-colors hover:bg-muted/30"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-semibold">
+                      {entity.entity.name
+                        ? String(entity.entity.name)
+                        : entity.key}
+                    </p>
+                    <p className="mt-1 break-all font-mono text-xs text-muted-foreground">
+                      {entity.entity.type
+                        ? String(entity.entity.type)
+                        : "entity"}
+                    </p>
+                  </div>
+                  <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-xs">
+                    {entity.occurrences}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </div>

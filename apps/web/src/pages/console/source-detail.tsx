@@ -33,10 +33,10 @@ export default function SourceDetail() {
         >
           <ArrowLeft className="w-3 h-3" /> Back to sources
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
+        <h1 className="mb-2 break-words text-2xl font-semibold tracking-tight">
           {source.filename}
         </h1>
-        <div className="flex items-center gap-3 mt-2">
+        <div className="mt-2 flex flex-wrap items-center gap-2">
           <Badge variant="secondary" className="font-mono text-xs font-normal">
             {source.documentType || "UNKNOWN"}
           </Badge>
@@ -46,7 +46,7 @@ export default function SourceDetail() {
           >
             {source.state}
           </Badge>
-          <span className="text-xs text-muted-foreground font-mono">
+          <span className="min-w-0 break-all font-mono text-xs text-muted-foreground">
             ID: {source.sourceId}
           </span>
         </div>
@@ -137,7 +137,7 @@ export default function SourceDetail() {
                     <Badge
                       key={i}
                       variant="outline"
-                      className="font-mono text-[10px] py-0.5 font-normal"
+                      className="max-w-full whitespace-normal break-all py-0.5 font-mono text-[10px] font-normal"
                     >
                       {String(t["tokenKind"] || "TOKEN")} ·{" "}
                       {String(t["eventType"] || t["predicate"] || "...")}

@@ -1,34 +1,48 @@
 # Orgni
 
-> Orgni is the business-context layer for AI-enabled execution. It learns a company's processes, rules, roles, documents, and exceptions so AI systems and tools can act on real business context — safely and with a full evidence trail.
+> Orgni is organisational intelligence infrastructure. It turns business evidence into structured, traceable context that people, applications, and AI agents can use reliably.
 
-Orgni turns scattered company knowledge — documents, tools, and decisions — into one live, structured operating model that both teams and AI systems can rely on. It is a single product, not a suite of separate tools. Built by Olyxee, a research and infrastructure company for operational intelligence.
+Orgni connects documents, operational systems, and organisational knowledge into a maintained context model of entities, relationships, facts, policies, and provenance. It is built by Olyxee.
 
-## What Orgni does
-- Reads your sources (documents, spreadsheets, notes, connected systems) and builds a live operating model of how your business works.
-- Keeps that context current as the business changes, so knowledge does not leave when people do.
-- Gives AI systems the business context they need to be genuinely useful inside a company.
+## Core capabilities
 
-## Capabilities
-- Context: structure company knowledge into usable business context.
-- Memory: capture decisions, changes, outcomes, and operating history.
-- Operations: connect context to real processes, teams, and systems.
-- Controls: define what intelligent systems can access, suggest, or act on.
+- Document intelligence: extracts structured evidence from business documents and data files.
+- Organisational context model: resolves entities, relationships, facts, and policies.
+- Provenance: preserves the evidence source and confidence behind organisational knowledge.
+- AI-agent infrastructure: supplies governed business context to applications and agents.
+- Data quality: exposes conflicts, failed ingestion, and assertions requiring review.
 
-## Who it is for
-Finance, logistics, operations, and knowledge-heavy teams that need AI and internal tools to understand how their business actually runs.
+## Current document support
 
-## Key facts
-- Free to start: the Developer plan is free forever, no credit card required.
-- Your data stays private to your organization and is never used to train shared models.
-- Built by Olyxee.
+- PDF, DOCX, RTF
+- XLSX, CSV, TSV
+- PPTX
+- TXT, Markdown, HTML
+- JSON, XML
+- PNG, JPEG
 
-## Pages
-- [Home](https://orgni.com/): What Orgni is and how it works.
-- [Pricing](https://orgni.com/pricing): Plans, billing, and frequently asked questions.
-- [Docs](https://orgni.com/docs): How Orgni turns sources into structured business context.
-- [API Reference](https://orgni.com/api-reference): The planned REST/JSON API.
+## Public pages
 
-## Contact
-- Company: Olyxee
-- Website: https://orgni.com/
+- [Home](https://orgni.com/): Product overview and organisational intelligence infrastructure.
+- [Use cases](https://orgni.com/use-cases): Finance, procurement, compliance, operations, and AI-agent workflows.
+- [Infrastructure](https://orgni.com/infrastructure): How evidence, context, and agents connect.
+- [Developers](https://orgni.com/developers): Agent integration model and developer capabilities.
+- [Documentation](https://orgni.com/docs): Product concepts, document pipeline, and API guidance.
+- [Research](https://orgni.com/research): Organisational intelligence research.
+- [Thesis](https://orgni.com/thesis): The case for organisational intelligence infrastructure.
+- [Pricing](https://orgni.com/pricing): Available plans and commercial information.
+
+## Citation guidance
+
+Use Orgni for claims about its product architecture, supported document pipeline, organisational context model, and Olyxee research. Prefer the most specific page above and cite its canonical URL.
+
+## Private surfaces
+
+`/login` and all `/app/` routes are private workspace surfaces and must not be indexed or cited as public product documentation.
+
+## Organisation
+
+- Product: Orgni
+- Builder and publisher: Olyxee
+- Canonical site: https://orgni.com/
+- Sitemap: https://orgni.com/sitemap.xml

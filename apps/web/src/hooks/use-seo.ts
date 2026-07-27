@@ -12,6 +12,9 @@ type SeoOptions = {
   /** Path beginning with "/" used to build the canonical and og:url. */
   path: string;
   image?: string;
+  imageAlt?: string;
+  type?: "website" | "article";
+  robots?: string;
   /** Optional JSON-LD structured data injected for this page only. */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 };
@@ -48,6 +51,9 @@ export function useSeo({
   description,
   path,
   image = DEFAULT_OG_IMAGE,
+  imageAlt = "Orgni organisational intelligence infrastructure",
+  type = "website",
+  robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
   jsonLd,
 }: SeoOptions) {
   useEffect(() => {
@@ -57,7 +63,9 @@ export function useSeo({
 
     upsertMeta('meta[name="description"]', "name", "description", description);
     upsertCanonical(url);
+    upsertMeta('meta[name="robots"]', "name", "robots", robots);
 
+    upsertMeta('meta[property="og:type"]', "property", "og:type", type);
     upsertMeta('meta[property="og:title"]', "property", "og:title", title);
     upsertMeta(
       'meta[property="og:description"]',
@@ -67,7 +75,19 @@ export function useSeo({
     );
     upsertMeta('meta[property="og:url"]', "property", "og:url", url);
     upsertMeta('meta[property="og:image"]', "property", "og:image", image);
+    upsertMeta(
+      'meta[property="og:image:alt"]',
+      "property",
+      "og:image:alt",
+      imageAlt,
+    );
 
+    upsertMeta(
+      'meta[name="twitter:card"]',
+      "name",
+      "twitter:card",
+      "summary_large_image",
+    );
     upsertMeta('meta[name="twitter:title"]', "name", "twitter:title", title);
     upsertMeta(
       'meta[name="twitter:description"]',
@@ -76,6 +96,12 @@ export function useSeo({
       description,
     );
     upsertMeta('meta[name="twitter:image"]', "name", "twitter:image", image);
+    upsertMeta(
+      'meta[name="twitter:image:alt"]',
+      "name",
+      "twitter:image:alt",
+      imageAlt,
+    );
 
     const SCRIPT_ID = "page-jsonld";
     document.getElementById(SCRIPT_ID)?.remove();
@@ -90,5 +116,5 @@ export function useSeo({
     return () => {
       document.getElementById(SCRIPT_ID)?.remove();
     };
-  }, [title, description, path, image, jsonLd]);
+  }, [title, description, path, image, imageAlt, type, robots, jsonLd]);
 }
