@@ -102,7 +102,7 @@ export function DefensiveDisplay({
 export function SectionTabs({
   tabs,
 }: {
-  tabs: { label: string; href: string }[];
+  tabs: { label: string; href: string; disabled?: boolean }[];
 }) {
   const [location] = useLocation();
   return (
@@ -110,19 +110,30 @@ export function SectionTabs({
       aria-label="Section views"
       className="flex overflow-x-auto border-b border-border"
     >
-      {tabs.map((tab) => (
-        <Link
-          key={tab.href}
-          href={tab.href}
-          className={`shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-            location === tab.href
-              ? "border-primary text-foreground"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          {tab.label}
-        </Link>
-      ))}
+      {tabs.map((tab) =>
+        tab.disabled ? (
+          <span
+            key={tab.href}
+            aria-disabled="true"
+            title="Not available yet"
+            className="shrink-0 cursor-not-allowed border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground/45"
+          >
+            {tab.label}
+          </span>
+        ) : (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={`shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+              location === tab.href
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ),
+      )}
     </nav>
   );
 }

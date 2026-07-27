@@ -116,6 +116,12 @@ export async function login(
   };
 }
 
+export function getCurrentSession(
+  token: string,
+): Promise<{ email: string; tenantId: string; roles: string[] }> {
+  return request("/api/auth/me", { token });
+}
+
 export function uploadDocument(
   token: string,
   file: File,

@@ -9,11 +9,17 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { login as apiLogin, type Session } from "./api";
+import {
+  ApiError,
+  getCurrentSession,
+  login as apiLogin,
+  type Session,
+} from "./api";
 
 const STORAGE_KEY = "orgni.session";
 
@@ -36,6 +42,37 @@ function loadSession(): Session | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(loadSession);
+
+  useEffect(() => {
+    if (!session) return;
+
+    let cancelled = false;
+    getCurrentSession(session.token).catch(async (error) => {
+      if (
+        cancelled ||
+        !(error instanceof ApiError) ||
+        error.status !== 401 ||
+        error.code !== "invalid_token"
+      ) {
+        return;
+      }
+
+      try {
+        const renewed = await apiLogin(session.email, session.organization);
+        if (cancelled) return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(renewed));
+        setSession(renewed);
+      } catch {
+        if (cancelled) return;
+        localStorage.removeItem(STORAGE_KEY);
+        setSession(null);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   const login = useCallback(async (email: string, organization: string) => {
     const s = await apiLogin(email, organization);
