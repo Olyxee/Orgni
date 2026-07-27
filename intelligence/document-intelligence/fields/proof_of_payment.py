@@ -15,6 +15,7 @@ from .base import (
     ExtractionOutcome,
     Field,
     RULE_MATCH,
+    clean_reference,
     find,
     normalise_currency,
     normalise_date,
@@ -61,6 +62,7 @@ def extract_proof_of_payment(text: str, pages: list[dict]) -> ExtractionOutcome:
          r"[^\S\n]*[:\-]+[^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})",
          r"\bref(?:erence)?\b[^\S\n]*[:\-]+[^\S\n]*([A-Z0-9][A-Z0-9\-/]{3,})"],
         pages, confidence=0.9, section="payment",
+        transform=clean_reference,
     ))
 
     out.add("paymentDate", find(
@@ -105,11 +107,17 @@ def extract_proof_of_payment(text: str, pages: list[dict]) -> ExtractionOutcome:
     ))
 
     # Captured as a *reference*; it does not settle anything on its own.
+    # NOTE: the label alternative is `ref(?:erence)?` (not bare `ref`) so that
+    # "Invoice Reference: INV-1" consumes the whole word "Reference" as the label
+    # and captures "INV-1" — a bare `ref` matched inside "Reference" and captured
+    # the fragment "erence" as the invoice reference. `clean_reference` rejects
+    # any such fragment as a second line of defence.
     out.add("referencedInvoiceNumber", find(
         text,
-        [r"\b(?:invoice|inv)\s*(?:no\.?|number|#|ref)?[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})",
+        [r"\b(?:invoice|inv)\s*(?:no\.?|number|#|ref(?:erence)?)?\b[^\S\n]*[:#\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})",
          r"\bin\s+payment\s+of\s+(?:invoice\s*)?([A-Z0-9][A-Z0-9\-/]{2,})"],
         pages, confidence=0.78, section="reference",
+        transform=clean_reference,
     ))
 
     status = find(
@@ -133,6 +141,7 @@ def extract_proof_of_payment(text: str, pages: list[dict]) -> ExtractionOutcome:
         [r"\b(?:proof\s+(?:no\.?|reference)|receipt\s*(?:no\.?|number|#))"
          r"[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})"],
         pages, confidence=0.8, section="reference",
+        transform=clean_reference,
     ))
 
     if "referencedInvoiceNumber" in out.fields:

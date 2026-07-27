@@ -221,6 +221,39 @@ _CURRENCY_CODES = {
 }
 
 
+_PLACEHOLDER_VALUES = {
+    "n/a", "na", "none", "null", "nil", "tbd", "tba", "xxx", "xxxx",
+    "-", "--", "...", "pending", "unknown",
+}
+# Label words that must never survive as a *value* (a captured label fragment).
+_LABEL_WORDS = {
+    "reference", "erence", "invoice", "number", "no", "ref", "payment",
+    "receipt", "proof", "contract", "agreement", "order",
+}
+
+
+def clean_reference(raw: str) -> str | None:
+    """
+    Validate an identifier / reference value (invoice number, payment reference,
+    PO number, …). Rejects the junk that must never become organisational
+    context: label fragments (e.g. "erence" from "Reference"), placeholders,
+    values equal to a field label, and tokens with no digit — real references
+    and document numbers virtually always contain at least one digit.
+    Returns the cleaned value, or None to reject it.
+    """
+    token = raw.strip().strip(".,;:")
+    if not token or len(token) < 3:
+        return None
+    low = token.lower()
+    if low in _PLACEHOLDER_VALUES or low in _LABEL_WORDS:
+        return None
+    # A reference/number without any digit is almost certainly a label fragment
+    # ("erence") or free text, not an identifier.
+    if not any(c.isdigit() for c in token):
+        return None
+    return token
+
+
 def normalise_currency(raw: str) -> str | None:
     """Normalize a currency symbol or code to an ISO-4217 code, or None."""
     token = raw.strip().upper()

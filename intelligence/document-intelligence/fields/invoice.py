@@ -15,6 +15,7 @@ from .base import (
     ExtractionOutcome,
     Field,
     RULE_MATCH,
+    clean_reference,
     find,
     normalise_currency,
     normalise_date,
@@ -155,6 +156,7 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
         [r"\binvoice\s*(?:no\.?|number|#)[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})",
          r"\binvoice[^\S\n]*[:\-][^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})"],
         pages, confidence=0.92, section="header",
+        transform=clean_reference,
     ))
 
     out.add("invoiceDate", find(
@@ -218,8 +220,9 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
     ))
     out.add("purchaseOrderRef", find(
         text,
-        [r"\b(?:purchase\s+order|p\.?o\.?)\s*(?:no\.?|number|#)?[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})"],
+        [r"\b(?:purchase\s+order|p\.?o\.?)\s*(?:no\.?|number|#)?\b[^\S\n]*[:#\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})"],
         pages, confidence=0.85, section="header",
+        transform=clean_reference,
     ))
 
     # Status only when the document says so explicitly.
