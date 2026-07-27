@@ -107,7 +107,7 @@
   --ring: 19 99% 50%;
   
   --app-font-sans: 'Geist', sans-serif;
-  --app-font-serif: "Instrument Serif", Georgia, serif;
+  --app-font-serif: "Geist", sans-serif;
   --app-font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.5rem;
 }
@@ -212,8 +212,20 @@
 
   .public-experience h1,
   .public-experience h2 {
-    font-family: var(--app-font-serif);
-    font-weight: 400;
+    font-family: var(--app-font-sans);
+    font-weight: 600;
+    line-height: 1.08;
+  }
+
+  .public-experience h3,
+  .public-experience h4 {
+    font-family: var(--app-font-sans);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .public-experience p {
+    line-height: 1.6;
   }
 }
 
