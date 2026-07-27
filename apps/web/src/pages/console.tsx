@@ -24,7 +24,7 @@ const nav = [
   { name: "Connections", href: "/app/connections", icon: Plug },
   {
     name: "Context Model",
-    href: "/app/context-model/entities",
+    href: "/app/context-model/visualization",
     match: "/app/context-model",
     icon: Database,
   },
@@ -98,7 +98,7 @@ export default function Console() {
   if (!session) return null;
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background font-sans text-foreground">
+    <div className="orgni-console flex min-h-[100dvh] flex-col bg-background font-sans text-foreground">
       <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           <Link href="/app">

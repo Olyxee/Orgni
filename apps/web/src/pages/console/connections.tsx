@@ -23,37 +23,37 @@ const fileFamilies = [
     label: "Documents",
     formats: "PDF, DOCX, RTF",
     icon: FileText,
-    color: "text-red-600 bg-red-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
   {
     label: "Spreadsheets",
     formats: "XLSX, CSV, TSV",
     icon: FileSpreadsheet,
-    color: "text-emerald-700 bg-emerald-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
   {
     label: "Presentations",
     formats: "PPTX",
     icon: Presentation,
-    color: "text-orange-700 bg-orange-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
   {
     label: "Text",
     formats: "TXT, MD, HTML",
     icon: FileType2,
-    color: "text-sky-700 bg-sky-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
   {
     label: "Structured data",
     formats: "JSON, XML",
     icon: FileJson,
-    color: "text-violet-700 bg-violet-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
   {
     label: "Images",
     formats: "PNG, JPG",
     icon: FileImage,
-    color: "text-fuchsia-700 bg-fuchsia-50",
+    color: "bg-neutral-100 text-neutral-700",
   },
 ];
 
@@ -113,7 +113,7 @@ export default function Connections() {
                     >
                       Upload evidence
                     </h2>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                       <Check className="size-3.5" strokeWidth={2.5} />
                       Ready
                     </span>

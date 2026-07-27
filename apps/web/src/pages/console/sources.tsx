@@ -103,7 +103,7 @@ export default function Sources({ embedded = false }: { embedded?: boolean }) {
       </div>
 
       {uploadError && (
-        <div className="p-4 rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm flex gap-3 items-start">
+        <div className="p-4 rounded-lg border border-neutral-300 bg-neutral-100 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 text-sm flex gap-3 items-start">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <p className="leading-relaxed">{uploadError}</p>
         </div>

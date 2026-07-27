@@ -110,11 +110,11 @@ export default function SourceDetail() {
         <div className="space-y-6">
           {source.warnings && source.warnings.length > 0 && (
             <section>
-              <h3 className="text-sm font-semibold mb-3 border-b border-border pb-2 text-amber-600 dark:text-amber-500">
+              <h3 className="text-sm font-semibold mb-3 border-b border-border pb-2 text-foreground">
                 Refused Assertions
               </h3>
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-                <ul className="space-y-2 text-sm text-amber-700 dark:text-amber-400">
+              <div className="bg-neutral-100 border border-neutral-300 dark:bg-neutral-900 dark:border-neutral-700 rounded-lg p-4">
+                <ul className="space-y-2 text-sm text-neutral-800 dark:text-neutral-200">
                   {source.warnings.map((w, i) => (
                     <li key={i} className="flex gap-2">
                       <span className="shrink-0">•</span>

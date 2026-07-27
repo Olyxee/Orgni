@@ -55,10 +55,10 @@ export function reviewTier(confidence: number | null | undefined) {
 
 const TONE: Record<string, string> = {
   green:
-    "text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-950/40 dark:border-emerald-900",
+    "border-neutral-300 bg-neutral-100 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100",
   amber:
-    "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-300 dark:bg-amber-950/40 dark:border-amber-900",
-  red: "text-red-700 bg-red-50 border-red-200 dark:text-red-300 dark:bg-red-950/40 dark:border-red-900",
+    "border-neutral-400 bg-neutral-200 text-neutral-900 dark:border-neutral-500 dark:bg-neutral-700 dark:text-neutral-100",
+  red: "border-neutral-500 bg-neutral-300 text-black dark:border-neutral-400 dark:bg-neutral-600 dark:text-white",
 };
 
 type Json = Record<string, unknown>;

@@ -158,7 +158,7 @@ export default function Settings() {
                         Your role
                       </dt>
                       <dd className="flex items-center gap-2 text-sm font-medium">
-                        <ShieldCheck className="size-4 text-emerald-700" />
+                        <ShieldCheck className="size-4 text-foreground" />
                         {role}
                       </dd>
                     </div>
@@ -197,7 +197,7 @@ export default function Settings() {
                   </div>
                   <div className="p-5">
                     <div className="flex items-center gap-2">
-                      <span className="size-2 rounded-full bg-emerald-500" />
+                      <span className="size-2 rounded-full bg-neutral-700" />
                       <p className="text-2xl font-semibold">1</p>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">
@@ -219,7 +219,7 @@ export default function Settings() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="size-2 rounded-full bg-emerald-500" />1
+                  <span className="size-2 rounded-full bg-neutral-700" />1
                   active now
                 </div>
               </div>
@@ -244,8 +244,8 @@ export default function Settings() {
                     </div>
                   </div>
                   <div className="hidden text-sm sm:block">{role}</div>
-                  <div className="hidden items-center gap-2 text-xs text-emerald-700 sm:flex">
-                    <span className="size-2 rounded-full bg-emerald-500" />
+                  <div className="hidden items-center gap-2 text-xs text-foreground sm:flex">
+                    <span className="size-2 rounded-full bg-neutral-700" />
                     Active
                   </div>
                   <Button

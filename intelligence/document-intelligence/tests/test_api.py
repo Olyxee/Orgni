@@ -7,7 +7,7 @@ Fix 9 — unsupported file types, oversized files, OCR failure, broken financial
 
 Run from repo root: python -m pytest tests/test_api.py -v
 """
-import sys, os, io
+import sys, os, io, shutil
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
@@ -17,6 +17,10 @@ from main import app
 client = TestClient(app)
 
 SAMPLE_DIR = os.path.join(os.path.dirname(__file__), "..", "sample_files")
+requires_tesseract = pytest.mark.skipif(
+    shutil.which("tesseract") is None,
+    reason="Tesseract is required for real-image OCR integration tests",
+)
 
 
 # ── Health check ──────────────────────────────────────────────────────────────
@@ -31,6 +35,7 @@ def test_health_endpoint():
 
 # ── Fix 8: real image upload test ─────────────────────────────────────────────
 
+@requires_tesseract
 def test_run_with_real_invoice_image():
     """Upload a real PNG invoice and verify the pipeline runs end-to-end."""
     path = os.path.join(SAMPLE_DIR, "sample_invoice.png")
@@ -54,6 +59,7 @@ def test_run_with_real_invoice_image():
 
 # ── Fix 9: broken financial math ──────────────────────────────────────────────
 
+@requires_tesseract
 def test_run_with_corrupted_invoice_math():
     """Upload an invoice with mismatched totals — must not be APPROVED."""
     path = os.path.join(SAMPLE_DIR, "sample_invoice_corrupted.png")

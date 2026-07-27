@@ -75,6 +75,7 @@
     "zod": "catalog:"
   },
   "dependencies": {
+    "@xyflow/react": "^12.11.2",
     "embla-carousel-autoplay": "^8.6.0"
   }
 }

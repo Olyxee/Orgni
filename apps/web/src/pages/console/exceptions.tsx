@@ -88,7 +88,7 @@ export default function Exceptions({
 
           {data.conflicts.length > 0 && (
             <section>
-              <h2 className="text-sm font-semibold mb-4 flex items-center gap-2 text-amber-600 dark:text-amber-500 border-b border-border pb-2">
+              <h2 className="text-sm font-semibold mb-4 flex items-center gap-2 text-foreground border-b border-border pb-2">
                 <AlertTriangle className="w-4 h-4" /> Fact Conflicts
               </h2>
               <div className="grid md:grid-cols-2 gap-4">

@@ -102,7 +102,7 @@ export default function Developer() {
                   <p
                     className={`mt-3 font-mono text-[10px] uppercase ${
                       tool.available
-                        ? "text-emerald-700"
+                        ? "text-foreground"
                         : "text-muted-foreground"
                     }`}
                   >

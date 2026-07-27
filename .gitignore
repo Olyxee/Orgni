@@ -10,6 +10,9 @@ out-tsc
 
 # dependencies
 node_modules
+.pnpm-store/
+.turbo/
+**/.turbo/
 
 # IDEs and editors
 /.idea
@@ -38,6 +41,8 @@ testem.log
 .api.*.log
 .document-intelligence.*.log
 .ontology.*.log
+.web.*.log
+.web-*.log
 /typings
 
 # Local environment and secrets
@@ -62,3 +67,5 @@ __pycache__/
 
 # Document service runtime uploads
 services/document-service/uploads/
+intelligence/document-intelligence/uploads/
+/uploads/
