@@ -204,7 +204,7 @@ export type ActivityEvent =
       at: string;
       sourceId: string;
       fieldPath: string;
-      action: "CORRECT" | "REJECT";
+      action: "CORRECT" | "REJECT" | "APPROVE";
       reviewer: string;
     };
 
@@ -252,7 +252,7 @@ export function addReview(
   sourceId: string,
   input: {
     fieldPath: string;
-    action: "CORRECT" | "REJECT";
+    action: "CORRECT" | "REJECT" | "APPROVE";
     correctedValue?: unknown;
     reviewer?: string;
   },

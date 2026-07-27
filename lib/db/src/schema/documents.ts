@@ -116,7 +116,7 @@ export const reviews = pgTable(
       .notNull()
       .references(() => sources.sourceId, { onDelete: "cascade" }),
     fieldPath: text("field_path").notNull(),
-    action: text("action").$type<"CORRECT" | "REJECT">().notNull(),
+    action: text("action").$type<"CORRECT" | "REJECT" | "APPROVE">().notNull(),
     correctedValue: jsonb("corrected_value"),
     reviewer: text("reviewer").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

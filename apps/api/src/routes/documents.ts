@@ -329,7 +329,8 @@ router.post(
       return;
     }
     const { fieldPath, action, correctedValue, reviewer } = req.body ?? {};
-    if (!fieldPath || (action !== "CORRECT" && action !== "REJECT")) {
+    const validActions = ["CORRECT", "REJECT", "APPROVE"];
+    if (!fieldPath || !validActions.includes(action)) {
       res.status(400).json({ error: "invalid_review" });
       return;
     }

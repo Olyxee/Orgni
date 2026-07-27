@@ -203,7 +203,7 @@ export function createRepository(db: Database) {
       tenantId: string;
       sourceId: string;
       fieldPath: string;
-      action: "CORRECT" | "REJECT";
+      action: "CORRECT" | "REJECT" | "APPROVE";
       correctedValue?: unknown;
       reviewer: string;
     }): Promise<ReviewRow> {

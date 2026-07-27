@@ -1,11 +1,40 @@
-import { listFacts } from "@/lib/api";
-import { useData, ErrorState, EmptyState, DefensiveDisplay } from "./shared";
-import { Lightbulb, FileText } from "lucide-react";
-import { Link } from "wouter";
-import { Badge } from "@/components/ui/badge";
+import { listFacts, addReview } from "@/lib/api";
+import { useData, ErrorState, EmptyState } from "./shared";
+import { FactCard } from "./fact-card";
+import { useAuth } from "@/lib/auth";
+import { useToast } from "@/hooks/use-toast";
+import { Lightbulb } from "lucide-react";
 
 export default function Facts({ embedded = false }: { embedded?: boolean }) {
-  const { data, loading, error } = useData(listFacts);
+  const { data, loading, error, refetch } = useData(listFacts);
+  const { session } = useAuth();
+  const { toast } = useToast();
+
+  async function review(
+    sourceId: string,
+    action: "CORRECT" | "REJECT" | "APPROVE",
+  ) {
+    if (!session) return;
+    try {
+      const correctedValue =
+        action === "CORRECT"
+          ? (window.prompt("Corrected value (optional):") ?? undefined)
+          : undefined;
+      await addReview(session.token, sourceId, {
+        fieldPath: "fact",
+        action,
+        correctedValue,
+        reviewer: session.email,
+      });
+      toast({
+        title: `Fact ${action.toLowerCase()}ed`,
+        description: "Recorded in the review audit trail.",
+      });
+      refetch();
+    } catch {
+      toast({ title: "Could not record review", variant: "destructive" });
+    }
+  }
 
   if (loading)
     return (
@@ -39,43 +68,15 @@ export default function Facts({ embedded = false }: { embedded?: boolean }) {
         />
       ) : (
         <div className="space-y-4">
-          {facts.map((f, i) => {
-            const status = String(
-              f.fact.epistemic_status || f.fact.status || "ASSERTED",
-            );
-            return (
-              <div
-                key={i}
-                className="p-4 rounded-lg border border-border bg-card flex flex-col sm:flex-row gap-4 justify-between sm:items-start"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="mb-3">
-                    <Badge
-                      variant="outline"
-                      className="font-mono text-[10px] uppercase tracking-wider font-normal bg-muted/30"
-                    >
-                      {status}
-                    </Badge>
-                  </div>
-                  <DefensiveDisplay data={f.fact} />
-                </div>
-                <div className="sm:text-right shrink-0">
-                  <div className="text-xs text-muted-foreground flex items-center sm:justify-end gap-1.5 mt-2 sm:mt-0">
-                    <FileText className="w-3 h-3 shrink-0" />
-                    <Link
-                      href={`/app/sources/${f.source.sourceId}`}
-                      className="hover:underline truncate max-w-[200px]"
-                    >
-                      {f.source.filename}
-                    </Link>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground/70 mt-1.5 font-mono">
-                    {new Date(f.source.uploadedAt).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {facts.map((f, i) => (
+            <FactCard
+              key={i}
+              data={f.fact}
+              source={f.source}
+              kind="fact"
+              onReview={(action) => review(f.source.sourceId, action)}
+            />
+          ))}
         </div>
       )}
     </div>

@@ -44,7 +44,7 @@ export interface ModelInput {
   reviews: Array<{
     sourceId: string;
     fieldPath: string;
-    action: "CORRECT" | "REJECT";
+    action: "CORRECT" | "REJECT" | "APPROVE";
     reviewer: string;
     createdAt: Date;
   }>;
@@ -335,7 +335,7 @@ export type ActivityEvent =
       at: Date;
       sourceId: string;
       fieldPath: string;
-      action: "CORRECT" | "REJECT";
+      action: "CORRECT" | "REJECT" | "APPROVE";
       reviewer: string;
     };
 

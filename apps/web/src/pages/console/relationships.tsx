@@ -1,7 +1,7 @@
 import { listRelationships } from "@/lib/api";
-import { useData, ErrorState, EmptyState, DefensiveDisplay } from "./shared";
-import { Network, FileText } from "lucide-react";
-import { Link } from "wouter";
+import { useData, ErrorState, EmptyState } from "./shared";
+import { FactCard } from "./fact-card";
+import { Network } from "lucide-react";
 
 export default function Relationships({
   embedded = false,
@@ -43,22 +43,12 @@ export default function Relationships({
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {relationships.map((r, i) => (
-            <div
+            <FactCard
               key={i}
-              className="p-4 rounded-lg border border-border bg-card"
-            >
-              <DefensiveDisplay data={r.relationship} />
-              <div className="mt-4 pt-3 border-t border-border/50 text-xs text-muted-foreground flex items-center gap-1.5">
-                <FileText className="w-3 h-3 shrink-0" />
-                Provenance:{" "}
-                <Link
-                  href={`/app/sources/${r.source.sourceId}`}
-                  className="hover:underline truncate"
-                >
-                  {r.source.filename}
-                </Link>
-              </div>
-            </div>
+              data={r.relationship}
+              source={r.source}
+              kind="relationship"
+            />
           ))}
         </div>
       )}
