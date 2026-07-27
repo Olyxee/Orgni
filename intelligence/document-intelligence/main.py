@@ -6,6 +6,8 @@ Part of the Orgni platform by Olyxee.
 import hashlib
 import os
 import uuid
+import zipfile
+from xml.etree import ElementTree
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
@@ -15,9 +17,12 @@ from config import (
     ALLOWED_EXTENSIONS,
     ANALYZE_CONTENT_TYPES,
     ANALYZE_EXTENSIONS,
+    OFFICE_EXTENSIONS,
+    TEXT_EXTENSIONS,
     MAX_FILE_SIZE_BYTES,
     UPLOAD_DIR,
 )
+from document_text import extract_document_text
 from envelope.builder import SCHEMA_VERSION, analyze_document
 from pipeline.runner import run as run_pipeline
 
@@ -117,8 +122,31 @@ async def analyze(
             "extraction_status": "LOW_CONFIDENCE",
         }
 
-    # Plain text needs no OCR round-trip.
-    if content_type.startswith("text/") or ext == ".txt":
+    # Text and Office documents are normalized to text before analysis. PDF and
+    # image files continue through the OCR path below.
+    if ext in TEXT_EXTENSIONS or ext in OFFICE_EXTENSIONS:
+        try:
+            text = extract_document_text(contents, ext)
+        except (ValueError, zipfile.BadZipFile, ElementTree.ParseError) as exc:
+            return {
+                "source_id": source_id,
+                "source_type": "UPLOAD",
+                "document_type": "UNKNOWN",
+                "content": {"text": "", "language": "und"},
+                "extracted_fields": {},
+                "tables": [],
+                "metadata": {
+                    "filename": filename,
+                    "mime_type": content_type,
+                    "checksum": checksum,
+                    "tenant_id": tenant_id,
+                },
+                "evidence_locations": [],
+                "confidence": 0.0,
+                "warnings": [f"unreadable_document: {exc}"],
+                "schema_version": SCHEMA_VERSION,
+                "extraction_status": "LOW_CONFIDENCE",
+            }
         return analyze_document(
             source_id=source_id,
             file_path=None,
@@ -126,7 +154,7 @@ async def analyze(
             filename=filename,
             checksum=checksum,
             tenant_id=tenant_id,
-            text=contents.decode("utf-8", errors="replace"),
+            text=text,
         )
 
     doc_id = f"doc_{uuid.uuid4().hex[:8]}"

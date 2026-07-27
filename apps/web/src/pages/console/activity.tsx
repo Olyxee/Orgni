@@ -3,7 +3,7 @@ import { useData, ErrorState, EmptyState } from "./shared";
 import { Activity as ActivityIcon, FileText, Edit3 } from "lucide-react";
 import { Link } from "wouter";
 
-export default function Activity() {
+export default function Activity({ embedded = false }: { embedded?: boolean }) {
   const { data, loading, error } = useData(getActivity);
 
   if (loading)
@@ -19,18 +19,22 @@ export default function Activity() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">Activity</h1>
-        <p className="text-muted-foreground text-sm">
-          Chronological record of sources processed and reviews.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Activity
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Chronological record of sources processed and reviews.
+          </p>
+        </div>
+      )}
 
       {events.length === 0 ? (
         <EmptyState
           icon={ActivityIcon}
-          title="No activity yet"
-          description="As Orgni processes sources and human operators resolve reviews, the chronological log will build here."
+          title="No events received yet"
+          description="Events will appear when connected sources or APIs send organisational activity to Orgni."
         />
       ) : (
         <div className="relative border-l border-border/50 ml-3 pl-6 space-y-8 py-2">

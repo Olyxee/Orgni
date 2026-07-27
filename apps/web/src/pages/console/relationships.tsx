@@ -3,7 +3,11 @@ import { useData, ErrorState, EmptyState, DefensiveDisplay } from "./shared";
 import { Network, FileText } from "lucide-react";
 import { Link } from "wouter";
 
-export default function Relationships() {
+export default function Relationships({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const { data, loading, error } = useData(listRelationships);
 
   if (loading)
@@ -19,20 +23,22 @@ export default function Relationships() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
-          Relationships
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Mapped connections between organizational entities.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Relationships
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Mapped connections between organizational entities.
+          </p>
+        </div>
+      )}
 
       {relationships.length === 0 ? (
         <EmptyState
           icon={Network}
-          title="No relationships mapped"
-          description="When Orgni connects multiple entities across your evidence sources (e.g. Employee works for Department), those structural links appear here."
+          title="No relationships have been resolved yet"
+          description="Relationships will appear when evidence establishes traceable links between organisational entities."
         />
       ) : (
         <div className="grid md:grid-cols-2 gap-4">

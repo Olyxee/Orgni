@@ -35,7 +35,24 @@ MAX_FILE_SIZE_BYTES = int(os.environ.get("MAX_FILE_SIZE_BYTES", 20 * 1024 * 1024
 ALLOWED_CONTENT_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/jpg"}
 ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg"}
 
-# Phase 1 /v1/analyze additionally accepts plain text, which is a supported
-# Phase 1 input and needs no OCR round-trip.
-ANALYZE_CONTENT_TYPES = ALLOWED_CONTENT_TYPES | {"text/plain"}
-ANALYZE_EXTENSIONS = ALLOWED_EXTENSIONS | {".txt"}
+# Phase 1 /v1/analyze accepts common business-document formats in addition to
+# scanned PDFs and images. Modern Office files are extracted from their
+# XML-based containers before entering the same analysis pipeline.
+TEXT_EXTENSIONS = {".txt", ".md", ".csv", ".tsv", ".json", ".xml", ".html", ".htm"}
+OFFICE_EXTENSIONS = {".docx", ".xlsx", ".pptx", ".rtf"}
+ANALYZE_CONTENT_TYPES = ALLOWED_CONTENT_TYPES | {
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "text/tab-separated-values",
+    "application/json",
+    "application/xml",
+    "text/xml",
+    "text/html",
+    "application/rtf",
+    "text/rtf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+ANALYZE_EXTENSIONS = ALLOWED_EXTENSIONS | TEXT_EXTENSIONS | OFFICE_EXTENSIONS

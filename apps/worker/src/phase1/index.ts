@@ -140,7 +140,9 @@ export async function processDocument(
 
   return {
     ...handoff(record.sourceId, tokens, [...record.warnings, ...warnings]),
-    state: errors.length > 0 && tokens.length === 0 ? "FAILED" : record.state,
+    // Extraction can complete even when a document needs review or cannot yet
+    // produce ontology tokens. FAILED is reserved for ingestion/transport.
+    state: record.state,
     documentType: record.envelope.document_type,
     errors,
     record,

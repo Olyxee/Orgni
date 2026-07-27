@@ -4,7 +4,7 @@ import { Lightbulb, FileText } from "lucide-react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 
-export default function Facts() {
+export default function Facts({ embedded = false }: { embedded?: boolean }) {
   const { data, loading, error } = useData(listFacts);
 
   if (loading)
@@ -20,20 +20,22 @@ export default function Facts() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
-          Verified Facts
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Organizational facts with their epistemic status and provenance.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Verified Facts
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Organizational facts with their epistemic status and provenance.
+          </p>
+        </div>
+      )}
 
       {facts.length === 0 ? (
         <EmptyState
           icon={Lightbulb}
-          title="No facts extracted"
-          description="Concrete assertions about the organization (dates, amounts, states) extracted from evidence sources will populate this log."
+          title="No organisational context has been resolved yet"
+          description="Connect a source, upload supported evidence or send an event through the API to begin building the context model."
         />
       ) : (
         <div className="space-y-4">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { LucideIcon } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export function useData<T>(
   fetcher: (token: string, arg?: any) => Promise<T>,
@@ -94,6 +95,51 @@ export function DefensiveDisplay({
           </span>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function SectionTabs({
+  tabs,
+}: {
+  tabs: { label: string; href: string }[];
+}) {
+  const [location] = useLocation();
+  return (
+    <nav
+      aria-label="Section views"
+      className="flex overflow-x-auto border-b border-border"
+    >
+      {tabs.map((tab) => (
+        <Link
+          key={tab.href}
+          href={tab.href}
+          className={`shrink-0 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+            location === tab.href
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {tab.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+export function ConsolePageHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight">{title}</h1>
+      <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">
+        {description}
+      </p>
     </div>
   );
 }

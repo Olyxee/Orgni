@@ -139,6 +139,18 @@ describe("envelope → extraction adapter", () => {
     expect(result.extraction).toBeUndefined();
   });
 
+  it("accepts an invoice without inventing a missing buyer", () => {
+    const { buyerName, ...withoutBuyer } = invoiceFields;
+    const result = adaptEnvelope(
+      baseEnvelope({ extracted_fields: withoutBuyer }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(
+      (result.extraction as { buyerName?: unknown }).buyerName,
+    ).toBeUndefined();
+  });
+
   it("drops incomplete line items rather than guessing values", () => {
     const result = adaptEnvelope(
       baseEnvelope({
@@ -178,6 +190,27 @@ describe("envelope → extraction adapter", () => {
 
     expect(result.ok).toBe(true);
     expect(result.warnings.join()).toContain("settlement is not asserted");
+  });
+
+  it("accepts observed payment facts without inventing missing parties", () => {
+    const result = adaptEnvelope(
+      baseEnvelope({
+        document_type: "PROOF_OF_PAYMENT",
+        extracted_fields: {
+          paymentDate: f("2024-04-02"),
+          amount: f(13225),
+          currency: f("ZAR"),
+        },
+      }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(
+      (result.extraction as { payerName?: unknown }).payerName,
+    ).toBeUndefined();
+    expect(
+      (result.extraction as { payeeName?: unknown }).payeeName,
+    ).toBeUndefined();
   });
 
   it("does not assert execution for a contract without signature evidence", () => {

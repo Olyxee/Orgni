@@ -19,11 +19,11 @@ export function InfrastructureSection() {
           <span className="orgni-index mb-16 block">ORG / 003</span>
           <p className="orgni-kicker mb-8">How Orgni resolves it</p>
           <h2 className="font-serif text-4xl leading-[1.02] md:text-6xl">
-            From scattered tools to one sourced answer.
+            From scattered evidence to dependable context.
           </h2>
           <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
-            Orgni reads the tools your team already uses, links what belongs
-            together, and answers with every figure traced back to evidence.
+            Orgni ingests evidence and activity, links what belongs together,
+            and maintains structured context with provenance attached.
           </p>
         </motion.div>
 
@@ -36,14 +36,15 @@ export function InfrastructureSection() {
         >
           <img
             src={evidenceFlowImage}
-            alt="Orgni connects Microsoft Teams, Gmail, Google Drive, SAP, spreadsheets, and databases to answer questions with traceable sources."
+            alt="Conceptual architecture showing source systems feeding Orgni infrastructure and downstream consumers."
             className="h-auto w-full"
             width={1535}
             height={1024}
             loading="lazy"
           />
           <figcaption className="border-t border-black/15 px-2 pt-4 font-mono text-[10px] uppercase text-black/55">
-            Evidence flow / source systems to grounded answer
+            Target architecture / connectors shown conceptually, not as active
+            integrations
           </figcaption>
         </motion.figure>
       </div>

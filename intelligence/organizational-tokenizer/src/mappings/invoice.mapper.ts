@@ -5,9 +5,16 @@
 import type { OrganizationalToken } from "@workspace/contracts";
 import { clampConfidence } from "@workspace/contracts";
 import type { InvoiceExtraction } from "../envelopes/invoice.js";
-import { minConfidence, avgConfidence, buildSourceRef, getStableTimestamp } from "./helpers.js";
+import {
+  minConfidence,
+  avgConfidence,
+  buildSourceRef,
+  getStableTimestamp,
+} from "./helpers.js";
 
-export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[] {
+export function mapInvoiceToTokens(
+  env: InvoiceExtraction,
+): OrganizationalToken[] {
   const stableNow = getStableTimestamp(env);
   const tokens: OrganizationalToken[] = [];
 
@@ -18,7 +25,7 @@ export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[
     tokenKind: "EVENT",
     eventType: "INVOICE_ISSUED",
     subjectId: env.vendorName.value,
-    objectId: env.buyerName.value,
+    ...(env.buyerName && { objectId: env.buyerName.value }),
     validTime: { from: env.invoiceDate.value },
     transactionTime: stableNow,
     scalarValue: {
@@ -26,8 +33,12 @@ export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[
       totalAmount: env.totalAmount.value,
       currency: env.currency.value,
       ...(env.dueDate ? { dueDate: env.dueDate.value } : {}),
-      ...(env.purchaseOrderRef ? { purchaseOrderRef: env.purchaseOrderRef.value } : {}),
-      ...(env.vendorVatNumber ? { vendorVatNumber: env.vendorVatNumber.value } : {}),
+      ...(env.purchaseOrderRef
+        ? { purchaseOrderRef: env.purchaseOrderRef.value }
+        : {}),
+      ...(env.vendorVatNumber
+        ? { vendorVatNumber: env.vendorVatNumber.value }
+        : {}),
       ...(env.paymentTerms ? { paymentTerms: env.paymentTerms.value } : {}),
     },
     sourceRefs: [buildSourceRef(env, 1, "header")],
@@ -35,7 +46,7 @@ export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[
       minConfidence(
         env.invoiceNumber.confidence,
         env.vendorName.confidence,
-        env.buyerName.confidence,
+        ...(env.buyerName ? [env.buyerName.confidence] : []),
         env.totalAmount.confidence,
       ),
     ),
@@ -62,7 +73,7 @@ export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[
     tenantId: env.tenantId,
     tokenKind: "STATE",
     eventType: "INVOICE_OBLIGATION",
-    subjectId: env.buyerName.value,
+    ...(env.buyerName && { subjectId: env.buyerName.value }),
     objectId: env.vendorName.value,
     validTime: { from: env.invoiceDate.value }, // Removed the terminal '.to' date bound to allow continuity past deadlines
     transactionTime: stableNow,
@@ -97,7 +108,7 @@ export function mapInvoiceToTokens(env: InvoiceExtraction): OrganizationalToken[
       tokenKind: "EVENT",
       eventType: "INVOICE_LINE_ITEMS",
       subjectId: env.vendorName.value,
-      objectId: env.buyerName.value,
+      ...(env.buyerName && { objectId: env.buyerName.value }),
       transactionTime: stableNow,
       scalarValue: {
         invoiceNumber: env.invoiceNumber.value,

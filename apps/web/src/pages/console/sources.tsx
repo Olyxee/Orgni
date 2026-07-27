@@ -7,35 +7,55 @@ import { Link } from "wouter";
 import { FileText, Plus, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-export default function Sources() {
+export default function Sources({ embedded = false }: { embedded?: boolean }) {
   const { data, loading, error, refetch } = useData(listDocuments);
   const { session } = useAuth();
 
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{
+    current: number;
+    total: number;
+  } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file || !session) return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0 || !session) return;
     setUploading(true);
+    setUploadProgress({ current: 0, total: files.length });
     setUploadError(null);
+
+    const failures: string[] = [];
+    let completed = 0;
+
     try {
-      await uploadDocument(session.token, file);
+      for (const file of files) {
+        try {
+          await uploadDocument(session.token, file);
+        } catch (err: any) {
+          const message =
+            err.status === 503 ||
+            err.code === "document_intelligence_unavailable"
+              ? "processing service unavailable"
+              : err.message || "processing failed";
+          failures.push(`${file.name}: ${message}`);
+        } finally {
+          completed += 1;
+          setUploadProgress({ current: completed, total: files.length });
+        }
+      }
+
       await refetch?.();
-    } catch (err: any) {
-      if (
-        err.status === 503 ||
-        err.code === "document_intelligence_unavailable"
-      ) {
+
+      if (failures.length > 0) {
         setUploadError(
-          "Processing services are not yet connected in this environment. Once connected, Orgni will automatically extract entities, facts, and relationships from this source.",
+          `${files.length - failures.length} of ${files.length} documents uploaded. ${failures.join(" | ")}`,
         );
-      } else {
-        setUploadError(err.message || "Failed to process source.");
       }
     } finally {
       setUploading(false);
+      setUploadProgress(null);
       if (fileRef.current) fileRef.current.value = "";
     }
   }
@@ -44,26 +64,31 @@ export default function Sources() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight mb-2">
-            Evidence Sources
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            Processed organizational evidence.
-          </p>
+          {!embedded && (
+            <>
+              <h1 className="text-2xl font-semibold tracking-tight mb-2">
+                Evidence Sources
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                Processed organisational evidence.
+              </p>
+            </>
+          )}
         </div>
         <div>
           <input
             ref={fileRef}
             type="file"
+            multiple
             onChange={onUpload}
             className="hidden"
-            accept=".pdf,.png,.jpg,.jpeg,.txt"
+            accept=".pdf,.docx,.xlsx,.pptx,.rtf,.txt,.md,.csv,.tsv,.json,.xml,.html,.htm,.png,.jpg,.jpeg"
           />
           <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
             {uploading ? (
-              "Processing..."
+              `Processing ${uploadProgress?.current ?? 0}/${uploadProgress?.total ?? 0}`
             ) : (
               <>
                 <Plus className="w-4 h-4 mr-2" />
@@ -71,6 +96,9 @@ export default function Sources() {
               </>
             )}
           </Button>
+          <p className="mt-2 text-right text-xs text-muted-foreground">
+            Select one or multiple PDF, Office, text, data, or image files
+          </p>
         </div>
       </div>
 

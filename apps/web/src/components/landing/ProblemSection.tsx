@@ -1,11 +1,6 @@
 import { motion } from "framer-motion";
 import { User, HelpCircle } from "lucide-react";
-import {
-  SiGmail,
-  SiGooglesheets,
-  SiJira,
-  SiSap,
-} from "react-icons/si";
+import { SiGmail, SiGooglesheets, SiJira, SiSap } from "react-icons/si";
 
 const answers = [
   {
@@ -52,8 +47,9 @@ const costs = [
     label: "Every new person rebuilds the same context from scratch.",
   },
   {
-    stat: "Blind AI",
-    label: "Your AI tools guess, because they can\u2019t see how you really work.",
+    stat: "Weak decisions",
+    label:
+      "People and systems act without a shared, traceable operational context.",
   },
 ];
 
@@ -73,12 +69,11 @@ export function ProblemSection() {
           <h2 className="mb-6 font-serif text-4xl leading-[1.02] text-foreground md:text-6xl xl:text-7xl">
             Your organisation has data.
             <br />
-            <span className="text-primary">
-              It lacks shared understanding.
-            </span>
+            <span className="text-primary">It lacks shared understanding.</span>
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium">
-            Ask a simple question and watch what happens.
+            One operational decision can depend on evidence scattered across
+            many systems.
           </p>
         </motion.div>
 

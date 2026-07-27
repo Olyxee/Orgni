@@ -1,133 +1,80 @@
 import { getOverview } from "@/lib/api";
-import { useData, ErrorState } from "./shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
+import { ConsolePageHeader, ErrorState, useData } from "./shared";
 
 export default function Overview() {
   const { data, loading, error } = useData(getOverview);
-
-  if (loading)
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-[200px] w-full" />
-      </div>
-    );
+  if (loading) return <Skeleton className="h-64 w-full" />;
   if (error) return <ErrorState error={error} />;
   if (!data) return null;
 
+  const failed = data.sources.byState.FAILED ?? 0;
+  const healthy = failed === 0;
+  const latest = data.latestSources[0];
+  const metrics = [
+    ["Orgni status", healthy ? "Healthy" : "Attention required", "/app"],
+    ["Connected sources", String(data.sources.total), "/app/connections"],
+    [
+      "Last context update",
+      latest ? new Date(latest.uploadedAt).toLocaleString() : "No context yet",
+      "/app/connections",
+    ],
+    [
+      "Unresolved conflicts",
+      String(data.exceptions),
+      "/app/data-quality/issues",
+    ],
+    ["Failed ingestion events", String(failed), "/app/data-quality/issues"],
+    ["Active consumers", "0", "/app/developer/consumers"],
+  ];
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
-          Organization Overview
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Current state of the organizational model.
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <ConsolePageHeader
+        title="Infrastructure Home"
+        description="A concise view of whether organisational context is flowing and where technical attention is required."
+      />
+      <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+        <div>
+          <div className="text-sm font-medium">Orgni infrastructure</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Context ingestion and model API
+          </p>
+        </div>
+        <Badge variant={healthy ? "default" : "destructive"}>
+          {healthy ? "Healthy" : "Attention required"}
+        </Badge>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {metrics.map(([title, value, href]) => (
+          <Link key={title} href={href}>
+            <Card className="h-full transition-colors hover:border-primary/50">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs uppercase text-muted-foreground">
+                  {title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-semibold leading-tight">
+                  {value}
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+      <div className="rounded-lg border border-border p-5">
+        <h2 className="text-sm font-semibold">Current capability</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          This environment currently processes uploaded invoices, proofs of
+          payment and contracts into structured, traceable organisational facts.
+          Additional source connectors and consumer registration are not yet
+          configured.
         </p>
       </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
-          title="Sources"
-          value={data.sources.total}
-          href="/app/sources"
-        />
-        <MetricCard
-          title="Entities"
-          value={data.entities}
-          href="/app/entities"
-        />
-        <MetricCard
-          title="Relationships"
-          value={data.relationships}
-          href="/app/relationships"
-        />
-        <MetricCard title="Facts" value={data.facts.total} href="/app/facts" />
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-sans tracking-tight">
-              Action Required
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b border-border/50">
-              <span className="text-sm text-muted-foreground">
-                Pending Reviews
-              </span>
-              <span className="font-medium text-lg">{data.reviews}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Unresolved Exceptions
-              </span>
-              <span className="font-medium text-lg">{data.exceptions}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-sans tracking-tight">
-              Latest Sources
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {data.latestSources.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No sources processed yet.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {data.latestSources.slice(0, 3).map((s) => (
-                  <div
-                    key={s.sourceId}
-                    className="flex justify-between items-center text-sm pb-2 last:pb-0 border-b border-border/50 last:border-0"
-                  >
-                    <Link
-                      href={`/app/sources/${s.sourceId}`}
-                      className="truncate max-w-[200px] font-medium hover:text-primary transition-colors hover:underline"
-                    >
-                      {s.filename}
-                    </Link>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(s.uploadedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
     </div>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  href,
-}: {
-  title: string;
-  value: number;
-  href: string;
-}) {
-  return (
-    <Link href={href}>
-      <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full bg-card hover:bg-muted/10">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-xs text-muted-foreground uppercase tracking-wider font-sans">
-            {title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-semibold text-foreground">{value}</div>
-        </CardContent>
-      </Card>
-    </Link>
   );
 }

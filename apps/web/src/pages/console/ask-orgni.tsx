@@ -1,23 +1,25 @@
 import { Sparkles } from "lucide-react";
 import { EmptyState } from "./shared";
 
-export default function AskOrgni() {
+export default function AskOrgni({ embedded = false }: { embedded?: boolean }) {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
-          Ask Orgni
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Natural language querying over your organizational model.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Context Explorer
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Test structured context queries against the organisational model.
+          </p>
+        </div>
+      )}
 
       <div className="mt-12">
         <EmptyState
           icon={Sparkles}
-          title="Coming soon"
-          description="Grounded question-answering over the organizational model arrives when the intelligence services are connected. Soon, you will be able to query facts, explore relationships, and trace every answer back to its original evidence source."
+          title="Query endpoint not configured"
+          description="The Context Explorer will become available when the Context API query endpoint is implemented. It will be a developer inspection tool, not a general-purpose chatbot."
         />
       </div>
     </div>

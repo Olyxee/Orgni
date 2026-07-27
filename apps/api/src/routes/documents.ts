@@ -91,17 +91,28 @@ router.post(
 
     // Idempotency: the same bytes re-uploaded by the same tenant returns the
     // already-stored result instead of reprocessing or colliding on write.
-    if (store) {
-      const checksum = checksumOf(new Uint8Array(file.buffer));
-      const existing = await store.repository.findSourceByChecksum(
+    const checksum = checksumOf(new Uint8Array(file.buffer));
+    const existing = store
+      ? await store.repository.findSourceByChecksum(tenantId, checksum)
+      : null;
+    if (store && existing?.state === "COMPLETED") {
+      const doc = await store.repository.getDocument(
         tenantId,
-        checksum,
+        existing.sourceId,
       );
-      if (existing) {
-        const doc = await store.repository.getDocument(
-          tenantId,
-          existing.sourceId,
-        );
+      const tokenizableType = [
+        "INVOICE",
+        "PROOF_OF_PAYMENT",
+        "CONTRACT",
+      ].includes(existing.documentType ?? "");
+      const needsTokenRetry =
+        tokenizableType && (doc?.tokens.length ?? 0) === 0;
+      const needsOntologyRetry =
+        ontology !== null &&
+        (doc?.tokens.length ?? 0) > 0 &&
+        doc?.facts === null;
+
+      if (!needsTokenRetry && !needsOntologyRetry) {
         res.status(200).json({
           sourceId: existing.sourceId,
           schemaVersion: "0.1.0",
@@ -130,6 +141,7 @@ router.post(
     try {
       const result = await processDocument(
         {
+          sourceId: existing?.sourceId,
           filename: file.originalname,
           mimeType: file.mimetype,
           content: new Uint8Array(file.buffer),

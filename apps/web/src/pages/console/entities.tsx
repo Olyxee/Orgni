@@ -2,8 +2,9 @@ import { listEntities } from "@/lib/api";
 import { useData, ErrorState, EmptyState } from "./shared";
 import { Database } from "lucide-react";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
-export default function Entities() {
+export default function Entities({ embedded = false }: { embedded?: boolean }) {
   const { data, loading, error } = useData(listEntities);
 
   if (loading)
@@ -19,18 +20,32 @@ export default function Entities() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">Entities</h1>
-        <p className="text-muted-foreground text-sm">
-          De-duplicated organizational entities mapped from evidence.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Entities
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            De-duplicated organizational entities mapped from evidence.
+          </p>
+        </div>
+      )}
 
       {entities.length === 0 ? (
         <EmptyState
           icon={Database}
-          title="No entities discovered"
-          description="As Orgni processes evidence sources, it will automatically extract and de-duplicate organizational entities (people, companies, projects) and map them here."
+          title="No entities have been resolved yet"
+          description="Entities will appear when Orgni receives evidence from connected systems, uploaded sources or the Events API."
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button asChild size="sm">
+                <Link href="/app/connections">Connect a source</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <Link href="/app/developer">View API setup</Link>
+              </Button>
+            </div>
+          }
         />
       ) : (
         <div className="rounded-lg border border-border divide-y divide-border overflow-hidden bg-card">

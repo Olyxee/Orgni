@@ -35,6 +35,9 @@ node_modules
 npm-debug.log
 yarn-error.log
 testem.log
+.api.*.log
+.document-intelligence.*.log
+.ontology.*.log
 /typings
 
 # Local environment and secrets

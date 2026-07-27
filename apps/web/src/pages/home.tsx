@@ -28,13 +28,34 @@ export default function Home() {
             </div>
             <div className="p-6 md:p-10 lg:col-span-9 lg:p-12">
               <h2 className="max-w-5xl font-serif text-3xl leading-tight md:text-5xl">
-                One answer you can trust, with every source still attached.
+                One trusted operational context, with every source still
+                attached.
               </h2>
             </div>
           </div>
         </section>
         <ProblemSection />
         <InfrastructureSection />
+        <section className="border-b border-border bg-foreground text-background">
+          <div className="mx-auto grid max-w-[1600px] border-x border-white/20 lg:grid-cols-12">
+            <div className="border-b border-white/20 p-6 lg:col-span-3 lg:border-b-0 lg:border-r lg:p-8">
+              <span className="orgni-index !text-white/55">
+                CURRENT / CAPABILITY
+              </span>
+            </div>
+            <div className="p-6 md:p-10 lg:col-span-9 lg:p-12">
+              <h2 className="max-w-4xl text-3xl font-semibold md:text-5xl">
+                Structured context begins with traceable evidence.
+              </h2>
+              <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/70">
+                Orgni currently begins with invoices, proofs of payment and
+                contracts, converting them into structured, traceable
+                organisational facts. Additional source connectors are being
+                developed and are not presented as active today.
+              </p>
+            </div>
+          </div>
+        </section>
         <IntegrationsSection />
         <FinalCtaSection />
       </main>

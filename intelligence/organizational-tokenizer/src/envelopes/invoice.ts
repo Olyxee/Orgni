@@ -10,46 +10,46 @@
 import type { ExtractionEnvelopeBase, FieldExtraction } from "./types.js";
 
 export interface InvoiceLineItem {
-    description: FieldExtraction;
-    quantity: FieldExtraction<number>;
-    unitPrice: FieldExtraction<number>;
-    totalPrice: FieldExtraction<number>;
-    /** Currency for this line (may differ from invoice currency in multi-currency invoices). */
-    currency: FieldExtraction;
+  description: FieldExtraction;
+  quantity: FieldExtraction<number>;
+  unitPrice: FieldExtraction<number>;
+  totalPrice: FieldExtraction<number>;
+  /** Currency for this line (may differ from invoice currency in multi-currency invoices). */
+  currency: FieldExtraction;
 }
 
 export interface InvoiceExtraction extends ExtractionEnvelopeBase {
-    documentType: "INVOICE";
+  documentType: "INVOICE";
 
-    // ── Identifiers ──────────────────────────────────────────────────────────
-    invoiceNumber: FieldExtraction;
-    invoiceDate: FieldExtraction;
-    dueDate?: FieldExtraction;
+  // ── Identifiers ──────────────────────────────────────────────────────────
+  invoiceNumber: FieldExtraction;
+  invoiceDate: FieldExtraction;
+  dueDate?: FieldExtraction;
 
-    // ── Parties ──────────────────────────────────────────────────────────────
-    vendorName: FieldExtraction;
-    /** Internal or registration ID of the vendor, if extractable. */
-    vendorId?: FieldExtraction;
-    vendorAddress?: FieldExtraction;
-    vendorVatNumber?: FieldExtraction;
+  // ── Parties ──────────────────────────────────────────────────────────────
+  vendorName: FieldExtraction;
+  /** Internal or registration ID of the vendor, if extractable. */
+  vendorId?: FieldExtraction;
+  vendorAddress?: FieldExtraction;
+  vendorVatNumber?: FieldExtraction;
 
-    buyerName: FieldExtraction;
-    /** Internal or registration ID of the buyer, if extractable. */
-    buyerId?: FieldExtraction;
-    buyerAddress?: FieldExtraction;
+  buyerName?: FieldExtraction;
+  /** Internal or registration ID of the buyer, if extractable. */
+  buyerId?: FieldExtraction;
+  buyerAddress?: FieldExtraction;
 
-    // ── Financials ───────────────────────────────────────────────────────────
-    subtotal?: FieldExtraction<number>;
-    taxAmount?: FieldExtraction<number>;
-    taxRate?: FieldExtraction<number>;
-    totalAmount: FieldExtraction<number>;
-    currency: FieldExtraction;
+  // ── Financials ───────────────────────────────────────────────────────────
+  subtotal?: FieldExtraction<number>;
+  taxAmount?: FieldExtraction<number>;
+  taxRate?: FieldExtraction<number>;
+  totalAmount: FieldExtraction<number>;
+  currency: FieldExtraction;
 
-    // ── Line items ───────────────────────────────────────────────────────────
-    lineItems: InvoiceLineItem[];
+  // ── Line items ───────────────────────────────────────────────────────────
+  lineItems: InvoiceLineItem[];
 
-    // ── Optional metadata ────────────────────────────────────────────────────
-    paymentTerms?: FieldExtraction;
-    purchaseOrderRef?: FieldExtraction;
-    notes?: FieldExtraction;
+  // ── Optional metadata ────────────────────────────────────────────────────
+  paymentTerms?: FieldExtraction;
+  purchaseOrderRef?: FieldExtraction;
+  notes?: FieldExtraction;
 }

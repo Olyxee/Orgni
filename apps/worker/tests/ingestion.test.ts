@@ -53,7 +53,26 @@ describe("ingestion — validation", () => {
     expect(isSupportedMimeType("image/png")).toBe(true);
     expect(isSupportedMimeType("image/jpeg")).toBe(true);
     expect(isSupportedMimeType("text/plain")).toBe(true);
+    expect(isSupportedMimeType("text/csv")).toBe(true);
+    expect(isSupportedMimeType("application/json")).toBe(true);
+    expect(
+      isSupportedMimeType(
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ),
+    ).toBe(true);
+    expect(
+      isSupportedMimeType(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ),
+    ).toBe(true);
     expect(isSupportedMimeType("application/zip")).toBe(false);
+  });
+
+  it("reuses a source id when retrying a failed document", async () => {
+    const record = await ingestDocument(input({ sourceId: "src_retry" }), ok);
+
+    expect(record.sourceId).toBe("src_retry");
+    expect(record.state).toBe("COMPLETED");
   });
 
   it("fails an unsupported type without calling document intelligence", async () => {

@@ -4,7 +4,10 @@
  * Sends the session token as a Bearer header on every authenticated call. The
  * API base URL comes from VITE_API_URL (defaults to the local API on :8080).
  */
-const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+const API_URL = (
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.DEV ? "http://localhost:8080" : "")
+).replace(/\/+$/, "");
 
 export interface Session {
   token: string;

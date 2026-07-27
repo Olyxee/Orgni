@@ -96,7 +96,6 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
     invoiceNumber: str(f, "invoiceNumber"),
     invoiceDate: str(f, "invoiceDate"),
     vendorName: str(f, "vendorName"),
-    buyerName: str(f, "buyerName"),
     totalAmount: num(f, "totalAmount"),
     currency: str(f, "currency"),
   };
@@ -128,10 +127,10 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
     invoiceNumber: required.invoiceNumber!,
     invoiceDate: required.invoiceDate!,
     vendorName: required.vendorName!,
-    buyerName: required.buyerName!,
     totalAmount: required.totalAmount!,
     currency,
     lineItems,
+    ...(str(f, "buyerName") && { buyerName: str(f, "buyerName")! }),
     ...(str(f, "dueDate") && { dueDate: str(f, "dueDate")! }),
     ...(str(f, "vendorVatNumber") && {
       vendorVatNumber: str(f, "vendorVatNumber")!,
@@ -152,7 +151,7 @@ function adaptInvoice(envelope: NormalizedEnvelope): AdaptResult {
 /** Map extractor method names onto the tokenizer's PaymentMethod union. */
 const PAYMENT_METHODS: Record<
   string,
-  ProofOfPaymentExtraction["paymentMethod"]["value"]
+  NonNullable<ProofOfPaymentExtraction["paymentMethod"]>["value"]
 > = {
   EFT: "EFT",
   WIRE: "SWIFT",
@@ -169,10 +168,7 @@ function adaptProofOfPayment(envelope: NormalizedEnvelope): AdaptResult {
   const warnings: string[] = [];
 
   const required = {
-    referenceNumber: str(f, "paymentReference"),
     paymentDate: str(f, "paymentDate"),
-    payerName: str(f, "payerName"),
-    payeeName: str(f, "payeeName"),
     amount: num(f, "amount"),
     currency: str(f, "currency"),
   };
@@ -182,16 +178,15 @@ function adaptProofOfPayment(envelope: NormalizedEnvelope): AdaptResult {
     }
   }
 
-  const rawMethod = str(f, "paymentMethod");
-  if (!rawMethod) {
-    errors.push("proof of payment is missing required field: paymentMethod");
-  }
   if (errors.length > 0) return { ok: false, errors, warnings };
 
-  const paymentMethod: ProofOfPaymentExtraction["paymentMethod"] = {
-    ...rawMethod!,
-    value: PAYMENT_METHODS[rawMethod!.value] ?? "OTHER",
-  };
+  const rawMethod = str(f, "paymentMethod");
+  const paymentMethod: ProofOfPaymentExtraction["paymentMethod"] = rawMethod
+    ? {
+        ...rawMethod,
+        value: PAYMENT_METHODS[rawMethod.value] ?? "OTHER",
+      }
+    : undefined;
 
   // Carried as a reference only. Whether it settles that invoice is an
   // ontology question, and Phase 1 deliberately does not answer it.
@@ -205,13 +200,15 @@ function adaptProofOfPayment(envelope: NormalizedEnvelope): AdaptResult {
   const extraction: ProofOfPaymentExtraction = {
     ...base(envelope),
     documentType: "PROOF_OF_PAYMENT",
-    referenceNumber: required.referenceNumber!,
     paymentDate: required.paymentDate!,
-    payerName: required.payerName!,
-    payeeName: required.payeeName!,
     amount: required.amount!,
     currency: required.currency!,
-    paymentMethod,
+    ...(str(f, "paymentReference") && {
+      referenceNumber: str(f, "paymentReference")!,
+    }),
+    ...(str(f, "payerName") && { payerName: str(f, "payerName")! }),
+    ...(str(f, "payeeName") && { payeeName: str(f, "payeeName")! }),
+    ...(paymentMethod && { paymentMethod }),
     ...(invoiceRef && { invoiceRef }),
     ...(str(f, "proofReference") && { bankRef: str(f, "proofReference")! }),
   };

@@ -5,9 +5,15 @@
 import type { OrganizationalToken } from "@workspace/contracts";
 import { clampConfidence } from "@workspace/contracts";
 import type { ProofOfPaymentExtraction } from "../envelopes/proof_of_payment.js";
-import { minConfidence, buildSourceRef, getStableTimestamp } from "./helpers.js";
+import {
+  minConfidence,
+  buildSourceRef,
+  getStableTimestamp,
+} from "./helpers.js";
 
-export function mapProofOfPaymentToTokens(env: ProofOfPaymentExtraction): OrganizationalToken[] {
+export function mapProofOfPaymentToTokens(
+  env: ProofOfPaymentExtraction,
+): OrganizationalToken[] {
   const stableNow = getStableTimestamp(env);
   const tokens: OrganizationalToken[] = [];
 
@@ -17,28 +23,34 @@ export function mapProofOfPaymentToTokens(env: ProofOfPaymentExtraction): Organi
     tenantId: env.tenantId,
     tokenKind: "EVENT",
     eventType: "PAYMENT_MADE",
-    subjectId: env.payerName.value,
-    objectId: env.payeeName.value,
+    ...(env.payerName && { subjectId: env.payerName.value }),
+    ...(env.payeeName && { objectId: env.payeeName.value }),
     validTime: { from: env.paymentDate.value },
     transactionTime: stableNow,
     scalarValue: {
-      referenceNumber: env.referenceNumber.value,
+      ...(env.referenceNumber && {
+        referenceNumber: env.referenceNumber.value,
+      }),
       amount: env.amount.value,
       currency: env.currency.value,
-      method: env.paymentMethod.value,
-      ...(env.payerAccountRef ? { payerAccountRef: env.payerAccountRef.value } : {}),
-      ...(env.payeeAccountRef ? { payeeAccountRef: env.payeeAccountRef.value } : {}),
+      ...(env.paymentMethod && { method: env.paymentMethod.value }),
+      ...(env.payerAccountRef
+        ? { payerAccountRef: env.payerAccountRef.value }
+        : {}),
+      ...(env.payeeAccountRef
+        ? { payeeAccountRef: env.payeeAccountRef.value }
+        : {}),
       ...(env.invoiceRef ? { invoiceRef: env.invoiceRef.value } : {}),
       ...(env.bankRef ? { bankRef: env.bankRef.value } : {}),
     },
     sourceRefs: [buildSourceRef(env, 1, "payment-details")],
     confidence: clampConfidence(
       minConfidence(
-        env.referenceNumber.confidence,
         env.amount.confidence,
-        env.payerName.confidence,
-        env.payeeName.confidence,
         env.paymentDate.confidence,
+        ...(env.referenceNumber ? [env.referenceNumber.confidence] : []),
+        ...(env.payerName ? [env.payerName.confidence] : []),
+        ...(env.payeeName ? [env.payeeName.confidence] : []),
       ),
     ),
     epistemicStatus: "OBSERVED",
@@ -55,15 +67,15 @@ export function mapProofOfPaymentToTokens(env: ProofOfPaymentExtraction): Organi
       tenantId: env.tenantId,
       tokenKind: "STATE",
       eventType: "PAYMENT_SETTLEMENT",
-      subjectId: env.payerName.value,
-      objectId: env.payeeName.value,
+      ...(env.payerName && { subjectId: env.payerName.value }),
+      ...(env.payeeName && { objectId: env.payeeName.value }),
       validTime: { from: env.paymentDate.value },
       transactionTime: stableNow,
       scalarValue: {
         invoiceRef: env.invoiceRef.value,
         amount: env.amount.value,
         currency: env.currency.value,
-        method: env.paymentMethod.value,
+        ...(env.paymentMethod && { method: env.paymentMethod.value }),
         status: "PENDING_VERIFICATION", // Replaced 'SETTLED' to accommodate partial or unverified remittance matching
       },
       sourceRefs: [buildSourceRef(env, 1, "metadata-matching")],

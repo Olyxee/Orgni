@@ -49,13 +49,15 @@ export function IntegrationsSection() {
           className="mb-14 flex max-w-4xl flex-col items-start gap-6"
         >
           <span className="orgni-index">ORG / 004</span>
-          <p className="orgni-kicker">Where the answers come from</p>
+          <p className="orgni-kicker">Source architecture</p>
           <h2 className="font-serif text-4xl leading-[1.02] text-foreground md:text-6xl">
-            Plugs into the tools you already use.
+            Designed to unify evidence across your organisation.
           </h2>
           <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            No migration, no new system of record. Orgni connects to where your
-            work already lives and keeps its model current as things change.
+            Conversations, documents, email, APIs, business systems and
+            databases can contribute to one operational model. The systems below
+            illustrate the target connector network; they are not all active
+            integrations today.
           </p>
         </motion.div>
 
@@ -123,7 +125,7 @@ export function IntegrationsSection() {
               Orgni
             </span>
             <span className="relative text-[9px] font-mono uppercase text-primary">
-              Live context
+              Context engine
             </span>
           </motion.div>
 

@@ -9,7 +9,11 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
-export default function Exceptions() {
+export default function Exceptions({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const { data, loading, error } = useData(getExceptions);
 
   if (loading)
@@ -30,14 +34,16 @@ export default function Exceptions() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-2">
-          Exceptions
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Conflicts, refused assertions, and failed sources.
-        </p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight mb-2">
+            Exceptions
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Conflicts, refused assertions, and failed sources.
+          </p>
+        </div>
+      )}
 
       {!hasExceptions ? (
         <EmptyState

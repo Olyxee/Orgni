@@ -183,6 +183,7 @@ describe("E2E — controlled failure", () => {
   it("returns UNKNOWN with warnings for an unclassifiable document", async () => {
     const result = await run("noise.txt", UNREADABLE);
 
+    expect(result.state).toBe("COMPLETED");
     expect(result.documentType).toBe("UNKNOWN");
     expect(result.tokens).toHaveLength(0);
     expect(result.warnings.length).toBeGreaterThan(0);
@@ -207,6 +208,7 @@ describe("E2E — controlled failure", () => {
   it("produces no tokens when required fields are missing", async () => {
     const result = await run("partial.txt", INVOICE_MISSING_FIELDS);
 
+    expect(result.state).toBe("COMPLETED");
     expect(result.tokens).toHaveLength(0);
     expect(result.errors.join()).toMatch(/missing required field|UNKNOWN/);
   });

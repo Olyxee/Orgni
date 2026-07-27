@@ -14,14 +14,14 @@ export default function Settings() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight mb-2">Settings</h1>
         <p className="text-muted-foreground text-sm">
-          Manage your session and workspace.
+          Organisation, tenant and environment configuration.
         </p>
       </div>
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="p-6 border-b border-border/50">
           <h2 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider font-sans">
-            Workspace
+            Organisation and environment
           </h2>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
@@ -52,7 +52,7 @@ export default function Settings() {
               <div>
                 <div className="font-medium text-base">{session.email}</div>
                 <div className="text-xs text-muted-foreground mt-1">
-                  Authenticated User
+                  Console administrator session
                 </div>
               </div>
             </div>
@@ -80,6 +80,15 @@ export default function Settings() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="rounded-lg border border-dashed border-border p-6">
+        <h2 className="text-sm font-semibold">Configuration not yet exposed</h2>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Retention, confidence thresholds, audit configuration and data
+          residency require administrative backend endpoints that are not
+          implemented in this environment.
+        </p>
       </div>
 
       <div className="pt-2">

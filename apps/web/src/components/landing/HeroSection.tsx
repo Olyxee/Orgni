@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "wouter";
 import { LOGIN_URL } from "@/lib/links";
@@ -50,7 +46,9 @@ export function HeroSection() {
       <div className="mx-auto grid min-h-[calc(100vh-72px)] max-w-[1600px] border-x border-border lg:grid-cols-12">
         <aside className="hidden border-r border-border p-8 lg:col-span-1 lg:flex lg:flex-col lg:justify-between">
           <span className="orgni-index">ORG / 001</span>
-          <span className="font-serif text-6xl leading-none text-primary">O</span>
+          <span className="font-serif text-6xl leading-none text-primary">
+            O
+          </span>
         </aside>
 
         <motion.div
@@ -59,20 +57,23 @@ export function HeroSection() {
           transition={{ duration: 0.55, ease: "easeOut" }}
           className="flex flex-col justify-center px-6 py-16 md:px-12 md:py-24 lg:col-span-7 lg:px-14"
         >
-          <p className="orgni-kicker mb-10">Operational intelligence</p>
+          <p className="orgni-kicker mb-10">
+            Operational intelligence infrastructure
+          </p>
           <h1 className="font-serif text-5xl leading-[0.98] md:text-7xl lg:text-8xl">
-            Ask anything about your
+            Make your organisation understandable to intelligence.
+          </h1>
+          <p className="mt-8 font-mono text-xs font-bold uppercase text-muted-foreground">
+            Built for
             <span
-              className="relative mt-3 block min-h-[2.2em] text-[0.62em] leading-[1.08] text-primary md:min-h-[1.25em]"
+              className="relative mt-3 block min-h-[2.2em] text-lg leading-[1.3] text-primary md:min-h-[1.5em] md:text-xl"
               aria-live="polite"
               aria-atomic="true"
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
                   key={industries[industryIndex].label}
-                  initial={
-                    prefersReducedMotion ? false : { opacity: 0, y: 12 }
-                  }
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={
                     prefersReducedMotion ? undefined : { opacity: 0, y: -12 }
@@ -85,11 +86,12 @@ export function HeroSection() {
                 </motion.span>
               </AnimatePresence>
             </span>
-          </h1>
+          </p>
 
           <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-            Orgni connects contracts, invoices, payments, policies, and
-            operational events into one evidence-backed model of the business.
+            Orgni connects organisational evidence, activity and systems into a
+            living operational model that applications, people and AI agents can
+            depend on.
           </p>
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -97,7 +99,7 @@ export function HeroSection() {
               href={LOGIN_URL}
               className="inline-flex min-h-14 items-center justify-between gap-8 bg-primary px-6 font-mono text-xs font-bold uppercase text-primary-foreground transition-colors hover:bg-foreground"
             >
-              Request demo
+              Open console
               <ArrowUpRight className="h-5 w-5" />
             </a>
             <Link

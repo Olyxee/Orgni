@@ -22,7 +22,20 @@ export const SUPPORTED_MIME_TYPES = [
   "application/pdf",
   "image/png",
   "image/jpeg",
+  "image/jpg",
   "text/plain",
+  "text/markdown",
+  "text/csv",
+  "text/tab-separated-values",
+  "text/xml",
+  "text/html",
+  "application/json",
+  "application/xml",
+  "application/rtf",
+  "text/rtf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 ] as const;
 
 export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number];
@@ -43,6 +56,8 @@ export const DEFAULT_LIMITS: IngestionLimits = {
 };
 
 export interface IngestionInput {
+  /** Reuse an existing source identity when retrying a failed document. */
+  sourceId?: string;
   filename: string;
   mimeType: string;
   content: Uint8Array | string;
@@ -166,7 +181,7 @@ export async function ingestDocument(
   const byteSize = byteLength(input.content);
 
   const record: IngestionRecord = {
-    sourceId: `src_${randomUUID()}`,
+    sourceId: input.sourceId ?? `src_${randomUUID()}`,
     state: "RECEIVED",
     checksum,
     filename: input.filename,
