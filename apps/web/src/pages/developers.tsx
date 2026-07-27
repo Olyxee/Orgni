@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { LOGIN_URL } from "@/lib/links";
+import { API_SIGNUP_URL } from "@/lib/links";
 import {
   Check,
   Copy,
@@ -14,9 +14,16 @@ import {
   FileText,
   History,
   AlertTriangle,
+  ArrowUpRight,
 } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import {
+  Capabilities,
+  ExampleFlow,
+  AgentQuickstart,
+  Guardrails,
+} from "@/pages/agents";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -29,6 +36,7 @@ function CopyButton({ text }: { text: string }) {
       }}
       className="text-white/40 hover:text-white transition-colors flex items-center justify-center w-6 h-6"
       title="Copy code"
+      aria-label="Copy code"
     >
       {copied ? (
         <Check size={14} className="text-green-400" />
@@ -79,10 +87,15 @@ export default function Developers() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary flex flex-col">
       <SiteHeader />
-      <main className="flex-1 pt-16">
+      <main className="flex-1 pt-[72px]">
         <Hero />
+        <AgentContextDiagram />
+        <Capabilities />
+        <ExampleFlow />
         <Exposes />
+        <AgentQuickstart />
         <Auth />
+        <Guardrails />
         <NextSteps />
       </main>
       <SiteFooter />
@@ -92,42 +105,89 @@ export default function Developers() {
 
 function Hero() {
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="py-24 md:py-32 px-6 max-w-screen-xl mx-auto flex flex-col items-center text-center"
-    >
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium tracking-wide uppercase mb-8">
-        <Terminal size={14} />
-        For Developers
-      </div>
-      <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium tracking-tight text-foreground mb-6 max-w-4xl leading-[1.1]">
-        A queryable organisational model for AI agents
-      </h1>
-      <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed">
-        Give your agents access to governed identity, relationships, policies,
-        evidence, and operational state through a unified API.
-      </p>
-      <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-        <Button
-          asChild
-          size="lg"
-          className="w-full sm:w-auto h-12 px-8 font-medium shadow-none rounded-md bg-primary hover:bg-primary/90 text-primary-foreground"
+    <section className="orgni-grid border-b border-border">
+      <div className="mx-auto grid max-w-[1600px] border-x border-border lg:grid-cols-12">
+        <aside className="hidden border-r border-border p-8 lg:col-span-2 lg:flex lg:flex-col lg:justify-between">
+          <span className="orgni-index">ORG / DEV-01</span>
+          <Terminal className="h-12 w-12 text-primary" strokeWidth={1.25} />
+        </aside>
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="px-6 py-20 md:px-12 md:py-28 lg:col-span-10"
         >
-          <Link href="/docs">Read the Documentation</Link>
-        </Button>
+          <p className="orgni-kicker mb-10">For developers and agents</p>
+          <h1 className="max-w-5xl font-serif text-5xl leading-[0.98] md:text-7xl lg:text-8xl">
+            A queryable model of how the organisation works.
+          </h1>
+          <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
+            Give any agent verified contracts, invoices, people, policies, and
+            operational state through one governed interface.
+          </p>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={API_SIGNUP_URL}
+              className="inline-flex min-h-14 items-center justify-between gap-8 bg-primary px-6 font-mono text-xs font-bold uppercase text-primary-foreground transition-colors hover:bg-foreground"
+            >
+              Get an API key
+              <ArrowUpRight className="h-5 w-5" />
+            </a>
+            <Link
+              href="/docs"
+              className="inline-flex min-h-14 items-center justify-between gap-8 border border-border bg-background px-6 font-mono text-xs font-bold uppercase transition-colors hover:border-foreground"
+            >
+              Read the docs
+              <ArrowUpRight className="h-5 w-5" />
+            </Link>
+          </div>
+        </motion.div>
       </div>
-    </motion.section>
+    </section>
+  );
+}
+
+function AgentContextDiagram() {
+  return (
+    <section className="border-b border-border">
+      <div className="mx-auto grid max-w-[1600px] border-x border-border lg:grid-cols-12">
+        <div className="border-b border-border p-6 md:p-10 lg:col-span-4 lg:border-b-0 lg:border-r lg:p-12">
+          <span className="orgni-index mb-16 block">ORG / DEV-02</span>
+          <p className="orgni-kicker mb-8">How an agent uses Orgni</p>
+          <h2 className="mb-5 font-serif text-4xl leading-[1.02] text-foreground md:text-6xl">
+            One question. One trusted answer.
+          </h2>
+          <p className="text-lg leading-relaxed text-muted-foreground">
+            The agent asks Orgni instead of searching every system itself.
+            Orgni connects the relevant business data, applies context, and
+            returns an answer the agent can use.
+          </p>
+        </div>
+        <figure className="overflow-hidden bg-white lg:col-span-8">
+          <div className="overflow-x-auto">
+            <img
+              src={`${import.meta.env.BASE_URL}agent-orgni-flow.png`}
+              alt="Flow showing a user asking an AI agent about an outstanding supplier amount. The agent queries Orgni, which unifies Gmail, Microsoft Teams, documents, ERP systems, spreadsheets, and databases before returning a trusted answer."
+              className="block h-auto min-w-[900px] md:min-w-0 md:w-full"
+              loading="eager"
+            />
+          </div>
+          <figcaption className="border-t border-black/15 px-5 py-4 font-mono text-[10px] uppercase text-black/55">
+            Orgni sits between the agent and fragmented business systems,
+            providing unified, real-time organisational context.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
   );
 }
 
 function Exposes() {
   return (
-    <section className="py-24 bg-[#050505] text-white px-6">
-      <div className="max-w-screen-xl mx-auto">
+    <section className="border-b border-border bg-[#050505] text-white">
+      <div className="mx-auto max-w-[1600px] border-x border-white/15 px-6 py-20 md:px-12 md:py-28">
         <div className="max-w-2xl mb-16">
-          <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
+          <h2 className="mb-4 font-serif text-4xl leading-[1.02] md:text-6xl">
             What Orgni exposes
           </h2>
           <p className="text-lg text-white/60 leading-relaxed">
@@ -193,45 +253,56 @@ function Exposes() {
             >
               <pre className="text-white/80 leading-relaxed text-xs md:text-sm flex-1 font-mono">
                 <span className="text-[#ff7b72]">&#123;</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"resource"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#ff7b72]">&#123;&#125;</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"applicableRequirements"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"currentState"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#ff7b72]">&#123;&#125;</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"evidence"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"owners"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"exceptions"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"conflicts"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"historicalEvents"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"permittedActions"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
                 <span className="text-white/40">,</span>
+                {"\n  "}
                 <span className="text-[#79c0ff]">"missingContext"</span>
                 <span className="text-white/40">:</span>{" "}
                 <span className="text-[#a5d6ff]">[]</span>
+                {"\n"}
                 <span className="text-[#ff7b72]">&#125;</span>
               </pre>
             </CodeBlock>
@@ -282,13 +353,13 @@ function Exposes() {
 
 function Auth() {
   return (
-    <section className="py-24 px-6 max-w-screen-xl mx-auto border-b border-border">
+    <section className="mx-auto max-w-[1600px] border-x border-b border-border px-6 py-20 md:px-12 md:py-28">
       <div className="grid lg:grid-cols-2 gap-12 items-center">
         <div>
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-md bg-primary/10 mb-6">
             <Key className="text-primary" size={24} />
           </div>
-          <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
+          <h2 className="mb-4 font-serif text-4xl leading-[1.02] md:text-6xl">
             Authentication
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-md">
@@ -296,7 +367,7 @@ function Auth() {
             generate and manage API keys in your developer dashboard.
           </p>
           <Button asChild className="rounded-md h-11 px-6 shadow-none">
-            <a href={LOGIN_URL}>Get an API Key</a>
+            <a href={API_SIGNUP_URL}>Get an API Key</a>
           </Button>
         </div>
         <div>
@@ -325,14 +396,14 @@ function Auth() {
 
 function NextSteps() {
   return (
-    <section className="py-24 px-6 max-w-screen-xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-10 text-center lg:text-left">
+    <section className="mx-auto max-w-[1600px] border-x border-b border-border px-6 py-20 md:px-12 md:py-28">
+      <h2 className="mb-10 font-serif text-4xl leading-[1.02] md:text-6xl">
         Where to go next
       </h2>
       <div className="max-w-4xl">
         <Link
           href="/docs"
-          className="group block p-8 md:p-10 rounded-xl border border-border bg-muted/20 hover:bg-muted/40 hover:border-primary/30 transition-all"
+          className="group block border-l-4 border-primary bg-muted/20 p-8 transition-colors hover:bg-muted/40 md:p-10"
         >
           <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center mb-6">
             <Book className="text-primary" size={24} />

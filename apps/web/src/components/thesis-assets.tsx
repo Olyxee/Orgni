@@ -43,13 +43,13 @@ export function Table1() {
   return (
     <div className="my-12 overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[600px]">
-        <caption className="mb-4 text-sm text-white/60 font-sans text-left">
-          <strong className="text-white">Table 1.</strong> Context-quality
+        <caption className="mb-4 text-sm text-muted-foreground font-sans text-left">
+          <strong className="text-foreground">Table 1.</strong> Context-quality
           comparison across intelligence approaches (illustrative internal
           evaluation targets).
         </caption>
         <thead>
-          <tr className="border-b border-white/20 text-xs font-mono uppercase tracking-widest text-white/50">
+          <tr className="border-b border-border text-xs font-mono uppercase tracking-widest text-muted-foreground">
             <th className="py-4 pl-4 font-normal">Approach</th>
             <th className="py-4 font-normal">Task Accuracy</th>
             <th className="py-4 font-normal">Hallucination Rate</th>
@@ -57,27 +57,27 @@ export function Table1() {
             <th className="py-4 font-normal">Freshness</th>
           </tr>
         </thead>
-        <tbody className="text-sm font-sans text-white/80">
-          <tr className="border-b border-white/10 hover:bg-white/[0.02] transition-colors">
+        <tbody className="text-sm font-sans text-foreground/80">
+          <tr className="border-b border-border hover:bg-muted/60 transition-colors">
             <td className="py-4 pl-4 font-medium">No Context</td>
-            <td className="py-4 font-mono text-white/50">Low</td>
-            <td className="py-4 font-mono text-white/50">High</td>
-            <td className="py-4 font-mono text-white/50">Low</td>
-            <td className="py-4 font-mono text-white/50">N/A</td>
+            <td className="py-4 font-mono text-muted-foreground">Low</td>
+            <td className="py-4 font-mono text-muted-foreground">High</td>
+            <td className="py-4 font-mono text-muted-foreground">Low</td>
+            <td className="py-4 font-mono text-muted-foreground">N/A</td>
           </tr>
-          <tr className="border-b border-white/10 hover:bg-white/[0.02] transition-colors">
+          <tr className="border-b border-border hover:bg-muted/60 transition-colors">
             <td className="py-4 pl-4 font-medium">Standard RAG</td>
-            <td className="py-4 font-mono text-white/50">Medium</td>
-            <td className="py-4 font-mono text-white/50">Medium</td>
-            <td className="py-4 font-mono text-white/50">Low</td>
-            <td className="py-4 font-mono text-white/50">Medium</td>
+            <td className="py-4 font-mono text-muted-foreground">Medium</td>
+            <td className="py-4 font-mono text-muted-foreground">Medium</td>
+            <td className="py-4 font-mono text-muted-foreground">Low</td>
+            <td className="py-4 font-mono text-muted-foreground">Medium</td>
           </tr>
-          <tr className="border-b border-white/10 hover:bg-white/[0.02] transition-colors">
+          <tr className="border-b border-border hover:bg-muted/60 transition-colors">
             <td className="py-4 pl-4 font-medium">Static Knowledge Graph</td>
-            <td className="py-4 font-mono text-white/50">High</td>
-            <td className="py-4 font-mono text-white/50">Low</td>
-            <td className="py-4 font-mono text-white/50">Medium</td>
-            <td className="py-4 font-mono text-white/50">Low</td>
+            <td className="py-4 font-mono text-muted-foreground">High</td>
+            <td className="py-4 font-mono text-muted-foreground">Low</td>
+            <td className="py-4 font-mono text-muted-foreground">Medium</td>
+            <td className="py-4 font-mono text-muted-foreground">Low</td>
           </tr>
           <tr className="border-b-2 border-primary bg-primary/5">
             <td className="py-4 pl-4 font-bold text-primary">
@@ -98,81 +98,81 @@ export function Table2() {
   return (
     <div className="my-12 overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[500px]">
-        <caption className="mb-4 text-sm text-white/60 font-sans text-left">
-          <strong className="text-white">Table 2.</strong> Orgni O1 Model
+        <caption className="mb-4 text-sm text-muted-foreground font-sans text-left">
+          <strong className="text-foreground">Table 2.</strong> Orgni O1 Model
           Properties (illustrative architecture specification).
         </caption>
         <thead>
-          <tr className="border-b border-white/20 text-xs font-mono uppercase tracking-widest text-white/50">
+          <tr className="border-b border-border text-xs font-mono uppercase tracking-widest text-muted-foreground">
             <th className="py-4 pl-4 font-normal">Component / Metric</th>
             <th className="py-4 font-normal">Specification</th>
           </tr>
         </thead>
-        <tbody className="text-sm font-sans text-white/80">
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+        <tbody className="text-sm font-sans text-foreground/80">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Total Parameters
             </td>
             <td className="py-3 font-mono">~671B</td>
           </tr>
-          <tr className="border-b border-white/10 bg-white/[0.02]">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border bg-muted/40">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Active Parameters
             </td>
             <td className="py-3 font-mono text-primary">~37B</td>
           </tr>
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Transformer Layers (L)
             </td>
             <td className="py-3 font-mono">48</td>
           </tr>
-          <tr className="border-b border-white/10 bg-white/[0.02]">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border bg-muted/40">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Attention Heads
             </td>
             <td className="py-3 font-mono">64</td>
           </tr>
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Hidden Dimension (d_model)
             </td>
             <td className="py-3 font-mono">8192</td>
           </tr>
-          <tr className="border-b border-white/10 bg-white/[0.02]">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border bg-muted/40">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               FFN Dimension (d_ff)
             </td>
             <td className="py-3 font-mono">32768</td>
           </tr>
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Context Length
             </td>
             <td className="py-3 font-mono text-primary">128K tokens</td>
           </tr>
-          <tr className="border-b border-white/10 bg-white/[0.02]">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border bg-muted/40">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Vocabulary Size
             </td>
             <td className="py-3 font-mono">~256K</td>
           </tr>
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Attention Mechanism
             </td>
             <td className="py-3 font-mono">
               Multi-Head Latent Attention (MLA)
             </td>
           </tr>
-          <tr className="border-b border-white/10 bg-white/[0.02]">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border bg-muted/40">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Feed-Forward Network
             </td>
             <td className="py-3 font-mono">SwiGLU</td>
           </tr>
-          <tr className="border-b border-white/10">
-            <td className="py-3 pl-4 font-medium text-white/60">
+          <tr className="border-b border-border">
+            <td className="py-3 pl-4 font-medium text-muted-foreground">
               Mixture of Experts (MoE)
             </td>
             <td className="py-3 font-mono">64 experts (Top-K=8 routing)</td>
@@ -185,14 +185,14 @@ export function Table2() {
 
 export function FormulaAttention() {
   return (
-    <div className="my-10 p-6 md:p-8 bg-white/[0.02] border border-white/10 rounded-sm overflow-x-auto">
-      <div className="font-serif text-lg md:text-xl text-center mb-6 text-white tracking-wide whitespace-nowrap">
+    <div className="my-10 p-6 md:p-8 bg-muted/40 border border-border rounded-sm overflow-x-auto">
+      <div className="font-serif text-lg md:text-xl text-center mb-6 text-foreground tracking-wide whitespace-nowrap">
         <span className="italic mr-2">Attention</span>(Q, K, V) =
         <span className="font-sans ml-2">softmax</span>
         <span className="inline-flex items-center align-middle mx-1">
           <span className="text-3xl font-light leading-none">(</span>
           <span className="inline-flex flex-col text-center px-1">
-            <span className="border-b border-white/30 pb-0.5 mb-0.5 leading-none italic">
+            <span className="border-b border-foreground/40 pb-0.5 mb-0.5 leading-none italic">
               QK<sup className="text-xs">T</sup>
             </span>
             <span className="leading-none text-sm italic">
@@ -203,7 +203,7 @@ export function FormulaAttention() {
         </span>
         <span className="italic">V</span>
       </div>
-      <p className="text-sm text-white/50 font-sans max-w-2xl mx-auto text-center">
+      <p className="text-sm text-muted-foreground font-sans max-w-2xl mx-auto text-center">
         Scaled dot-product attention mapping queries (
         <span className="italic">Q</span>) and keys (
         <span className="italic">K</span>) to values (
@@ -219,8 +219,8 @@ export function FormulaAttention() {
 
 export function FormulaMoE() {
   return (
-    <div className="my-10 p-6 md:p-8 bg-white/[0.02] border border-white/10 rounded-sm overflow-x-auto">
-      <div className="font-serif text-lg md:text-xl text-center mb-6 text-white tracking-wide whitespace-nowrap flex items-center justify-center">
+    <div className="my-10 p-6 md:p-8 bg-muted/40 border border-border rounded-sm overflow-x-auto">
+      <div className="font-serif text-lg md:text-xl text-center mb-6 text-foreground tracking-wide whitespace-nowrap flex items-center justify-center">
         <span className="italic mr-2">MoE</span>(x) =
         <span className="inline-flex flex-col items-center justify-center mx-3 align-middle">
           <span className="text-xs italic leading-none">K</span>
@@ -234,7 +234,7 @@ export function FormulaMoE() {
         </span>
         (x)
       </div>
-      <p className="text-sm text-white/50 font-sans max-w-2xl mx-auto text-center">
+      <p className="text-sm text-muted-foreground font-sans max-w-2xl mx-auto text-center">
         Mixture of Experts routing layer computing a weighted sum over the top-
         <span className="italic">K</span> active experts{" "}
         <span className="italic">
@@ -249,8 +249,8 @@ export function FormulaMoE() {
 
 export function FormulaConfidence() {
   return (
-    <div className="my-10 p-6 md:p-8 bg-white/[0.02] border border-white/10 rounded-sm overflow-x-auto">
-      <div className="font-serif text-lg md:text-xl text-center mb-6 text-white tracking-wide whitespace-nowrap">
+    <div className="my-10 p-6 md:p-8 bg-muted/40 border border-border rounded-sm overflow-x-auto">
+      <div className="font-serif text-lg md:text-xl text-center mb-6 text-foreground tracking-wide whitespace-nowrap">
         <span className="italic mr-2 text-primary">C</span>
         <sub className="text-xs italic">rel</sub>(e) =
         <span className="italic ml-3 mr-1">α</span> ·{" "}
@@ -260,7 +260,7 @@ export function FormulaConfidence() {
         <span className="italic ml-3 mr-1">γ</span> ·{" "}
         <span className="italic">D</span>(e)
       </div>
-      <p className="text-sm text-white/50 font-sans max-w-2xl mx-auto text-center">
+      <p className="text-sm text-muted-foreground font-sans max-w-2xl mx-auto text-center">
         Contextual confidence{" "}
         <span className="italic">
           C<sub>rel</sub>

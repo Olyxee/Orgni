@@ -13,9 +13,9 @@ export function AgentDeveloperSection() {
   return (
     <section
       id="developers"
-      className="py-24 md:py-40 px-6 md:px-12 bg-background border-t border-border scroll-mt-20"
+      className="border-b border-border bg-background scroll-mt-20"
     >
-      <div className="max-w-[1600px] mx-auto">
+      <div className="mx-auto max-w-[1600px] border-x border-border px-6 py-24 md:px-12 md:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8 items-start">
           <div className="lg:col-span-5 relative">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif text-foreground leading-[1.05] mb-8">
@@ -48,7 +48,7 @@ export function AgentDeveloperSection() {
               asChild
               variant="outline"
               size="lg"
-              className="h-14 px-8 font-medium border-foreground text-foreground hover:bg-foreground hover:text-background rounded-md text-base transition-colors"
+              className="h-14 rounded-none border-foreground px-8 text-base font-medium text-foreground transition-colors hover:bg-foreground hover:text-background"
             >
               <Link href="/developers">Read the Documentation</Link>
             </Button>

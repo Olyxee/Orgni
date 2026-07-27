@@ -4,8 +4,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ProblemSection } from "@/components/landing/ProblemSection";
 import { InfrastructureSection } from "@/components/landing/InfrastructureSection";
-import { UseCaseSection } from "@/components/landing/UseCaseSection";
-import { VideoSection } from "@/components/landing/VideoSection";
 import { IntegrationsSection } from "@/components/landing/IntegrationsSection";
 import { FinalCtaSection } from "@/components/landing/FinalCtaSection";
 
@@ -23,10 +21,20 @@ export default function Home() {
 
       <main className="flex-1">
         <HeroSection />
+        <section className="border-b border-border">
+          <div className="mx-auto grid max-w-[1600px] border-x border-border lg:grid-cols-12">
+            <div className="border-b border-border p-6 lg:col-span-3 lg:border-b-0 lg:border-r lg:p-8">
+              <span className="orgni-index">ORG / PRINCIPLE 01</span>
+            </div>
+            <div className="p-6 md:p-10 lg:col-span-9 lg:p-12">
+              <h2 className="max-w-5xl font-serif text-3xl leading-tight md:text-5xl">
+                One answer you can trust, with every source still attached.
+              </h2>
+            </div>
+          </div>
+        </section>
         <ProblemSection />
-        <VideoSection />
         <InfrastructureSection />
-        <UseCaseSection />
         <IntegrationsSection />
         <FinalCtaSection />
       </main>

@@ -11,13 +11,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import Platform from "@/pages/platform";
 import UseCases from "@/pages/use-cases";
 import Infrastructure from "@/pages/infrastructure";
 import Developers from "@/pages/developers";
 import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
+import Research from "@/pages/research";
 import Login from "@/pages/login";
 import Console from "@/pages/console";
 import { CommandPaletteProvider } from "@/components/command-palette";
@@ -38,15 +38,18 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/platform" component={Platform} />
       <Route path="/use-cases" component={UseCases} />
       <Route path="/infrastructure" component={Infrastructure} />
       <Route path="/developers" component={Developers} />
+      <Route path="/agents">
+        <Redirect to="/developers" />
+      </Route>
       <Route path="/pricing" component={Pricing} />
       <Route path="/docs" component={Docs} />
       <Route path="/api-reference">
         <Redirect to="/docs" />
       </Route>
+      <Route path="/research" component={Research} />
       <Route path="/thesis" component={Thesis} />
       <Route path="/login" component={Login} />
       <Route path="/app" component={Console} />
@@ -57,19 +60,35 @@ function Router() {
   );
 }
 
+function ExperienceShell() {
+  const [location] = useLocation();
+  const isProductSurface =
+    location === "/login" || location.startsWith("/app");
+
+  return (
+    <div
+      className={
+        isProductSurface ? "min-h-screen" : "public-experience min-h-screen"
+      }
+    >
+      <CommandPaletteProvider>
+        <ScrollRestore />
+        <Router />
+        <ScrollToTopButton />
+      </CommandPaletteProvider>
+      <Toaster />
+    </div>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <CommandPaletteProvider>
-              <ScrollRestore />
-              <Router />
-              <ScrollToTopButton />
-            </CommandPaletteProvider>
+            <ExperienceShell />
           </WouterRouter>
-          <Toaster />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>

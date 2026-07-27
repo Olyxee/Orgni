@@ -1,47 +1,66 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Search, ChevronDown, ArrowRight } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  ArrowRight,
+  Bot,
+  Book,
+  type LucideIcon,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCommandPalette } from "@/components/command-palette";
 import { Button } from "@/components/ui/button";
 import { LOGIN_URL } from "@/lib/links";
 
-const navItems = [
+type NavItem = {
+  title: string;
+  href: string;
+  match?: string[];
+  external?: boolean;
+  dropdown?: Array<{
+    title: string;
+    href: string;
+    icon: LucideIcon;
+    desc: string;
+  }>;
+};
+
+const navItems: NavItem[] = [
   {
-    title: "Platform",
-    href: "/platform",
-    match: ["/platform", "/infrastructure", "/use-cases"],
-    dropdown: [
-      {
-        title: "Overview & Use Cases",
-        href: "/platform",
-        desc: "The platform and how organisations use it.",
-      },
-      {
-        title: "Infrastructure",
-        href: "/infrastructure",
-        desc: "Enterprise-grade deployment & security.",
-      },
-    ],
+    title: "Product",
+    href: "/infrastructure",
+    match: ["/infrastructure"],
+  },
+  {
+    title: "Use cases",
+    href: "/use-cases",
+    match: ["/use-cases"],
+  },
+  {
+    title: "Research",
+    href: "/research",
+    match: ["/research", "/thesis"],
   },
   {
     title: "Developers",
     href: "/developers",
-    match: ["/developers", "/docs", "/api-reference"],
+    match: ["/developers", "/docs", "/api-reference", "/agents"],
     dropdown: [
       {
-        title: "Overview",
+        title: "Agents",
         href: "/developers",
-        desc: "Tools and resources for building.",
+        icon: Bot,
+        desc: "Power your agent with Orgni: API, MCP and SDK quickstart.",
       },
       {
         title: "Documentation",
         href: "/docs",
-        desc: "Guides, tutorials, core concepts, and complete REST API documentation.",
+        icon: Book,
+        desc: "Guides, core concepts, and integration walkthroughs.",
       },
     ],
   },
-  { title: "Research", href: "/thesis" },
 ];
 
 export function SiteHeader({ dark }: { dark?: boolean }) {
@@ -49,7 +68,6 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [location] = useLocation();
-  const commandPalette = useCommandPalette();
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -76,27 +94,25 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
     };
   }, [mobileOpen]);
 
-  const isItemActive = (item: any) => {
+  const isItemActive = (item: NavItem) => {
     if (location === item.href) return true;
     if (item.match?.some((path: string) => location.startsWith(path)))
       return true;
     return false;
   };
 
-  const headerHeightClass = scrolled || mobileOpen ? "h-16" : "h-16 lg:h-20";
+  const headerHeightClass = "h-[72px]";
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out border-b ${
+      className={`fixed top-0 left-0 right-0 z-50 border-b transition-colors duration-300 ${
         dark ? "dark" : ""
-      } ${
-        scrolled || mobileOpen
-          ? "bg-background/80 backdrop-blur-xl border-border shadow-sm"
-          : "bg-transparent border-transparent"
+      } bg-background/95 backdrop-blur-xl border-border ${
+        scrolled || mobileOpen ? "shadow-sm" : ""
       }`}
     >
       <div
-        className={`flex items-center justify-between px-6 lg:px-10 max-w-[1600px] mx-auto transition-all duration-500 ease-out ${headerHeightClass}`}
+        className={`mx-auto flex max-w-[1600px] items-center justify-between border-x border-border px-5 transition-all duration-300 lg:px-8 ${headerHeightClass}`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
         {/* Left side: Logo & Nav */}
@@ -104,20 +120,22 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           {/* Logo area */}
           <Link
             href="/"
-            className="flex items-center gap-3 group relative z-50"
+            className="group relative z-50 flex items-center gap-3"
           >
-            <img
-              src={`${import.meta.env.BASE_URL}orgni-logo.png`}
-              alt="Orgni logo"
-              className="h-7 w-7 object-cover"
-            />
-            <span className="font-serif text-[22px] font-bold tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
+            <span className="flex h-9 w-9 items-center justify-center bg-foreground">
+              <img
+                src={`${import.meta.env.BASE_URL}orgni-logo.png`}
+                alt="Orgni logo"
+                className="h-6 w-6 object-cover"
+              />
+            </span>
+            <span className="font-serif text-[28px] leading-none text-foreground transition-colors duration-300 group-hover:text-primary">
               Orgni
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-6 ml-10 h-full">
+          <nav className="ml-12 hidden h-full items-center gap-7 lg:flex">
             {navItems.map((item) => {
               const active = isItemActive(item);
               const isHovered = activeDropdown === item.title;
@@ -127,11 +145,24 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                   key={item.title}
                   className="relative h-full flex items-center"
                   onMouseEnter={() => setActiveDropdown(item.title)}
+                  onFocus={() =>
+                    item.dropdown
+                      ? setActiveDropdown(item.title)
+                      : setActiveDropdown(null)
+                  }
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setActiveDropdown(null);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setActiveDropdown(null);
+                  }}
                 >
                   {"external" in item && item.external ? (
                     <a
                       href={item.href}
-                      className={`text-sm font-medium tracking-wide flex items-center gap-1.5 transition-colors h-full px-2 ${
+                      className={`flex h-full items-center gap-1.5 px-1 font-mono text-[11px] font-bold uppercase transition-colors ${
                         isHovered
                           ? "text-foreground"
                           : "text-foreground/70 hover:text-foreground"
@@ -142,11 +173,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                   ) : (
                     <Link
                       href={item.href}
-                      className={`text-sm font-medium tracking-wide flex items-center gap-1.5 transition-colors h-full px-2 ${
+                      className={`flex h-full items-center gap-1.5 px-1 font-mono text-[11px] font-bold uppercase transition-colors ${
                         active || isHovered
                           ? "text-foreground"
                           : "text-foreground/70 hover:text-foreground"
                       }`}
+                      aria-expanded={item.dropdown ? isHovered : undefined}
+                      aria-haspopup={item.dropdown ? "menu" : undefined}
                     >
                       {item.title}
                       {item.dropdown && (
@@ -156,6 +189,14 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                       )}
                     </Link>
                   )}
+                  <span
+                    className={`pointer-events-none absolute bottom-0 left-1 right-1 h-0.5 origin-center bg-primary transition-all duration-300 ${
+                      active || isHovered
+                        ? "scale-x-100 opacity-100"
+                        : "scale-x-0 opacity-0"
+                    }`}
+                    aria-hidden="true"
+                  />
 
                   <AnimatePresence>
                     {item.dropdown && isHovered && (
@@ -166,23 +207,31 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                         className="absolute top-full left-0 pt-0"
                       >
-                        <div className="w-[380px] bg-card/95 backdrop-blur-2xl border border-border shadow-2xl p-2 flex flex-col relative overflow-hidden">
+                        <div className="relative flex w-[380px] flex-col overflow-hidden border border-border bg-card/95 p-2 shadow-2xl backdrop-blur-2xl">
                           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent" />
 
                           {item.dropdown.map((dropItem) => (
                             <Link
                               key={dropItem.href}
                               href={dropItem.href}
-                              className="group relative flex flex-col gap-1 p-4 hover:bg-muted/50 transition-colors z-10"
+                              className="group relative flex items-start gap-3 p-4 hover:bg-muted/50 transition-colors z-10"
                               onClick={() => setActiveDropdown(null)}
                             >
-                              <div className="flex items-center gap-2 text-[15px] font-semibold tracking-wide text-foreground group-hover:text-primary transition-colors">
-                                {dropItem.title}
-                                <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
+                              <div className="w-9 h-9 rounded-md bg-muted border border-border flex items-center justify-center shrink-0 mt-0.5">
+                                <dropItem.icon
+                                  className="h-4 w-4 text-foreground/70 group-hover:text-foreground transition-colors"
+                                  aria-hidden="true"
+                                />
                               </div>
-                              <p className="text-[13px] text-muted-foreground leading-relaxed mt-0.5">
-                                {dropItem.desc}
-                              </p>
+                              <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 text-[15px] font-semibold tracking-wide text-foreground group-hover:text-primary transition-colors">
+                                  {dropItem.title}
+                                  <ArrowRight className="h-3.5 w-3.5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out" />
+                                </div>
+                                <p className="text-[13px] text-muted-foreground leading-relaxed">
+                                  {dropItem.desc}
+                                </p>
+                              </div>
                             </Link>
                           ))}
                         </div>
@@ -196,42 +245,12 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         </div>
 
         {/* Right side: Actions */}
-        <div className="flex items-center gap-3 lg:gap-5 relative z-50 h-full">
-          {/* Desktop Search */}
-          <button
-            onClick={() => commandPalette.open()}
-            className="hidden xl:flex items-center gap-3 px-3 h-9 text-sm text-muted-foreground hover:text-foreground transition-colors border border-border hover:border-foreground/30 bg-muted/20 hover:bg-muted/40 w-56 group rounded-md"
-          >
-            <Search className="h-4 w-4 shrink-0" />
-            <span className="flex-1 text-left font-sans">Search...</span>
-            <kbd className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground border border-border bg-background group-hover:border-foreground/20 group-hover:text-foreground transition-colors rounded-md">
-              ⌘K
-            </kbd>
-          </button>
-
-          {/* Tablet Search */}
-          <button
-            onClick={() => commandPalette.open()}
-            className="hidden lg:flex xl:hidden items-center justify-center h-9 w-9 text-foreground/70 hover:text-foreground border border-transparent hover:border-border hover:bg-muted/20 transition-colors rounded-md"
-            aria-label="Search"
-          >
-            <Search className="h-[18px] w-[18px]" />
-          </button>
-
-          {/* Mobile Search */}
-          <button
-            onClick={() => commandPalette.open()}
-            className="lg:hidden inline-flex items-center justify-center h-10 w-10 text-foreground/70 hover:text-foreground transition-colors"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-
+        <div className="relative z-50 flex h-full items-center gap-3 lg:gap-4">
           <Button
             asChild
-            className="hidden lg:inline-flex h-9 px-5 text-[13px] font-semibold tracking-wide bg-foreground text-background hover:bg-primary hover:text-primary-foreground shadow-none transition-all duration-300 rounded-md"
+            className="hidden h-10 rounded-none bg-primary px-5 font-mono text-[11px] font-bold uppercase text-primary-foreground shadow-none transition-colors hover:bg-foreground lg:inline-flex"
           >
-            <a href={LOGIN_URL}>Request a Demo</a>
+            <a href={LOGIN_URL}>Request demo</a>
           </Button>
 
           {/* Mobile menu toggle */}
@@ -239,7 +258,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             type="button"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             onClick={() => setMobileOpen((v) => !v)}
-            className="lg:hidden inline-flex items-center justify-center h-10 w-10 text-foreground/70 hover:text-foreground transition-colors"
+            className="inline-flex h-10 w-10 items-center justify-center border border-border text-foreground/70 transition-colors hover:border-foreground hover:text-foreground lg:hidden"
           >
             <motion.div
               animate={{ rotate: mobileOpen ? 90 : 0 }}
@@ -304,8 +323,12 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
                           key={drop.href}
                           href={drop.href}
                           onClick={closeMobile}
-                          className="text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+                          className="flex items-center gap-2.5 text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
+                          <drop.icon
+                            className="h-4 w-4 text-muted-foreground"
+                            aria-hidden="true"
+                          />
                           {drop.title}
                         </Link>
                       ))}

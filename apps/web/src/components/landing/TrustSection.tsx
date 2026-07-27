@@ -7,8 +7,8 @@ export function TrustSection() {
   ];
 
   return (
-    <section className="py-24 md:py-40 px-6 md:px-12 bg-foreground text-background">
-      <div className="max-w-[1600px] mx-auto">
+    <section className="border-b border-border bg-foreground text-background">
+      <div className="mx-auto max-w-[1600px] border-x border-background/20 px-6 py-24 md:px-12 md:py-32">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
           <div className="lg:col-span-5">
             <h2 className="text-4xl md:text-6xl font-serif leading-[1.05] mb-12">

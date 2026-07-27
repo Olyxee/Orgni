@@ -2,13 +2,14 @@ import { Link } from "wouter";
 import { LOGIN_URL } from "@/lib/links";
 
 export function SiteFooter({ dark = false }: { dark?: boolean }) {
-  const footerClass = `border-t border-border bg-background pt-24 pb-12 px-6 md:px-12 ${dark ? "dark" : ""}`;
+  const footerClass = `border-t border-border bg-background ${dark ? "dark" : ""}`;
 
   return (
     <footer className={footerClass}>
-      <div className="max-w-[1600px] mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-32">
+      <div className="mx-auto max-w-[1600px] border-x border-border px-6 pb-10 pt-20 md:px-12 md:pt-24">
+        <div className="mb-24 grid grid-cols-2 gap-12 md:grid-cols-4 lg:grid-cols-5">
           <div className="col-span-2 lg:col-span-2">
+            <span className="orgni-index mb-8 block">ORG / END</span>
             <Link
               href="/"
               className="inline-flex items-center gap-3 mb-6 group"
@@ -18,7 +19,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
                 alt="Orgni logo"
                 className="h-8 w-8 object-cover"
               />
-              <span className="font-serif text-3xl font-bold tracking-tight text-foreground">
+              <span className="font-serif text-4xl text-foreground">
                 Orgni
               </span>
             </Link>
@@ -32,14 +33,6 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
               Product
             </h3>
             <ul className="space-y-4">
-              <li>
-                <Link
-                  href="/platform"
-                  className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
-                >
-                  Platform
-                </Link>
-              </li>
               <li>
                 <Link
                   href="/use-cases"
@@ -74,7 +67,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/thesis"
+                  href="/research"
                   className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
                 >
                   Research
@@ -114,7 +107,7 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="mailto:hello@olyxee.com"
                   className="text-muted-foreground hover:text-foreground transition-colors font-light text-sm"
                 >
                   Contact Sales
@@ -132,14 +125,14 @@ export function SiteFooter({ dark = false }: { dark?: boolean }) {
           </div>
         </div>
 
-        <div className="border-t border-border pt-12 pb-24 overflow-hidden">
-          <div className="flex justify-center text-[15vw] leading-none font-serif tracking-tighter text-foreground opacity-5 select-none pointer-events-none w-full text-center">
+        <div className="overflow-hidden border-t border-border pb-20 pt-10">
+          <div className="pointer-events-none flex w-full select-none justify-center text-center font-serif text-[15vw] leading-none text-foreground opacity-5">
             Orgni
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-muted-foreground uppercase tracking-widest">
-          <p>© {new Date().getFullYear()} Olyxee Ltd. All rights reserved.</p>
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-border pt-8 font-mono text-[10px] uppercase text-muted-foreground md:flex-row">
+          <p>Copyright {new Date().getFullYear()} Olyxee Ltd.</p>
           <div className="flex gap-6">
             <a
               href="https://www.olyxee.com/privacy"

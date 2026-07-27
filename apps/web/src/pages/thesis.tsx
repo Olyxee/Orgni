@@ -191,6 +191,11 @@ export default function Thesis() {
           name: "Mosa Maseko",
           jobTitle: "Founding Data Engineer",
         },
+        {
+          "@type": "Person",
+          name: "Emmanuel Stakio",
+          jobTitle: "Theoretical Research Scientist",
+        },
       ],
       publisher: {
         "@type": "Organization",
@@ -269,7 +274,7 @@ export default function Thesis() {
   };
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
+    <div className="min-h-screen bg-white text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
       {/* Progress bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary origin-left z-50"
@@ -282,9 +287,9 @@ export default function Thesis() {
       <header className="pt-24 pb-16 md:pt-40 md:pb-24 px-6 md:px-12 max-w-[1600px] mx-auto border-b border-border">
         <div className="max-w-4xl">
           <div className="mb-6 flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-foreground"></div>
-            <p className="text-xs font-mono tracking-widest uppercase">
-              {thesisData.author}
+            <div className="h-[1px] w-12 bg-primary"></div>
+            <p className="text-xs font-mono tracking-widest uppercase text-primary">
+              The research paper
             </p>
           </div>
 
@@ -294,7 +299,7 @@ export default function Thesis() {
           <p className="text-xl md:text-3xl text-muted-foreground leading-snug font-light max-w-3xl">
             {thesisData.subtitle}
           </p>
-          <div className="mt-16 pt-12 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-12">
+          <div className="mt-16 pt-12 border-t border-border grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
             <div className="flex flex-col gap-2">
               <span className="font-serif text-2xl text-foreground">
                 Lethabo Scofield
@@ -319,6 +324,14 @@ export default function Thesis() {
               </span>
               <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">
                 Founding Data Engineer
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-serif text-2xl text-foreground">
+                Emmanuel Stakio
+              </span>
+              <span className="text-xs font-mono text-muted-foreground tracking-widest uppercase leading-relaxed">
+                Theoretical Research Scientist
               </span>
             </div>
           </div>
