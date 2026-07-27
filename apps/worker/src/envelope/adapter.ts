@@ -290,16 +290,29 @@ function adaptContract(envelope: NormalizedEnvelope): AdaptResult {
     );
   }
 
-  // The tokenizer's contract contract has no obligations field. They remain in
-  // the envelope for the ontology, but are not tokenized here — changing the
-  // token contract to fit is explicitly out of scope.
+  // Obligations are now tokenized (CONTRACT_OBLIGATION policies). Absent any,
+  // record a warning so the reviewer knows none were parsed.
   const obligations = indexed(f, "obligation");
-  if (obligations.length > 0) {
-    warnings.push(
-      `${obligations.length} obligation clause(s) extracted but not tokenized: ` +
-        "the tokenizer's ContractExtraction has no obligations field",
-    );
+  if (obligations.length === 0) {
+    warnings.push("no contract obligations were parsed from this document");
   }
+
+  // Normalize execution status to the tokenizer's enum. EXECUTED only survives
+  // from explicit signature evidence; otherwise NOT_EXECUTED (never guessed).
+  const executionStatus: ContractExtraction["executionStatus"] =
+    execution?.value === "EXECUTED"
+      ? {
+          value: "EXECUTED",
+          confidence: execution.confidence,
+          method: execution.method,
+          section: execution.section,
+        }
+      : {
+          value: "NOT_EXECUTED",
+          confidence: 0.6,
+          method: "INFERRED" as const,
+          section: "execution",
+        };
 
   const extraction: ContractExtraction = {
     documentType: "CONTRACT",
@@ -310,10 +323,14 @@ function adaptContract(envelope: NormalizedEnvelope): AdaptResult {
     contractType: contractType(title),
     effectiveDate: effectiveDate!,
     parties,
+    executionStatus,
     ...(title && { title }),
+    ...(str(f, "contractReference") && { reference: str(f, "contractReference")! }),
     ...(str(f, "expirationDate") && { expiryDate: str(f, "expirationDate")! }),
     ...(num(f, "contractValue") && { contractValue: num(f, "contractValue")! }),
     ...(str(f, "currency") && { currency: str(f, "currency")! }),
+    ...(str(f, "paymentTerms") && { paymentTerms: str(f, "paymentTerms")! }),
+    ...(obligations.length > 0 && { obligations }),
     ...(signedDate && { signedDate }),
   };
 

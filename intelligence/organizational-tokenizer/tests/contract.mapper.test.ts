@@ -21,8 +21,18 @@ const cleanWithExecution: ContractExtraction = {
 describe("mapContractToTokens — complete contract (Confirmed Execution)", () => {
   const tokens = mapContractToTokens(cleanWithExecution);
 
-  it("emits 4 tokens: 1 EVENT + 1 RELATION + 2 POLICY when execution is confirmed", () => {
-    expect(tokens).toHaveLength(4);
+  it("emits 5 tokens: CONTRACT_AGREEMENT + CONTRACT_EXECUTED + RELATION + 2 POLICY when execution is confirmed", () => {
+    expect(tokens).toHaveLength(5);
+  });
+
+  it("always emits a CONTRACT_AGREEMENT STATE fact carrying the terms", () => {
+    const t = tokens.find((t) => t.eventType === "CONTRACT_AGREEMENT");
+    expect(t).toBeDefined();
+    expect(t!.tokenKind).toBe("STATE");
+    const sv = t!.scalarValue as Record<string, unknown>;
+    expect(sv["contractType"]).toBe("SERVICE_AGREEMENT");
+    expect(sv["executionStatus"]).toBe("EXECUTED");
+    expect(Array.isArray(sv["parties"])).toBe(true);
   });
 
   it("all tokenIds unique and start with tok_", () => {
@@ -64,16 +74,40 @@ describe("mapContractToTokens — Unconfirmed Execution / Missing Optional Claus
     expect(tokens.find((t) => t.eventType === "CONTRACT_EXECUTED")).toBeUndefined();
   });
 
-  it("emits 1 token when execution is unconfirmed and both optional clauses are absent", () => {
+  it("still produces a meaningful CONTRACT_AGREEMENT fact (NOT_EXECUTED) when unsigned with no optional clauses", () => {
     const strippedPayload: ContractExtraction = {
       ...baseClean,
       signedDate: undefined,
+      executionStatus: undefined,
       terminationClause: undefined,
-      confidentialityClause: undefined
+      confidentialityClause: undefined,
     };
     const tokens = mapContractToTokens(strippedPayload);
-    // Emits only the RELATION token for the parties involved
-    expect(tokens).toHaveLength(1); 
-    expect(tokens[0].tokenKind).toBe("RELATION");
+    // CONTRACT_AGREEMENT (STATE) + CONTRACT_COUNTERPARTY (RELATION) — no bare
+    // single-relationship output any more.
+    expect(tokens).toHaveLength(2);
+    const agreement = tokens.find((t) => t.eventType === "CONTRACT_AGREEMENT");
+    expect(agreement).toBeDefined();
+    expect((agreement!.scalarValue as Record<string, unknown>)["executionStatus"]).toBe(
+      "NOT_EXECUTED",
+    );
+    // Unsigned must never be executed.
+    expect(tokens.find((t) => t.eventType === "CONTRACT_EXECUTED")).toBeUndefined();
+  });
+
+  it("emits a CONTRACT_OBLIGATION policy for each extracted obligation", () => {
+    const withObligations: ContractExtraction = {
+      ...baseClean,
+      signedDate: undefined,
+      executionStatus: undefined,
+      obligations: [
+        { value: "The Provider shall deliver the services.", confidence: 0.8 },
+        { value: "The Client shall pay within 30 days.", confidence: 0.8 },
+      ],
+    };
+    const tokens = mapContractToTokens(withObligations);
+    const obligations = tokens.filter((t) => t.eventType === "CONTRACT_OBLIGATION");
+    expect(obligations).toHaveLength(2);
+    obligations.forEach((t) => expect(t.tokenKind).toBe("POLICY"));
   });
 });

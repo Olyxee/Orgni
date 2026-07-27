@@ -12,6 +12,82 @@ export function mapContractToTokens(env: ContractExtraction): OrganizationalToke
   const tokens: OrganizationalToken[] = [];
   const primaryParty = env.parties?.[0]?.name?.value ?? "UNKNOWN";
 
+  // Execution status is derived from signature evidence ONLY. Absent that, the
+  // contract is NOT_EXECUTED — never inferred as executed from other content.
+  const executionStatus =
+    env.executionStatus?.value ??
+    (env.signedDate?.value ? "EXECUTED" : "NOT_EXECUTED");
+
+  // ── Token 0: CONTRACT_AGREEMENT (always) ─────────────────────────────────
+  // Represents the agreement itself so an unsigned/partial contract still
+  // produces a meaningful, reviewable fact (its parties, term, value, payment
+  // terms and execution status) — not just a bare counterparty relationship.
+  // Partial data is fine: optional fields are simply omitted.
+  tokens.push({
+    tokenId: `tok_${env.extractionId}_contract_agreement`,
+    tenantId: env.tenantId,
+    tokenKind: "STATE",
+    eventType: "CONTRACT_AGREEMENT",
+    subjectId: primaryParty,
+    validTime: {
+      from: env.effectiveDate.value,
+      ...(env.expiryDate ? { to: env.expiryDate.value } : {}),
+    },
+    transactionTime: stableNow,
+    scalarValue: {
+      contractType: env.contractType.value,
+      executionStatus,
+      ...(env.title ? { title: env.title.value } : {}),
+      ...(env.reference ? { reference: env.reference.value } : {}),
+      parties: env.parties.map((p: any) => ({
+        name: p.name.value,
+        role: p.role.value,
+      })),
+      ...(env.contractValue
+        ? { contractValue: env.contractValue.value, currency: env.currency?.value }
+        : {}),
+      ...(env.paymentTerms ? { paymentTerms: env.paymentTerms.value } : {}),
+      ...(env.expiryDate ? { terminationDate: env.expiryDate.value } : {}),
+    },
+    sourceRefs: [buildSourceRef(env as any, 1, "contract-header")],
+    confidence: clampConfidence(
+      minConfidence(env.contractType.confidence, env.effectiveDate.confidence),
+    ),
+    // OBSERVED: the agreement and its terms are stated by the document. The
+    // executionStatus scalar carries whether it is signed — an unsigned
+    // agreement is a real, observed fact, it is simply NOT_EXECUTED.
+    epistemicStatus: "OBSERVED",
+    visibility: [],
+    actionScope: ["legal", "contracts"],
+    retentionClass: "legal",
+    payloadRef: env.documentRef,
+  });
+
+  // ── Obligation policies (one per extracted "shall/must" clause) ──────────
+  for (let i = 0; i < (env.obligations?.length ?? 0); i++) {
+    const ob = env.obligations![i]!;
+    tokens.push({
+      tokenId: `tok_${env.extractionId}_obligation_${i}`,
+      tenantId: env.tenantId,
+      tokenKind: "POLICY",
+      eventType: "CONTRACT_OBLIGATION",
+      subjectId: primaryParty,
+      validTime: {
+        from: env.effectiveDate.value,
+        ...(env.expiryDate ? { to: env.expiryDate.value } : {}),
+      },
+      transactionTime: stableNow,
+      scalarValue: { clause: ob.value },
+      sourceRefs: [buildSourceRef(env as any, 1, `obligation-${i}`)],
+      confidence: clampConfidence(ob.confidence),
+      epistemicStatus: "OBSERVED",
+      visibility: [],
+      actionScope: ["legal", "contracts"],
+      retentionClass: "legal",
+      payloadRef: env.documentRef,
+    });
+  }
+
   // ── Token 1: CONTRACT_EXECUTED ───────────────────────────────────────────
   const hasExecutionConfirmation = !!(env.signedDate?.value || (env as any).isExecuted?.value);
 

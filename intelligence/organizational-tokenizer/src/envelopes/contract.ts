@@ -28,6 +28,15 @@ export interface ContractExtraction {
   terminationClause?: FieldExtraction<string>;
   noticePeriodDays?: FieldExtraction<number>;
   confidentialityClause?: FieldExtraction<string>;
+  reference?: FieldExtraction<string>;
+  paymentTerms?: FieldExtraction<string>;
+  /** Obligations extracted from the contract body (modal "shall/must" clauses). */
+  obligations?: FieldExtraction<string>[];
+  /**
+   * Explicit execution status from signature evidence only:
+   * "EXECUTED" | "NOT_EXECUTED" | "UNKNOWN". Never "EXECUTED" without a signature.
+   */
+  executionStatus?: FieldExtraction<string>;
   processedAt?: string;
   timestamp?: string;
 }
