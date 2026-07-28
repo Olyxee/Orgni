@@ -108,7 +108,7 @@ export function SectionTabs({
   return (
     <nav
       aria-label="Section views"
-      className="-mx-4 flex overflow-x-auto border-b border-border px-4 sm:mx-0 sm:px-0"
+      className="-mx-4 flex flex-wrap border-b border-border px-4 sm:mx-0 sm:px-0"
     >
       {tabs.map((tab) =>
         tab.disabled ? (

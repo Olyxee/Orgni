@@ -24,6 +24,7 @@ import {
   type IngestionInput,
   type IngestionRecord,
 } from "../ingestion/pipeline.js";
+import { tokenizeGenericEnvelope } from "./generic-tokenizer.js";
 
 /** The Phase 1 → ontology handoff contract. */
 export interface TokenizationResult {
@@ -66,6 +67,20 @@ export function tokenizeEnvelope(envelope: NormalizedEnvelope): {
       tokens: [],
       warnings: validation.warnings,
       errors: validation.errors,
+    };
+  }
+
+  if (envelope.document_type === "UNKNOWN") {
+    const tokens = tokenizeGenericEnvelope(envelope);
+    return {
+      tokens,
+      warnings: [
+        ...validation.warnings,
+        ...(tokens.length > 0
+          ? ["generic_evidence_tokenization: review extracted context"]
+          : ["generic_evidence_tokenization: no explicit context recognized"]),
+      ],
+      errors: [],
     };
   }
 

@@ -123,7 +123,9 @@ export function validateEnvelope(input: unknown): EnvelopeValidationResult {
   // Structurally valid but not tokenizable — surfaced as a warning so the
   // caller can record the document without attempting tokenization.
   if (envelope.document_type === "UNKNOWN" && errors.length === 0) {
-    warnings.push("document_type is UNKNOWN; document cannot be tokenized");
+    warnings.push(
+      "document_type is UNKNOWN; using generic evidence tokenization",
+    );
   }
 
   return { valid: errors.length === 0, errors, warnings };

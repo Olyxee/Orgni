@@ -41,6 +41,17 @@ ALLOWED_RELATION_PREDICATES = {
     "CONTRACT_COUNTERPARTY",
     "INVOICE_ISSUED_BY",
     "PAYMENT_BETWEEN",
+    "REPORTS_TO",
+    "MANAGES",
+    "EMPLOYS",
+    "SUPPLIES",
+    "APPROVES",
+    "OWNS",
+    "CONTRACTS_WITH",
+    "PURCHASES_FROM",
+    "PAYS",
+    "INVOICES",
+    "RELATED_TO",
 }
 
 # Event / state / policy fact types the ontology recognizes from Phase 1
@@ -54,6 +65,8 @@ KNOWN_FACT_TYPES = {
     "CONTRACT_EXECUTED",
     "CONTRACT_TERMINATION_TERMS",
     "CONTRACT_CONFIDENTIALITY_TERMS",
+    "DOCUMENT_ASSERTION",
+    "ORGANIZATIONAL_POLICY",
 }
 
 

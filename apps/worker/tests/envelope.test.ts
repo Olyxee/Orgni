@@ -103,10 +103,10 @@ describe("envelope schema validation", () => {
     ).toBe(false);
   });
 
-  it("warns that an UNKNOWN document cannot be tokenized", () => {
+  it("routes an UNKNOWN document through generic evidence tokenization", () => {
     const result = validateEnvelope(baseEnvelope({ document_type: "UNKNOWN" }));
     expect(result.valid).toBe(true);
-    expect(result.warnings.join()).toContain("cannot be tokenized");
+    expect(result.warnings.join()).toContain("generic evidence tokenization");
   });
 });
 

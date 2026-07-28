@@ -4,10 +4,15 @@
  * Sends the session token as a Bearer header on every authenticated call. The
  * API base URL comes from VITE_API_URL (defaults to the local API on :8080).
  */
-const API_URL = (
+const configuredApiUrl =
   import.meta.env.VITE_API_URL ??
-  (import.meta.env.DEV ? "http://localhost:8080" : "")
-).replace(/\/+$/, "");
+  (import.meta.env.DEV ? "http://localhost:8080" : "");
+
+// On Windows, localhost can resolve through an unresponsive WSL relay while
+// the local Docker API is listening on IPv4.
+const API_URL = configuredApiUrl
+  .replace(/^http:\/\/localhost(?=[:/]|$)/, "http://127.0.0.1")
+  .replace(/\/+$/, "");
 
 export interface Session {
   token: string;
