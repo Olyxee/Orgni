@@ -12,6 +12,7 @@ import { createDb } from "@workspace/db/connect";
 import { config } from "../lib/config";
 import { logger } from "../lib/logger";
 import { createOntologyClient } from "../lib/ontology-client";
+import { findPotentialDuplicate } from "../lib/duplicate";
 
 const router: IRouter = Router();
 
@@ -100,13 +101,7 @@ router.post(
         tenantId,
         existing.sourceId,
       );
-      const tokenizableType = [
-        "INVOICE",
-        "PROOF_OF_PAYMENT",
-        "CONTRACT",
-      ].includes(existing.documentType ?? "");
-      const needsTokenRetry =
-        tokenizableType && (doc?.tokens.length ?? 0) === 0;
+      const needsTokenRetry = (doc?.tokens.length ?? 0) === 0;
       const needsOntologyRetry =
         ontology !== null &&
         (doc?.tokens.length ?? 0) > 0 &&
@@ -179,6 +174,39 @@ router.post(
             { sourceId: result.sourceId, tenantId },
             "ontology mapping failed; returning tokens only",
           );
+        }
+      }
+
+      // Potential business-duplicate check (item 6): a different file carrying
+      // the same invoice number + supplier + amount + currency is FLAGGED for
+      // review, never merged. Exact duplicates are already handled by checksum
+      // dedup above. A failure here must not block the upload.
+      if (store) {
+        try {
+          const existing = await store.repository.listTenantTokens(tenantId);
+          const bySource = new Map<string, Array<Record<string, unknown>>>();
+          for (const row of existing) {
+            const arr = bySource.get(row.sourceId) ?? [];
+            arr.push(row.token);
+            bySource.set(row.sourceId, arr);
+          }
+          const grouped = [...bySource.entries()].map(([sourceId, tokens]) => ({
+            sourceId,
+            tokens,
+          }));
+          const dup = findPotentialDuplicate(
+            handoff.tokens as unknown as Array<Record<string, unknown>>,
+            grouped,
+            result.sourceId,
+          );
+          if (dup) {
+            handoff.warnings.push(
+              `potential_duplicate: review required — same invoice number, ` +
+                `supplier and amount as source ${dup.sourceId} (not merged)`,
+            );
+          }
+        } catch {
+          // Non-fatal: duplicate detection is advisory.
         }
       }
 

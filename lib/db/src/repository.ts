@@ -169,6 +169,20 @@ export function createRepository(db: Database) {
       return { sources: sourceRows, facts: factRows, reviews: reviewRows };
     },
 
+    /**
+     * All of a tenant's persisted tokens (id + source + payload), for
+     * cross-document checks such as potential business-duplicate detection.
+     * Strictly tenant-scoped.
+     */
+    async listTenantTokens(
+      tenantId: string,
+    ): Promise<Array<{ sourceId: string; token: Record<string, unknown> }>> {
+      return db
+        .select({ sourceId: tokens.sourceId, token: tokens.token })
+        .from(tokens)
+        .where(eq(tokens.tenantId, tenantId));
+    },
+
     /** Full stored document for review — strictly tenant-scoped. */
     async getDocument(
       tenantId: string,
