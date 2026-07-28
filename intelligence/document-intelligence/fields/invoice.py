@@ -156,7 +156,7 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
         [r"\binvoice\s*(?:no\.?|number|#)[^\S\n]*[:\-]?[^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})",
          r"\binvoice[^\S\n]*[:\-][^\S\n]*([A-Z0-9][A-Z0-9\-/]{2,})"],
         pages, confidence=0.92, section="header",
-        transform=clean_reference,
+        transform=clean_reference, field="invoiceNumber", reject_log=out.warnings,
     ))
 
     out.add("invoiceDate", find(
@@ -164,12 +164,14 @@ def extract_invoice(text: str, pages: list[dict]) -> ExtractionOutcome:
         [r"\b(?:invoice\s+date|date\s+issued|issue\s+date)[^\S\n]*[:\-]?[^\S\n]*([0-9A-Za-z ,/\.\-]{6,20})",
          r"\bdate[^\S\n]*[:\-][^\S\n]*([0-9A-Za-z ,/\.\-]{6,20})"],
         pages, confidence=0.88, section="header", transform=normalise_date,
+        field="invoiceDate", reject_log=out.warnings,
     ))
 
     out.add("dueDate", find(
         text,
         [r"\b(?:due\s+date|payment\s+due|due\s+by)[^\S\n]*[:\-]?[^\S\n]*([0-9A-Za-z ,/\.\-]{6,20})"],
         pages, confidence=0.88, section="header", transform=normalise_date,
+        field="dueDate", reject_log=out.warnings,
     ))
 
     # Vendor: try an explicit label (value on the same line OR the next line);

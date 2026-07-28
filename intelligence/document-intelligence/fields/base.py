@@ -120,13 +120,17 @@ def find(
     section: str | None = None,
     group: int = 1,
     transform=None,
+    field: str | None = None,
+    reject_log: list[str] | None = None,
 ) -> Field | None:
     """
     Return the first pattern match as a Field, or None when nothing matches.
 
     `transform` normalizes the captured string (e.g. to a date or float); if it
     returns None the match is rejected, because a value we cannot parse is not
-    a value we are willing to assert.
+    a value we are willing to assert. When a labelled value is matched but
+    rejected by the transform, a clear reason is appended to `reject_log` (the
+    document's warnings) so it surfaces in Data Quality instead of vanishing.
     """
     for pattern in patterns:
         match = re.search(pattern, text, re.IGNORECASE | re.MULTILINE)
@@ -147,8 +151,13 @@ def find(
         if transform is not None:
             value = transform(raw)
             if value is None:
-                # Matched the label but could not parse the value — record
-                # nothing rather than a wrong value.
+                # Matched the label but the value failed validation — reject it
+                # and record why, for Data Quality review.
+                if reject_log is not None:
+                    reject_log.append(
+                        f"rejected_value: {field or section or 'field'} — "
+                        f"'{raw[:40]}' failed validation and was not used"
+                    )
                 continue
 
         start, end = match.span(group)
@@ -173,38 +182,52 @@ _DATE_FORMATS = [
 
 
 def normalise_date(raw: str) -> str | None:
-    """Normalize a date to ISO-8601 (date only), or None if unparseable."""
+    """
+    Normalize a date to ISO-8601 (date only), or None if unparseable or
+    implausible. Impossible dates (e.g. 2024-13-45) fail parsing; a plausibility
+    window (1970..current year + 30) rejects OCR noise such as year "0203".
+    """
     cleaned = raw.strip().replace(",", ", ").replace("  ", " ")
     cleaned = re.sub(r"(\d)(st|nd|rd|th)\b", r"\1", cleaned, flags=re.IGNORECASE)
     for fmt in _DATE_FORMATS:
         try:
-            return datetime.strptime(cleaned.strip(), fmt).date().isoformat()
+            parsed = datetime.strptime(cleaned.strip(), fmt).date()
         except ValueError:
             continue
+        if 1970 <= parsed.year <= datetime.now().year + 30:
+            return parsed.isoformat()
+        return None  # parsed but implausible → reject rather than assert
     return None
 
 
 def parse_amount(raw: str) -> float | None:
-    """Parse a monetary amount, tolerating thousands separators; None if invalid."""
+    """
+    Parse a monetary amount, tolerating thousands separators; None if invalid or
+    implausible. Rejects malformed input, non-finite values, and magnitudes above
+    1e12 (OCR noise or a mis-joined number is not a real monetary amount).
+    """
     cleaned = re.sub(r"[^\d,.\-]", "", raw)
-    if not cleaned:
+    if not cleaned or cleaned in {"-", ".", ",", "-.", "-,"}:
         return None
-    # Treat the last separator as the decimal point when both appear.
     if "," in cleaned and "." in cleaned:
         if cleaned.rfind(",") > cleaned.rfind("."):
             cleaned = cleaned.replace(".", "").replace(",", ".")
         else:
             cleaned = cleaned.replace(",", "")
     elif "," in cleaned:
-        # A single comma with exactly two trailing digits is a decimal comma.
         if re.search(r",\d{2}$", cleaned):
             cleaned = cleaned.replace(",", ".")
         else:
             cleaned = cleaned.replace(",", "")
     try:
-        return round(float(cleaned), 2)
-    except ValueError:
+        value = round(float(cleaned), 2)
+    except (ValueError, OverflowError):
         return None
+    if value != value or abs(value) == float("inf"):  # NaN / inf
+        return None
+    if abs(value) > 1e12:
+        return None
+    return value
 
 
 _CURRENCY_SYMBOLS = {
