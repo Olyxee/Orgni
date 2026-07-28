@@ -101,13 +101,12 @@ router.post(
         tenantId,
         existing.sourceId,
       );
-      const needsTokenRetry = (doc?.tokens.length ?? 0) === 0;
       const needsOntologyRetry =
         ontology !== null &&
         (doc?.tokens.length ?? 0) > 0 &&
         doc?.facts === null;
 
-      if (!needsTokenRetry && !needsOntologyRetry) {
+      if (!needsOntologyRetry) {
         res.status(200).json({
           sourceId: existing.sourceId,
           schemaVersion: "0.1.0",

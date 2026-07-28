@@ -13,7 +13,19 @@ from typing import Any, Literal, Optional
 from pydantic import BaseModel, Field
 
 FactKind = Literal["EVENT", "STATE", "POLICY"]
-EntityType = Literal["ORGANIZATION", "PARTY", "UNKNOWN"]
+EntityType = Literal[
+    "ORGANIZATION",
+    "PARTY",
+    "PERSON",
+    "DEPARTMENT",
+    "LOCATION",
+    "PROJECT",
+    "PRODUCT",
+    "ASSET",
+    "ACCOUNT",
+    "RECORD",
+    "UNKNOWN",
+]
 EpistemicStatus = Literal[
     "OBSERVED", "ASSERTED", "INFERRED", "PREDICTED", "DISPUTED"
 ]
@@ -41,6 +53,9 @@ class OntologyEntity(BaseModel):
     tenant_id: str
     entity_type: EntityType
     name: str
+    canonical_id: Optional[str] = None
+    aliases: list[str] = Field(default_factory=list)
+    alias_key: Optional[str] = None
     confidence: float
     provenance: Provenance
 

@@ -96,6 +96,16 @@ beforeAll(async () => {
         "tenant_olyxee";
       const envelope = {
         ...INVOICE_ENVELOPE,
+        ...(lastDiBody.includes('filename="empty.txt"')
+          ? {
+              document_type: "UNKNOWN",
+              content: { text: "", language: "und" },
+              extracted_fields: {},
+              confidence: 0,
+              warnings: ["no_text_extracted"],
+              extraction_status: "LOW_CONFIDENCE",
+            }
+          : {}),
         source_id: sourceId,
         metadata: {
           ...INVOICE_ENVELOPE.metadata,
@@ -309,6 +319,30 @@ describe("POST /api/documents", () => {
         headers: { "x-tenant-id": "tenant_other" },
       });
       expect(cross.status).toBe(404);
+    },
+  );
+
+  it.runIf(process.env["DATABASE_URL"])(
+    "replays a completed zero-token document as HTTP 200",
+    async () => {
+      const bytes = new TextEncoder().encode(`empty-note-${Date.now()}`);
+      const upload = () =>
+        fetch(`${baseUrl}/api/documents`, {
+          method: "POST",
+          headers: { "x-tenant-id": "tenant_zero_idem" },
+          body: form(bytes, "empty.txt", "text/plain"),
+        });
+      const firstResponse = await upload();
+      const first = await firstResponse.json();
+      const secondResponse = await upload();
+      const second = await secondResponse.json();
+
+      expect(firstResponse.status).toBe(200);
+      expect(first.tokens).toHaveLength(0);
+      expect(secondResponse.status).toBe(200);
+      expect(second.sourceId).toBe(first.sourceId);
+      expect(second.tokens).toHaveLength(0);
+      expect(second.warnings.join()).toContain("idempotent_replay");
     },
   );
 

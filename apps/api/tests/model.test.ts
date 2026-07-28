@@ -192,4 +192,56 @@ describe("model aggregation", () => {
   it("returns null for an unknown entity key", () => {
     expect(buildEntityDetail(fixture(), "ORGANIZATION:nope")).toBeNull();
   });
+
+  it("groups declared aliases under their canonical entity", () => {
+    const input = fixture();
+    input.facts[0]!.result["entities"] = [
+      {
+        entity_id: "supplier_master",
+        entity_type: "ORGANIZATION",
+        name: "Ubuntu Steelworks (Pty) Ltd",
+        canonical_id: "SUP-001",
+        alias_key: "ubuntusteelworks",
+        aliases: ["Ubuntu Steel Works (Pty) Ltd", "Ubuntu Steelworks SA"],
+      },
+    ];
+    input.facts[1]!.result["entities"] = [
+      {
+        entity_id: "supplier_invoice",
+        entity_type: "ORGANIZATION",
+        name: "Ubuntu Steelworks SA",
+        alias_key: "ubuntusteelworks",
+      },
+    ];
+
+    const entities = buildEntities(input);
+    expect(entities).toHaveLength(1);
+    expect(entities[0]!.key).toBe("CANONICAL:sup-001");
+    expect(entities[0]!.occurrences).toBe(2);
+  });
+
+  it("promotes corroborated exception evidence across documents", () => {
+    const input = fixture();
+    for (const [index, fact] of input.facts.entries()) {
+      fact.result["conflicts"] = [];
+      fact.result["facts"] = [
+        {
+          fact_id: `exception_${index}`,
+          fact_type: "EXCEPTION_EVIDENCE",
+          subject: "short-delivery",
+          scalar_value: {
+            scenarioKey: "short-delivery",
+            scenario: "Delivery short by four units",
+          },
+          epistemic_status: "OBSERVED",
+        },
+      ];
+    }
+    const exceptions = buildExceptions(input);
+    expect(exceptions.conflicts).toHaveLength(1);
+    expect(exceptions.conflicts[0]!.conflict).toMatchObject({
+      conflict_type: "CROSS_DOCUMENT_EXCEPTION",
+      scenario_key: "short-delivery",
+    });
+  });
 });

@@ -51,6 +51,8 @@ ALLOWED_RELATION_PREDICATES = {
     "PURCHASES_FROM",
     "PAYS",
     "INVOICES",
+    "DELIVERS_TO",
+    "ASSIGNED_TO",
     "RELATED_TO",
 }
 
@@ -67,6 +69,26 @@ KNOWN_FACT_TYPES = {
     "CONTRACT_CONFIDENTIALITY_TERMS",
     "DOCUMENT_ASSERTION",
     "ORGANIZATIONAL_POLICY",
+    "REGISTRATION_NUMBER",
+    "VAT_NUMBER",
+    "INVOICE_TOTAL",
+    "PAYMENT_AMOUNT",
+    "INVOICE_BALANCE",
+    "PURCHASE_ORDER_TOTAL",
+    "SUPPLIER_INVOICE_TOTAL",
+    "DELIVERY_QUANTITY",
+    "ORDER_QUANTITY",
+    "CREDIT_LIMIT",
+    "CREDIT_EXPOSURE",
+    "SLA_EXPIRY",
+    "SUPPLIER_INVOICE_DATE",
+    "EMPLOYEE_DEPARTMENT",
+    "EMPLOYEE_DEPARTMENT_ASSERTION",
+    "ASSET_LOCATION",
+    "BOARD_RESOLUTION_EFFECTIVE",
+    "PROCUREMENT_MANAGER_LIMIT",
+    "TRANSACTION_LINK",
+    "EXCEPTION_EVIDENCE",
 }
 
 
@@ -81,9 +103,22 @@ def _source_object_id(token: dict[str, Any]) -> str:
     return str(token.get("payloadRef") or "")
 
 
-def _entity_id(tenant: str, etype: str, name: str, source_object_id: str) -> str:
-    # Source-scoped on purpose: NO cross-document merge in Phase 1.
-    raw = f"{tenant}|{etype}|{_norm_name(name)}|{source_object_id}"
+def _entity_id(
+    tenant: str,
+    etype: str,
+    name: str,
+    source_object_id: str,
+    canonical_id: Optional[str] = None,
+    alias_key: Optional[str] = None,
+) -> str:
+    # Explicit business ids and normalized alias keys are tenant-scoped, not
+    # source-scoped. Unresolved names remain source-scoped to avoid false merges.
+    identity = canonical_id or alias_key
+    raw = (
+        f"{tenant}|canonical|{identity}"
+        if identity
+        else f"{tenant}|{etype}|{_norm_name(name)}|{source_object_id}"
+    )
     digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
     return f"ent_{digest}"
 
@@ -104,17 +139,30 @@ def _add_entity(
     name: Optional[str],
     etype: EntityType,
     token: dict[str, Any],
+    canonical_id: Optional[str] = None,
+    aliases: Optional[list[str]] = None,
+    alias_key: Optional[str] = None,
 ) -> Optional[str]:
     """Register an entity (source-scoped) and return its id, or None if unnamed."""
     if not name or not str(name).strip():
         return None
-    eid = _entity_id(tenant, etype, str(name), _source_object_id(token))
+    eid = _entity_id(
+        tenant,
+        etype,
+        str(name),
+        _source_object_id(token),
+        canonical_id,
+        alias_key,
+    )
     if eid not in seen:
         entity = OntologyEntity(
             entity_id=eid,
             tenant_id=tenant,
             entity_type=etype,
             name=str(name),
+            canonical_id=canonical_id,
+            aliases=aliases or [],
+            alias_key=alias_key,
             confidence=float(token.get("confidence", 0.0)),
             provenance=_provenance(token),
         )
@@ -195,13 +243,20 @@ def map_tokens_to_facts(tokens: list[dict[str, Any]]) -> OntologyResult:
                 continue
 
             etype: EntityType = "PARTY"
+            metadata = (
+                token.get("scalarValue")
+                if isinstance(token.get("scalarValue"), dict)
+                else {}
+            )
             subj_ref = _add_entity(
                 result, seen_entities, tenant=token["tenantId"],
                 name=subject, etype=etype, token=token,
+                canonical_id=metadata.get("subjectCanonicalId"),
             )
             obj_ref = _add_entity(
                 result, seen_entities, tenant=token["tenantId"],
                 name=obj, etype=etype, token=token,
+                canonical_id=metadata.get("objectCanonicalId"),
             )
             vfrom, vto = _valid_time(token)
             result.relationships.append(
@@ -247,16 +302,32 @@ def map_tokens_to_facts(tokens: list[dict[str, Any]]) -> OntologyResult:
             result.facts.append(fact)
 
             # Conflict detection: same subject + fact_type with differing scalar.
-            if fact.subject:
+            # Multiple policy clauses are complementary rules, not competing
+            # scalar claims. Cross-document policy conflicts are evaluated by
+            # the organizational rule engine, not this scalar equality check.
+            if fact.subject and kind != "POLICY":
                 key = (fact.subject, fact.fact_type)
                 claims.setdefault(key, []).append((fact.fact_id, fact.scalar_value))
             continue
 
         if kind == "ENTITY":
+            metadata = (
+                token.get("scalarValue")
+                if isinstance(token.get("scalarValue"), dict)
+                else {}
+            )
+            raw_type = str(metadata.get("entityType") or "ORGANIZATION")
+            etype = raw_type if raw_type in {
+                "ORGANIZATION", "PARTY", "PERSON", "DEPARTMENT", "LOCATION",
+                "PROJECT", "PRODUCT", "ASSET", "ACCOUNT", "RECORD", "UNKNOWN",
+            } else "UNKNOWN"
             _add_entity(
                 result, seen_entities, tenant=token["tenantId"],
                 name=token.get("subjectId") or token.get("scalarValue"),
-                etype="ORGANIZATION", token=token,
+                etype=etype, token=token,
+                canonical_id=metadata.get("canonicalId"),
+                aliases=metadata.get("aliases") or [],
+                alias_key=metadata.get("aliasKey"),
             )
             continue
 

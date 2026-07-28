@@ -18,7 +18,14 @@ type Json = Record<string, unknown>;
 /** The subset of the persisted OntologyResult the console reads. */
 interface OntologyResultShape {
   entities?: Array<
-    Json & { entity_id?: string; entity_type?: string; name?: string }
+    Json & {
+      entity_id?: string;
+      entity_type?: string;
+      name?: string;
+      canonical_id?: string;
+      alias_key?: string;
+      aliases?: string[];
+    }
   >;
   relationships?: Array<Json & { subject_ref?: string; object_ref?: string }>;
   facts?: Array<
@@ -70,6 +77,18 @@ function normName(name: string): string {
   return name.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function aliasKey(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(
+      /\s+(?:\(?pty\)?\s+limited|\(?pty\)?\s+ltd|limited|ltd|llc|inc|corporation|company|cc|plc|b\.?v\.?|sa)$/i,
+      "",
+    )
+    .replace(/\b(the|sa)\b/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
 function summarize(s: ModelInput["sources"][number]): DocumentSummary {
   return {
     sourceId: s.sourceId,
@@ -113,6 +132,12 @@ function resultsWithSource(input: ModelInput): Array<{
 
 /** Stable, URL-safe key for grouping same-named entities across sources. */
 function entityKey(e: { entity_type?: string; name?: string }): string {
+  const canonical = String(
+    (e as { canonical_id?: string; alias_key?: string }).canonical_id ??
+      (e as { alias_key?: string }).alias_key ??
+      "",
+  ).trim();
+  if (canonical) return `CANONICAL:${canonical.toLowerCase()}`;
   return `${(e.entity_type ?? "UNKNOWN").toUpperCase()}:${normName(String(e.name ?? ""))}`;
 }
 
@@ -176,9 +201,28 @@ export function buildEntities(input: ModelInput): EntityEntry[] {
     { entity: Json; occurrences: number; sources: Map<string, Provenance> }
   >();
 
-  for (const { source, result } of resultsWithSource(input)) {
+  const paired = resultsWithSource(input);
+  const aliasesToCanonical = new Map<string, string>();
+  for (const { result } of paired) {
+    for (const entity of result.entities ?? []) {
+      if (!entity.canonical_id) continue;
+      const canonical = String(entity.canonical_id).toLowerCase();
+      for (const alias of [
+        entity.name,
+        entity.alias_key,
+        ...(entity.aliases ?? []),
+      ]) {
+        if (alias) aliasesToCanonical.set(aliasKey(String(alias)), canonical);
+      }
+    }
+  }
+
+  for (const { source, result } of paired) {
     for (const e of result.entities ?? []) {
-      const key = entityKey(e);
+      const aliasMatch =
+        aliasesToCanonical.get(aliasKey(String(e.alias_key ?? ""))) ??
+        aliasesToCanonical.get(aliasKey(String(e.name ?? "")));
+      const key = aliasMatch ? `CANONICAL:${aliasMatch}` : entityKey(e);
       const g = groups.get(key) ?? {
         entity: e as Json,
         occurrences: 0,
@@ -307,6 +351,54 @@ export function buildExceptions(input: ModelInput): ModelExceptions {
       rejected.push({ reason: String(r), source: prov });
     for (const w of result.warnings ?? [])
       warnings.push({ warning: String(w), source: prov });
+  }
+
+  const evidenceByScenario = new Map<
+    string,
+    {
+      scenario: string;
+      observations: Array<{ factId: string; source: Provenance }>;
+    }
+  >();
+  for (const { source, result } of resultsWithSource(input)) {
+    for (const fact of result.facts ?? []) {
+      if (String(fact["fact_type"] ?? "") !== "EXCEPTION_EVIDENCE") continue;
+      const scalar =
+        typeof fact["scalar_value"] === "object" &&
+        fact["scalar_value"] !== null
+          ? (fact["scalar_value"] as Json)
+          : {};
+      const key = String(scalar["scenarioKey"] ?? fact.subject ?? "").trim();
+      if (!key) continue;
+      const entry = evidenceByScenario.get(key) ?? {
+        scenario: String(scalar["scenario"] ?? key),
+        observations: [],
+      };
+      entry.observations.push({
+        factId: String(fact["fact_id"] ?? ""),
+        source: provenanceOf(source),
+      });
+      evidenceByScenario.set(key, entry);
+    }
+  }
+  for (const [key, entry] of evidenceByScenario) {
+    const sources = [
+      ...new Map(
+        entry.observations.map((item) => [item.source.sourceId, item.source]),
+      ).values(),
+    ];
+    if (sources.length < 2) continue;
+    conflicts.push({
+      conflict: {
+        conflict_type: "CROSS_DOCUMENT_EXCEPTION",
+        scenario_key: key,
+        scenario: entry.scenario,
+        fact_ids: entry.observations.map((item) => item.factId).filter(Boolean),
+        evidence: sources,
+        detail: `${entry.scenario} is supported by ${sources.length} independent sources and requires review`,
+      },
+      source: sources[0]!,
+    });
   }
 
   const failedSources = input.sources

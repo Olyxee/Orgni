@@ -86,17 +86,31 @@ export function tokenizeEnvelope(envelope: NormalizedEnvelope): {
 
   const adapted = adaptEnvelope(envelope);
   if (!adapted.ok || !adapted.extraction) {
+    const evidenceTokens = tokenizeGenericEnvelope(envelope);
     return {
-      tokens: [],
-      warnings: [...validation.warnings, ...adapted.warnings],
+      tokens: evidenceTokens,
+      warnings: [
+        ...validation.warnings,
+        ...adapted.warnings,
+        ...(evidenceTokens.length > 0
+          ? [
+              "structured_adapter_incomplete: preserved generic business evidence",
+            ]
+          : []),
+      ],
       errors: adapted.errors,
     };
   }
 
   try {
     const result = tokenizeDocument(adapted.extraction);
+    const genericTokens = tokenizeGenericEnvelope(envelope);
+    const tokenIds = new Set(result.tokens.map((token) => token.tokenId));
+    const supplemental = genericTokens.filter(
+      (token) => !tokenIds.has(token.tokenId),
+    );
     return {
-      tokens: result.tokens,
+      tokens: [...result.tokens, ...supplemental],
       warnings: [
         ...validation.warnings,
         ...adapted.warnings,
