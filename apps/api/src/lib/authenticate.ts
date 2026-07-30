@@ -11,6 +11,11 @@
 import type { NextFunction, Request, Response } from "express";
 import { config } from "./config";
 import { verifyToken, type SessionPrincipal } from "./auth";
+import { createDb } from "@workspace/db/connect";
+import { hashApiKey, looksLikeApiKey } from "./api-keys";
+
+// Lazy DB handle for API-key lookups. Session tokens never touch it.
+const store = config.DATABASE_URL ? createDb(config.DATABASE_URL) : null;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -23,14 +28,45 @@ declare global {
 
 const isProd = config.NODE_ENV === "production";
 
-export function authenticate(
+export async function authenticate(
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
+): Promise<void> {
   const header = req.header("authorization");
   if (header?.startsWith("Bearer ")) {
-    const principal = verifyToken(header.slice(7), config.AUTH_SECRET);
+    const bearer = header.slice(7).trim();
+
+    // API key (agents / services): resolve to its tenant via the DB.
+    if (looksLikeApiKey(bearer)) {
+      if (!store) {
+        res.status(503).json({ error: "persistence_unavailable" });
+        return;
+      }
+      try {
+        const key = await store.repository.findActiveApiKeyByHash(
+          hashApiKey(bearer),
+        );
+        if (key) {
+          req.principal = {
+            sub: `apikey:${key.id}`,
+            tenantId: key.tenantId,
+            roles: ["Owner"],
+            iat: 0,
+            exp: Math.floor(Date.now() / 1000) + 3600,
+          };
+          next();
+          return;
+        }
+      } catch {
+        /* fall through to 401 */
+      }
+      res.status(401).json({ error: "invalid_api_key" });
+      return;
+    }
+
+    // Otherwise a signed session token.
+    const principal = verifyToken(bearer, config.AUTH_SECRET);
     if (principal) {
       req.principal = principal;
       next();
