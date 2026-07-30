@@ -20,82 +20,70 @@ import {
 import { humanizeType } from "./fact-card";
 import { EmptyState, ErrorState, useData } from "./shared";
 
+/**
+ * Ontology hierarchy.
+ *
+ * Renders the organisational model as a top-down tree:
+ *   Organisational model → entity types → entities,
+ * with mapped relationships drawn as labelled cross-links between entities.
+ * Selecting a node shows its detail and evidence source. Nothing is invented:
+ * a relationship only appears when both of its endpoints resolve to an entity.
+ */
+
+type NodeKind = "root" | "type" | "entity";
+
 type OntologyNodeData = {
   label: string;
-  kind: "entity" | "fact" | "policy" | "reference";
+  kind: NodeKind;
   detail: string;
   source?: Provenance;
 };
 
 type OntologyNode = Node<OntologyNodeData>;
 
-const nodePalette: Record<OntologyNodeData["kind"], React.CSSProperties> = {
-  entity: {
+const STYLE: Record<NodeKind, React.CSSProperties> = {
+  root: {
     background: "#111111",
-    border: "1px solid #111111",
     color: "#ffffff",
+    border: "1px solid #111111",
+    width: 220,
+    borderRadius: 8,
+    fontSize: 13,
+    fontWeight: 600,
+    padding: 12,
   },
-  fact: {
-    background: "#ffffff",
-    border: "1px solid #a3a3a3",
-    color: "#171717",
-  },
-  policy: {
+  type: {
     background: "#e5e5e5",
-    border: "1px solid #737373",
     color: "#171717",
+    border: "1px solid #737373",
+    width: 190,
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 600,
+    padding: 10,
   },
-  reference: {
-    background: "#fafafa",
-    border: "1px dashed #a3a3a3",
-    color: "#525252",
+  entity: {
+    background: "#ffffff",
+    color: "#171717",
+    border: "1px solid #a3a3a3",
+    width: 200,
+    borderRadius: 8,
+    fontSize: 12,
+    fontWeight: 500,
+    padding: 10,
   },
 };
+
+const ENTITY_W = 200;
+const X_GAP = 44;
+const STEP = ENTITY_W + X_GAP;
+const LEVEL_Y = { root: 0, type: 150, entity: 320 };
 
 function normalize(value: unknown): string {
   return String(value ?? "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
-}
-
-function readableValue(value: unknown): string {
-  if (value == null) return "";
-  if (typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>).slice(
-      0,
-      2,
-    );
-    return entries
-      .map(([key, item]) => `${humanizeType(key)}: ${item}`)
-      .join(" · ");
-  }
-  return String(value);
-}
-
-function relationEndpoint(
-  value: unknown,
-  aliases: Map<string, string>,
-  nodes: OntologyNode[],
-  referenceIndex: number,
-): string {
-  const raw = String(value ?? "").trim();
-  const existing = aliases.get(normalize(raw));
-  if (existing) return existing;
-
-  const id = `reference-${referenceIndex}-${normalize(raw) || "unknown"}`;
-  nodes.push({
-    id,
-    position: { x: 0, y: 0 },
-    data: {
-      label: raw || "Unknown reference",
-      kind: "reference",
-      detail: "Referenced by evidence but not resolved as an entity",
-    },
-    style: { ...nodePalette.reference, width: 180, borderRadius: 6 },
-  });
-  if (raw) aliases.set(normalize(raw), id);
-  return id;
 }
 
 export default function OntologyVisualization() {
@@ -108,135 +96,128 @@ export default function OntologyVisualization() {
     const entities = entitiesState.data?.entities ?? [];
     const relationships = relationshipsState.data?.relationships ?? [];
     const facts = factsState.data?.facts ?? [];
+
     const nodes: OntologyNode[] = [];
     const edges: Edge[] = [];
+    // norm(name|key|entity_id) -> entity node id, so relationships can resolve.
     const aliases = new Map<string, string>();
 
-    entities.forEach((entry, index) => {
-      const id = `entity-${index}`;
-      const name = String(entry.entity.name ?? entry.key);
+    // Group entities by their type so siblings sit together under one parent.
+    const byType = new Map<string, typeof entities>();
+    for (const entry of entities) {
       const type = humanizeType(
         entry.entity.entity_type ?? entry.entity.type ?? "Entity",
       );
+      const list = byType.get(type) ?? [];
+      list.push(entry);
+      byType.set(type, list);
+    }
+
+    const factsFor = (name: string) =>
+      facts.filter((f) => normalize(f.fact.subject) === normalize(name)).length;
+
+    let slot = 0; // global left-to-right slot index for entities
+    const typeCenters: { id: string; x: number }[] = [];
+
+    for (const [type, list] of byType) {
+      const startSlot = slot;
+      const typeId = `type-${type}`;
+
+      list.forEach((entry) => {
+        const id = `entity-${slot}`;
+        const name = String(entry.entity.name ?? entry.key);
+        const fc = factsFor(name);
+        nodes.push({
+          id,
+          position: { x: slot * STEP, y: LEVEL_Y.entity },
+          data: {
+            label: name,
+            kind: "entity",
+            detail: `${type} · ${entry.occurrences} occurrence${
+              entry.occurrences === 1 ? "" : "s"
+            }${fc ? ` · ${fc} fact${fc === 1 ? "" : "s"}` : ""}`,
+            source: entry.sources[0],
+          },
+          style: STYLE.entity,
+        });
+        [entry.key, name, entry.entity.entity_id].forEach(
+          (a) => a && aliases.set(normalize(a), id),
+        );
+        edges.push({
+          id: `h-${typeId}-${id}`,
+          source: typeId,
+          target: id,
+          type: "smoothstep",
+          style: { stroke: "#cbcbcb", strokeWidth: 1.2 },
+        });
+        slot++;
+      });
+
+      const typeX = ((startSlot + slot - 1) / 2) * STEP;
       nodes.push({
-        id,
-        position: { x: 100, y: index * 120 },
+        id: typeId,
+        position: { x: typeX, y: LEVEL_Y.type },
         data: {
-          label: name,
-          kind: "entity",
-          detail: `${type} · ${entry.occurrences} evidence occurrence${entry.occurrences === 1 ? "" : "s"}`,
-          source: entry.sources[0],
+          label: type,
+          kind: "type",
+          detail: `${list.length} entit${list.length === 1 ? "y" : "ies"}`,
         },
-        style: {
-          ...nodePalette.entity,
-          width: 190,
-          minHeight: 58,
-          borderRadius: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          padding: 12,
+        style: STYLE.type,
+      });
+      typeCenters.push({ id: typeId, x: typeX });
+    }
+
+    // Root, centred over the type groups.
+    if (typeCenters.length > 0) {
+      const rootX =
+        typeCenters.reduce((s, t) => s + t.x, 0) / typeCenters.length;
+      nodes.push({
+        id: "root",
+        position: { x: rootX, y: LEVEL_Y.root },
+        data: {
+          label: "Organisational model",
+          kind: "root",
+          detail: `${entities.length} entit${
+            entities.length === 1 ? "y" : "ies"
+          } · ${facts.length} fact${facts.length === 1 ? "" : "s"}`,
         },
+        style: STYLE.root,
       });
+      typeCenters.forEach((t) =>
+        edges.push({
+          id: `h-root-${t.id}`,
+          source: "root",
+          target: t.id,
+          type: "smoothstep",
+          style: { stroke: "#cbcbcb", strokeWidth: 1.2 },
+        }),
+      );
+    }
 
-      [entry.key, name, entry.entity.entity_id].forEach((alias) => {
-        if (alias) aliases.set(normalize(alias), id);
-      });
-    });
-
+    // Relationships: labelled cross-links between two resolved entities only.
+    let mapped = 0;
     relationships.forEach((entry, index) => {
-      const relationship = entry.relationship;
-      const source = relationEndpoint(
-        relationship.subject_ref ?? relationship.subject,
-        aliases,
-        nodes,
-        index * 2,
-      );
-      const target = relationEndpoint(
-        relationship.object_ref ?? relationship.object,
-        aliases,
-        nodes,
-        index * 2 + 1,
-      );
+      const rel = entry.relationship;
+      const s = aliases.get(normalize(rel.subject_ref ?? rel.subject));
+      const t = aliases.get(normalize(rel.object_ref ?? rel.object));
+      if (!s || !t || s === t) return;
+      mapped++;
       edges.push({
-        id: `relationship-${index}`,
-        source,
-        target,
+        id: `rel-${index}`,
+        source: s,
+        target: t,
         label: humanizeType(
-          relationship.predicate ??
-            relationship.relationship_type ??
-            "Related to",
+          rel.predicate ?? rel.relationship_type ?? "Related to",
         ),
+        type: "smoothstep",
         markerEnd: { type: MarkerType.ArrowClosed, color: "#525252" },
-        style: { stroke: "#525252", strokeWidth: 1.4 },
+        style: { stroke: "#525252", strokeWidth: 1.4, strokeDasharray: "4 3" },
         labelStyle: { fill: "#404040", fontSize: 11, fontWeight: 500 },
         labelBgStyle: { fill: "#ffffff", fillOpacity: 0.9 },
       });
     });
 
-    facts.slice(0, 80).forEach((entry, index) => {
-      const fact = entry.fact;
-      const rawKind = String(
-        fact.fact_kind ?? fact.token_kind ?? fact.fact_type ?? "",
-      );
-      const kind: OntologyNodeData["kind"] = rawKind
-        .toUpperCase()
-        .includes("POLICY")
-        ? "policy"
-        : "fact";
-      const id = `fact-${index}`;
-      const label = humanizeType(
-        fact.fact_type ?? fact.predicate ?? rawKind ?? "Fact",
-      );
-      const detail =
-        readableValue(fact.scalar_value ?? fact.value ?? fact.object) ||
-        humanizeType(fact.epistemic_status ?? "Evidence-backed");
-
-      nodes.push({
-        id,
-        position: { x: 520, y: index * 92 },
-        data: { label, kind, detail, source: entry.source },
-        style: {
-          ...nodePalette[kind],
-          width: 190,
-          minHeight: 54,
-          borderRadius: 6,
-          fontSize: 12,
-          fontWeight: 500,
-          padding: 10,
-        },
-      });
-
-      const subject = aliases.get(normalize(fact.subject));
-      if (subject) {
-        edges.push({
-          id: `fact-edge-${index}`,
-          source: subject,
-          target: id,
-          style: { stroke: "#a3a3a3", strokeWidth: 1 },
-          markerEnd: { type: MarkerType.ArrowClosed, color: "#a3a3a3" },
-        });
-      }
-    });
-
-    const entityNodes = nodes.filter((node) => node.data.kind === "entity");
-    const referenceNodes = nodes.filter(
-      (node) => node.data.kind === "reference",
-    );
-    const contextNodes = nodes.filter(
-      (node) => node.data.kind === "fact" || node.data.kind === "policy",
-    );
-
-    entityNodes.forEach((node, index) => {
-      node.position = { x: 80, y: 60 + index * 120 };
-    });
-    referenceNodes.forEach((node, index) => {
-      node.position = { x: 360, y: 40 + index * 100 };
-    });
-    contextNodes.forEach((node, index) => {
-      node.position = { x: 650, y: 40 + index * 90 };
-    });
-
-    return { nodes, edges, totalFacts: facts.length };
+    return { nodes, edges, mappedRelationships: mapped };
   }, [entitiesState.data, factsState.data, relationshipsState.data]);
 
   if (
@@ -256,34 +237,34 @@ export default function OntologyVisualization() {
       <EmptyState
         icon={Network}
         title="No ontology to visualize yet"
-        description="Upload evidence to resolve entities, facts, policies and relationships. The resulting organisational model will appear here."
+        description="Upload evidence to resolve entities, facts and relationships. The organisational model hierarchy will appear here."
       />
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm bg-neutral-900" />
-            Entities
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm border border-neutral-400 bg-white" />
-            Facts
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm border border-neutral-500 bg-neutral-200" />
-            Policies
-          </span>
-          <span>{graph.edges.length} mapped connections</span>
-        </div>
-        {graph.totalFacts > 80 && (
-          <span className="text-xs text-muted-foreground">
-            Showing the first 80 of {graph.totalFacts} facts
-          </span>
-        )}
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm bg-neutral-900" />
+          Model
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm border border-neutral-500 bg-neutral-200" />
+          Entity type
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-sm border border-neutral-400 bg-white" />
+          Entity
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-0 w-4 border-t border-dashed border-neutral-600" />
+          Relationship
+        </span>
+        <span>
+          {graph.mappedRelationships} mapped relationship
+          {graph.mappedRelationships === 1 ? "" : "s"}
+        </span>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_260px]">
@@ -292,8 +273,8 @@ export default function OntologyVisualization() {
             nodes={graph.nodes}
             edges={graph.edges}
             fitView
-            fitViewOptions={{ padding: 0.18 }}
-            minZoom={0.25}
+            fitViewOptions={{ padding: 0.2 }}
+            minZoom={0.2}
             maxZoom={1.8}
             nodesDraggable
             nodesConnectable={false}
@@ -313,8 +294,8 @@ export default function OntologyVisualization() {
               zoomable
               nodeColor={(node) =>
                 (node as OntologyNode).data.kind === "entity"
-                  ? "#171717"
-                  : "#d4d4d4"
+                  ? "#d4d4d4"
+                  : "#171717"
               }
               maskColor="rgba(245,245,245,0.75)"
             />
@@ -326,7 +307,11 @@ export default function OntologyVisualization() {
           {selected ? (
             <>
               <p className="text-xs font-medium uppercase text-muted-foreground">
-                {selected.data.kind}
+                {selected.data.kind === "root"
+                  ? "Model"
+                  : selected.data.kind === "type"
+                    ? "Entity type"
+                    : "Entity"}
               </p>
               <h3 className="mt-2 text-base font-semibold">
                 {selected.data.label}
@@ -348,9 +333,9 @@ export default function OntologyVisualization() {
           ) : (
             <div className="flex h-full min-h-32 flex-col items-center justify-center text-center">
               <Database className="size-5 text-muted-foreground" />
-              <p className="mt-3 text-sm font-medium">Inspect the ontology</p>
+              <p className="mt-3 text-sm font-medium">Explore the ontology</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Select a node to see its type, value and evidence source.
+                Select a node to see its type, occurrences and evidence source.
               </p>
             </div>
           )}

@@ -276,4 +276,42 @@ export function addReview(
   });
 }
 
+/* ------------------------------------------------------------------ */
+/* API keys — credentials for agents/services calling Orgni            */
+/* ------------------------------------------------------------------ */
+
+export interface ApiKeySummary {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  revoked: boolean;
+}
+
+/** A newly created key includes the plaintext `key` exactly once. */
+export interface CreatedApiKey extends ApiKeySummary {
+  key: string;
+}
+
+export function listApiKeys(token: string): Promise<{ keys: ApiKeySummary[] }> {
+  return request("/api/keys", { token });
+}
+
+export function createApiKey(
+  token: string,
+  name: string,
+): Promise<CreatedApiKey> {
+  return request("/api/keys", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name }),
+    token,
+  });
+}
+
+export function revokeApiKey(token: string, id: string): Promise<void> {
+  return request(`/api/keys/${id}`, { method: "DELETE", token });
+}
+
 export { ApiError, API_URL };

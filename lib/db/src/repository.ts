@@ -21,6 +21,8 @@ import {
   type SourceRow,
   type TokenRow,
 } from "./schema/documents";
+import { apiKeys, type ApiKeyRow } from "./schema/api-keys";
+import { isNull } from "drizzle-orm";
 
 export type Database = NodePgDatabase<typeof schema>;
 
@@ -181,6 +183,61 @@ export function createRepository(db: Database) {
         .select({ sourceId: tokens.sourceId, token: tokens.token })
         .from(tokens)
         .where(eq(tokens.tenantId, tenantId));
+    },
+
+    /** Create an API key for a tenant. Stores only the hash + prefix. */
+    async createApiKey(input: {
+      tenantId: string;
+      name: string;
+      keyPrefix: string;
+      keyHash: string;
+      createdBy: string;
+    }): Promise<ApiKeyRow> {
+      const rows = await db.insert(apiKeys).values(input).returning();
+      return rows[0]!;
+    },
+
+    /** List a tenant's API keys (never the secret). Newest first. */
+    async listApiKeys(tenantId: string): Promise<ApiKeyRow[]> {
+      return db
+        .select()
+        .from(apiKeys)
+        .where(eq(apiKeys.tenantId, tenantId))
+        .orderBy(desc(apiKeys.createdAt));
+    },
+
+    /** Revoke a tenant's key. No-op if it isn't theirs. */
+    async revokeApiKey(tenantId: string, id: string): Promise<boolean> {
+      const rows = await db
+        .update(apiKeys)
+        .set({ revokedAt: new Date() })
+        .where(
+          and(
+            eq(apiKeys.tenantId, tenantId),
+            eq(apiKeys.id, id),
+            isNull(apiKeys.revokedAt),
+          ),
+        )
+        .returning({ id: apiKeys.id });
+      return rows.length > 0;
+    },
+
+    /** Resolve an active API key by its hash → tenant, for authentication. */
+    async findActiveApiKeyByHash(keyHash: string): Promise<ApiKeyRow | null> {
+      const rows = await db
+        .select()
+        .from(apiKeys)
+        .where(and(eq(apiKeys.keyHash, keyHash), isNull(apiKeys.revokedAt)))
+        .limit(1);
+      const key = rows[0];
+      if (!key) return null;
+      // Best-effort last-used stamp; never block auth on it.
+      void db
+        .update(apiKeys)
+        .set({ lastUsedAt: new Date() })
+        .where(eq(apiKeys.id, key.id))
+        .catch(() => {});
+      return key;
     },
 
     /** Full stored document for review — strictly tenant-scoped. */
