@@ -131,5 +131,35 @@ export function mapInvoiceToTokens(
     });
   }
 
+  // ── Relation: vendor BILLED buyer ────────────────────────────────────────
+  // Both parties are named on the invoice — sufficient identity evidence for a
+  // billing relationship. Emitted only when a buyer is present.
+  if (env.buyerName) {
+    tokens.push({
+      tokenId: `tok_${env.extractionId}_invoice_billing`,
+      tenantId: env.tenantId,
+      tokenKind: "RELATION",
+      subjectId: env.vendorName.value,
+      predicate: "BILLED",
+      objectId: env.buyerName.value,
+      validTime: { from: env.invoiceDate.value },
+      transactionTime: stableNow,
+      scalarValue: {
+        invoiceNumber: env.invoiceNumber.value,
+        amount: env.totalAmount.value,
+        currency: env.currency.value,
+      },
+      sourceRefs: [buildSourceRef(env, 1, "parties")],
+      confidence: clampConfidence(
+        minConfidence(env.vendorName.confidence, env.buyerName.confidence),
+      ),
+      epistemicStatus: "OBSERVED",
+      visibility: [],
+      actionScope: ["finance", "accounts-payable"],
+      retentionClass: "financial",
+      payloadRef: env.documentRef,
+    });
+  }
+
   return tokens;
 }

@@ -16,8 +16,16 @@ const clean = loadFixture<ProofOfPaymentExtraction>("pop.clean.json");
 describe("mapProofOfPaymentToTokens — complete PoP with invoiceRef", () => {
   const tokens = mapProofOfPaymentToTokens(clean);
 
-  it("emits 2 tokens when invoiceRef is present", () => {
-    expect(tokens).toHaveLength(2);
+  it("emits 3 tokens when invoiceRef is present (payment, settlement, relation)", () => {
+    expect(tokens).toHaveLength(3);
+  });
+
+  it("emits a payer→payee PAID relation", () => {
+    const rel = tokens.find((t) => t.tokenKind === "RELATION");
+    expect(rel).toBeDefined();
+    expect(rel!.predicate).toBe("PAID");
+    expect(rel!.subjectId).toBe(clean.payerName!.value);
+    expect(rel!.objectId).toBe(clean.payeeName!.value);
   });
 
   it("PAYMENT_SETTLEMENT targets tracking states securely without blindly forcing a SETTLED status", () => {
@@ -42,7 +50,8 @@ describe("mapProofOfPaymentToTokens — complete PoP with invoiceRef", () => {
 describe("mapProofOfPaymentToTokens — PoP WITHOUT invoiceRef", () => {
   const tokens = mapProofOfPaymentToTokens({ ...clean, extractionId: "ext_pop_002", invoiceRef: undefined });
 
-  it("emits only 1 token when invoiceRef is absent", () => {
-    expect(tokens).toHaveLength(1);
+  it("emits 2 tokens when invoiceRef is absent (payment + relation, no settlement)", () => {
+    expect(tokens).toHaveLength(2);
+    expect(tokens.find((t) => t.eventType === "PAYMENT_SETTLEMENT")).toBeUndefined();
   });
 });

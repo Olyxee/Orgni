@@ -18,8 +18,16 @@ const partial = loadFixture<InvoiceExtraction>("invoice.partial.json");
 describe("mapInvoiceToTokens — clean invoice", () => {
   const tokens = mapInvoiceToTokens(clean);
 
-  it("emits 3 tokens for a complete invoice with line items", () => {
-    expect(tokens).toHaveLength(3);
+  it("emits 4 tokens for a complete invoice with line items (incl. billing relation)", () => {
+    expect(tokens).toHaveLength(4);
+  });
+
+  it("emits a vendor→buyer BILLED relation", () => {
+    const rel = tokens.find((t) => t.tokenKind === "RELATION");
+    expect(rel).toBeDefined();
+    expect(rel!.predicate).toBe("BILLED");
+    expect(rel!.subjectId).toBe(clean.vendorName.value);
+    expect(rel!.objectId).toBe(clean.buyerName!.value);
   });
 
   it("correctly models invoice obligation with outstanding status mapping capabilities", () => {

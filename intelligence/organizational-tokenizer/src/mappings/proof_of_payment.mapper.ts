@@ -94,5 +94,35 @@ export function mapProofOfPaymentToTokens(
     });
   }
 
+  // ── Relation: payer PAID payee ───────────────────────────────────────────
+  // Both parties named on the proof of payment — a payment relationship
+  // between them. Emitted only when both are present.
+  if (env.payerName && env.payeeName) {
+    tokens.push({
+      tokenId: `tok_${env.extractionId}_payment_relation`,
+      tenantId: env.tenantId,
+      tokenKind: "RELATION",
+      subjectId: env.payerName.value,
+      predicate: "PAID",
+      objectId: env.payeeName.value,
+      validTime: { from: env.paymentDate.value },
+      transactionTime: stableNow,
+      scalarValue: {
+        amount: env.amount.value,
+        currency: env.currency.value,
+        ...(env.invoiceRef ? { invoiceRef: env.invoiceRef.value } : {}),
+      },
+      sourceRefs: [buildSourceRef(env, 1, "payment-details")],
+      confidence: clampConfidence(
+        minConfidence(env.payerName.confidence, env.payeeName.confidence),
+      ),
+      epistemicStatus: "OBSERVED",
+      visibility: [],
+      actionScope: ["finance", "accounts-payable"],
+      retentionClass: "financial",
+      payloadRef: env.documentRef,
+    });
+  }
+
   return tokens;
 }
