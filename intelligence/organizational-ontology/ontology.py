@@ -39,6 +39,8 @@ ONTOLOGY_SCHEMA_VERSION = "0.1.0"
 # rejected rather than guessed.
 ALLOWED_RELATION_PREDICATES = {
     "CONTRACT_COUNTERPARTY",
+    "BILLED",  # vendor billed buyer (from an invoice)
+    "PAID",  # payer paid payee (from a proof of payment)
     "INVOICE_ISSUED_BY",
     "PAYMENT_BETWEEN",
     "REPORTS_TO",
