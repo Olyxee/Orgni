@@ -2,6 +2,44 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { LucideIcon } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { Skeleton } from "@/components/ui/skeleton";
+
+/** Stacked card placeholders — for FactCard lists (facts, relationships, policies). */
+export function CardsSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-lg border border-border bg-card p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-56" />
+            </div>
+            <Skeleton className="h-5 w-24 rounded-full" />
+          </div>
+          <div className="mt-3 space-y-2">
+            <Skeleton className="h-3 w-3/4" />
+            <Skeleton className="h-3 w-2/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Table-row placeholders — for entity / source tables. */
+export function RowsSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center justify-between px-4 py-3.5">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function useData<T>(
   fetcher: (token: string, arg?: any) => Promise<T>,

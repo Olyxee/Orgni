@@ -1,5 +1,5 @@
 import { listFacts, addReview } from "@/lib/api";
-import { useData, ErrorState, EmptyState } from "./shared";
+import { useData, ErrorState, EmptyState, CardsSkeleton } from "./shared";
 import { FactCard } from "./fact-card";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -36,13 +36,7 @@ export default function Facts({ embedded = false }: { embedded?: boolean }) {
     }
   }
 
-  if (loading)
-    return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-10 bg-muted/50 rounded-lg w-1/4" />
-        <div className="h-[300px] bg-muted/50 rounded-lg" />
-      </div>
-    );
+  if (loading) return <CardsSkeleton />;
   if (error) return <ErrorState error={error} />;
 
   const facts = data?.facts || [];

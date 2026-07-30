@@ -118,9 +118,28 @@ export default function Connections() {
                     </span>
                   </div>
                   <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Add one file or an entire batch. Orgni extracts the evidence
-                    and builds your context model automatically.
+                    Add your business documents — invoices, proofs of payment
+                    and contracts. Orgni reads each file, pulls out the key
+                    facts, and keeps a link back to the exact source. Other file
+                    types are stored and searchable too.
                   </p>
+                  <ol className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                    {[
+                      "Upload files",
+                      "Orgni extracts the facts",
+                      "Review in Context Model",
+                    ].map((step, i) => (
+                      <li key={step} className="flex items-center gap-2">
+                        <span className="flex size-4 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                          {i + 1}
+                        </span>
+                        {step}
+                        {i < 2 && (
+                          <span className="text-muted-foreground/40">→</span>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">

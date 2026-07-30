@@ -1,6 +1,6 @@
 import { listFacts } from "@/lib/api";
 import { ScrollText } from "lucide-react";
-import { EmptyState, ErrorState, useData } from "./shared";
+import { EmptyState, ErrorState, useData, CardsSkeleton } from "./shared";
 import { FactCard } from "./fact-card";
 
 function isPolicy(fact: Record<string, unknown>): boolean {
@@ -15,14 +15,7 @@ function isPolicy(fact: Record<string, unknown>): boolean {
 export default function Policies() {
   const { data, loading, error } = useData(listFacts);
 
-  if (loading) {
-    return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-20 rounded-md bg-muted/50" />
-        <div className="h-56 rounded-md bg-muted/50" />
-      </div>
-    );
-  }
+  if (loading) return <CardsSkeleton />;
   if (error) return <ErrorState error={error} />;
 
   const policies = (data?.facts ?? []).filter((entry) => isPolicy(entry.fact));
