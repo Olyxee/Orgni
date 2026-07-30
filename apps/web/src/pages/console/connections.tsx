@@ -14,7 +14,6 @@ import {
 import { BiLogoMicrosoftTeams } from "react-icons/bi";
 import { SiGmail, SiPostgresql, SiSap } from "react-icons/si";
 import type { ElementType } from "react";
-import { Button } from "@/components/ui/button";
 import Sources from "./sources";
 import { ConsolePageHeader } from "./shared";
 
@@ -158,66 +157,44 @@ export default function Connections() {
         </div>
       </section>
 
-      <section aria-labelledby="connect-tools-title" className="border-t pt-8">
-        <div className="mb-5 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <Plug className="size-4 text-muted-foreground" />
-              <h2 id="connect-tools-title" className="text-lg font-semibold">
-                Connect your tools
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Authorize Orgni to continuously sync evidence from the systems
-              your organisation already uses.
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock3 className="size-3.5" />
-            Direct integrations are coming soon
-          </div>
+      {/* Direct integrations are not yet available — kept as a small, honest
+          footnote rather than prominent cards, so the live upload source stays
+          the focus. */}
+      <section aria-labelledby="connect-tools-title" className="border-t pt-6">
+        <div className="mb-3 flex items-center gap-2">
+          <Plug className="size-3.5 text-muted-foreground" />
+          <h2
+            id="connect-tools-title"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Direct integrations — coming soon
+          </h2>
         </div>
-
-        <div className="grid overflow-hidden rounded-md border border-border bg-card sm:grid-cols-2 xl:grid-cols-4">
-          {integrations.map((integration, index) => (
-            <div
+        <div className="flex flex-wrap gap-2">
+          {integrations.map((integration) => (
+            <span
               key={integration.name}
+              title={integration.detail}
               aria-disabled="true"
-              className={`flex min-h-48 flex-col p-5 ${
-                index > 0 ? "border-t sm:border-t-0 sm:border-l" : ""
-              } ${index === 2 ? "sm:border-l-0 sm:border-t xl:border-l xl:border-t-0" : ""} ${
-                index === 3 ? "sm:border-t xl:border-t-0" : ""
-              }`}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/20 px-3 py-1.5 text-xs text-muted-foreground"
             >
-              <div className="flex items-start justify-between">
-                <span className="flex size-11 items-center justify-center rounded-md border border-border bg-background">
-                  <integration.icon
-                    className="size-6"
-                    style={{ color: integration.color }}
-                  />
-                </span>
-                <span className="text-[10px] font-medium uppercase text-muted-foreground">
-                  Soon
-                </span>
-              </div>
-              <div className="mt-4 flex-1">
-                <h3 className="text-sm font-semibold">{integration.name}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {integration.detail}
-                </p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled
-                className="mt-4 w-full"
-              >
-                <Plug />
-                Connect
-              </Button>
-            </div>
+              <integration.icon
+                className="size-4"
+                style={{ color: integration.color }}
+              />
+              {integration.name}
+              <span className="ml-0.5 flex items-center gap-1 text-[10px] uppercase">
+                <Clock3 className="size-3" />
+                Soon
+              </span>
+            </span>
           ))}
         </div>
+        <p className="mt-3 max-w-2xl text-xs text-muted-foreground">
+          Secure file upload is the live source in Phase 1. Gmail, Teams,
+          PostgreSQL and SAP connectors are on the roadmap and are not yet
+          operational — nothing here syncs until it is connected end to end.
+        </p>
       </section>
     </div>
   );
