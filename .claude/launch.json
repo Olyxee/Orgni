@@ -5,7 +5,8 @@
       "name": "web",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@workspace/web", "run", "dev"],
-      "port": 5000
+      "port": 5000,
+      "autoPort": true
     }
   ]
 }
