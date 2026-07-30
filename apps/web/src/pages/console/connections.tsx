@@ -130,24 +130,19 @@ export default function Connections() {
             </div>
           </div>
 
-          <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 px-5 py-3 sm:px-6">
+            <span className="text-xs font-medium text-muted-foreground">
+              Accepts
+            </span>
             {fileFamilies.map((family) => (
-              <div
+              <span
                 key={family.label}
-                className="flex min-h-20 items-center gap-3 bg-card px-5 py-3"
+                title={family.label}
+                className="inline-flex items-center gap-1.5 rounded-md bg-muted/40 px-2 py-1 text-xs text-muted-foreground"
               >
-                <span
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-md ${family.color}`}
-                >
-                  <family.icon className="size-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{family.label}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {family.formats}
-                  </p>
-                </div>
-              </div>
+                <family.icon className="size-3.5 shrink-0" />
+                <span className="font-mono">{family.formats}</span>
+              </span>
             ))}
           </div>
         </div>
