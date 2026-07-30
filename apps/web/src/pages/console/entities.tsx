@@ -1,5 +1,5 @@
 import { listEntities } from "@/lib/api";
-import { useData, ErrorState, EmptyState } from "./shared";
+import { useData, ErrorState, EmptyState, RowsSkeleton } from "./shared";
 import { Database } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button";
 export default function Entities({ embedded = false }: { embedded?: boolean }) {
   const { data, loading, error } = useData(listEntities);
 
-  if (loading)
-    return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-10 bg-muted/50 rounded-lg w-1/4" />
-        <div className="h-[300px] bg-muted/50 rounded-lg" />
-      </div>
-    );
+  if (loading) return <RowsSkeleton />;
   if (error) return <ErrorState error={error} />;
 
   const entities = data?.entities || [];

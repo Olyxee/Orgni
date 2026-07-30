@@ -74,10 +74,21 @@ const STYLE: Record<NodeKind, React.CSSProperties> = {
   },
 };
 
-const ENTITY_W = 200;
-const X_GAP = 44;
-const STEP = ENTITY_W + X_GAP;
-const LEVEL_Y = { root: 0, type: 150, entity: 320 };
+// Radial "ontology star": the model sits at the centre, entity types on an
+// inner ring, and entities on an outer ring — spokes radiate from the centre.
+const R_TYPE = 260;
+const R_ENTITY = 540;
+const START_ANGLE = -Math.PI / 2; // first spoke points straight up
+const CENTER = { x: 640, y: 560 };
+const SPOKE: React.CSSProperties = { stroke: "#cbcbcb", strokeWidth: 1.2 };
+
+/** Polar → top-left position (offset by ~half a node so it sits on the ring). */
+function polar(radius: number, angle: number) {
+  return {
+    x: CENTER.x + radius * Math.cos(angle) - 95,
+    y: CENTER.y + radius * Math.sin(angle) - 20,
+  };
+}
 
 function normalize(value: unknown): string {
   return String(value ?? "")
@@ -116,8 +127,9 @@ export default function OntologyVisualization() {
     const factsFor = (name: string) =>
       facts.filter((f) => normalize(f.fact.subject) === normalize(name)).length;
 
-    let slot = 0; // global left-to-right slot index for entities
-    const typeCenters: { id: string; x: number }[] = [];
+    const total = Math.max(entities.length, 1);
+    let slot = 0; // global slot index → angle around the star
+    const typeCenters: { id: string; angle: number }[] = [];
 
     for (const [type, list] of byType) {
       const startSlot = slot;
@@ -127,9 +139,10 @@ export default function OntologyVisualization() {
         const id = `entity-${slot}`;
         const name = String(entry.entity.name ?? entry.key);
         const fc = factsFor(name);
+        const angle = START_ANGLE + (slot / total) * 2 * Math.PI;
         nodes.push({
           id,
-          position: { x: slot * STEP, y: LEVEL_Y.entity },
+          position: polar(R_ENTITY, angle),
           data: {
             label: name,
             kind: "entity",
@@ -147,16 +160,18 @@ export default function OntologyVisualization() {
           id: `h-${typeId}-${id}`,
           source: typeId,
           target: id,
-          type: "smoothstep",
-          style: { stroke: "#cbcbcb", strokeWidth: 1.2 },
+          type: "straight",
+          style: SPOKE,
         });
         slot++;
       });
 
-      const typeX = ((startSlot + slot - 1) / 2) * STEP;
+      // Type node on the inner ring, at the angular centre of its entities.
+      const typeAngle =
+        START_ANGLE + ((startSlot + slot - 1) / 2 / total) * 2 * Math.PI;
       nodes.push({
         id: typeId,
-        position: { x: typeX, y: LEVEL_Y.type },
+        position: polar(R_TYPE, typeAngle),
         data: {
           label: type,
           kind: "type",
@@ -164,16 +179,14 @@ export default function OntologyVisualization() {
         },
         style: STYLE.type,
       });
-      typeCenters.push({ id: typeId, x: typeX });
+      typeCenters.push({ id: typeId, angle: typeAngle });
     }
 
-    // Root, centred over the type groups.
+    // Root at the centre of the star.
     if (typeCenters.length > 0) {
-      const rootX =
-        typeCenters.reduce((s, t) => s + t.x, 0) / typeCenters.length;
       nodes.push({
         id: "root",
-        position: { x: rootX, y: LEVEL_Y.root },
+        position: { x: CENTER.x - 110, y: CENTER.y - 22 },
         data: {
           label: "Organisational model",
           kind: "root",
@@ -188,8 +201,8 @@ export default function OntologyVisualization() {
           id: `h-root-${t.id}`,
           source: "root",
           target: t.id,
-          type: "smoothstep",
-          style: { stroke: "#cbcbcb", strokeWidth: 1.2 },
+          type: "straight",
+          style: SPOKE,
         }),
       );
     }
