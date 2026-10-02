@@ -19,7 +19,8 @@ const STORAGE_KEY = "orgni.session";
 
 interface AuthValue {
   session: Session | null;
-  login: (email: string, organization: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, organization: string, password: string, confirmation: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -37,8 +38,14 @@ function loadSession(): Session | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(loadSession);
 
-  const login = useCallback(async (email: string, organization: string) => {
-    const s = await apiLogin(email, organization);
+  const login = useCallback(async (email: string, password: string) => {
+    const s = await apiLogin(email, password);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    setSession(s);
+  }, []);
+
+  const signup = useCallback(async (email: string, organization: string, password: string, confirmation: string) => {
+    const s = await apiLogin(email, password, organization, confirmation);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
     setSession(s);
   }, []);
@@ -49,8 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ session, login, logout }),
-    [session, login, logout],
+    () => ({ session, login, signup, logout }),
+    [session, login, signup, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

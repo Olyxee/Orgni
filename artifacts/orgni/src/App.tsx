@@ -45,12 +45,12 @@ function Router() {
         <Redirect to="/docs" />
       </Route>
       <Route path="/thesis" component={Thesis} />
-      <Route path="/login" component={Login} />
+      <Route path="/login"><Login key="login" /></Route>
       <Route path="/sign-in/*?">
         <Redirect to="/login" />
       </Route>
       <Route path="/sign-up/*?">
-        <Redirect to="/login" />
+        <Login key="signup" register />
       </Route>
       <Route path="/app" component={AppShell} />
       <Route path="/app/:section" component={AppShell} />
@@ -63,7 +63,7 @@ function Router() {
 function ExperienceShell() {
   const [location] = useLocation();
   const isProductSurface =
-    location === "/login" || location.startsWith("/app");
+    location === "/login" || location.startsWith("/sign-up") || location.startsWith("/app");
 
   return (
     <div

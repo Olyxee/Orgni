@@ -1,15 +1,4 @@
-/**
- * Dev-mode session auth.
- *
- * Issues and verifies HMAC-signed tokens (a compact `<body>.<sig>` where body is
- * base64url JSON). This is deliberately the same shape a real OIDC JWT would
- * take, so `authenticate()` is the single seam that Entra External ID replaces
- * in production — nothing downstream changes when it does.
- *
- * It is NOT a substitute for a real IdP: there is no user store or password
- * check. Anyone can mint a session for any org locally. That is fine for local
- * development and is gated so it can be tightened per environment.
- */
+/** Signed sessions for credential accounts; OIDC can replace this seam later. */
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export interface SessionPrincipal {

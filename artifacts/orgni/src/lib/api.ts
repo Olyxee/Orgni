@@ -100,7 +100,9 @@ async function request<T>(
 
 export async function login(
   email: string,
-  organization: string,
+  password: string,
+  organization?: string,
+  confirmPassword?: string,
 ): Promise<Session> {
   const data = await request<{
     token: string;
@@ -110,10 +112,10 @@ export async function login(
       organization: string;
       roles: string[];
     };
-  }>("/api/auth/login", {
+  }>(organization === undefined ? "/api/auth/login" : "/api/auth/register", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, organization }),
+    body: JSON.stringify({ email, organization, password, confirmPassword }),
   });
   return {
     token: data.token,

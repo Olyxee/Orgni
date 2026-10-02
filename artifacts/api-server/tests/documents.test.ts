@@ -216,19 +216,10 @@ describe("POST /api/documents", () => {
     expect((await res.json()).error).toBe("unauthenticated");
   });
 
-  it("logs in and uses the session token as the tenant", async () => {
-    const login = await fetch(`${baseUrl}/api/auth/login`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        email: "demo@olyxee.com",
-        organization: "Clover Retail",
-      }),
-    });
-    expect(login.status).toBe(200);
-    const { token, principal } = await login.json();
-    expect(principal.tenantId).toBe("tenant_clover-retail");
-
+  it("uses a signed session token as the tenant", async () => {
+    const { issueToken } = await import("../src/lib/auth");
+    const { authSecret } = await import("../src/lib/config");
+    const { token } = issueToken({ email: "demo@olyxee.com", tenantId: "tenant_clover-retail" }, authSecret);
     // A Bearer session is accepted and drives the tenant.
     const up = await fetch(`${baseUrl}/api/documents`, {
       method: "POST",
