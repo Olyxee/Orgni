@@ -156,10 +156,6 @@ export function ResetPassword() {
       eyebrow="RECOVER"
       title="Choose a new password"
       description="Pick something you don't use anywhere else."
-      panel={{
-        kicker: "Almost there",
-        headline: "Choose a long passphrase and you are back in before this page closes.",
-      }}
       footer={
         <Link href="/login" className="text-foreground underline underline-offset-4">
           Back to sign in

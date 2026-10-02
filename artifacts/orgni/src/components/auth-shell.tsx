@@ -18,6 +18,7 @@ import { Link } from "wouter";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const MARK = `${import.meta.env.BASE_URL}orgni-mark.png`;
 
@@ -59,16 +60,26 @@ export function AuthCard({
   eyebrow?: string;
   title: string;
   description: string;
-  /** Brand-panel copy, distinct per screen so the four pages do not read alike. */
-  panel: { kicker: string; headline: string };
+  /**
+   * Brand-panel copy, distinct per screen so the four pages do not read alike.
+   * Omit it to drop the panel entirely — the card collapses to a single column
+   * rather than leaving a gap in the grid.
+   */
+  panel?: { kicker: string; headline: string };
   children?: ReactNode;
   footer?: ReactNode;
 }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-orange-50/60 px-4 py-8 dark:bg-zinc-950 sm:px-6 sm:py-12">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-orange-100 bg-background shadow-sm dark:border-zinc-800 lg:grid-cols-2">
+      <div
+        className={cn(
+          "w-full overflow-hidden rounded-3xl border border-orange-100 bg-background shadow-sm dark:border-zinc-800",
+          panel ? "max-w-5xl lg:grid lg:grid-cols-2" : "max-w-md",
+        )}
+      >
         {/* Brand panel. Hidden on small screens, where the lock above the form
             carries the identity instead. */}
+        {panel && (
         <aside className="relative hidden flex-col justify-between overflow-hidden bg-primary/[0.05] p-10 text-foreground lg:flex lg:border-r lg:border-orange-100 dark:lg:border-zinc-800 xl:p-12">
           <PanelBackdrop />
           <div className="relative">
@@ -83,9 +94,12 @@ export function AuthCard({
             </p>
           </div>
         </aside>
+        )}
 
         <div className="p-8 sm:p-12">
-          <div className="mb-8 lg:hidden">
+          {/* With no brand panel this is the only place the mark appears, so it
+              must show at every width; otherwise it is mobile-only. */}
+          <div className={cn("mb-8", panel && "lg:hidden")}>
             <BrandLock />
           </div>
 
