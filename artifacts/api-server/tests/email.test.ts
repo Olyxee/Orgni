@@ -81,10 +81,16 @@ describe("password reset email", () => {
     expect(sent.html).toMatch(/display:none[^>]*>Reset your Orgni password/);
   });
 
-  it("uses the brand token and the mark served by the web app", async () => {
+  it("embeds the mark as a data URI so no remote fetch can break it", async () => {
     await reset();
+    expect(sent.html).toContain('src="data:image/png;base64,');
+    // A localhost or relative URL would silently break in real inboxes.
+    expect(sent.html).not.toContain("127.0.0.1");
+    expect(sent.html).not.toContain('src="/');
     expect(sent.html).toContain(BRAND);
-    expect(sent.html).toContain("https://app.orgni.test/orgni-mark.png");
+    // The wordmark is real text, so a client that drops inline images still
+    // renders a readable header.
+    expect(sent.html).toContain(">Orgni</td>");
   });
 
   it("reassures a user who did not ask for the reset", async () => {

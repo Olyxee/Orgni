@@ -16,6 +16,7 @@
  * it white-on-white. Shipping real dark styles later is the better fix.
  */
 import { config } from "./config";
+import { ORGNI_MARK_DATA_URI } from "./email-logo";
 
 /** hsl(19 99% 50%) — the --primary token. Kept here so it cannot drift. */
 export const BRAND = "#FE5101";
@@ -25,10 +26,15 @@ const MUTED = "#6b6b6b";
 const HAIRLINE = "#e7e5e4";
 const CANVAS = "#faf9f8";
 
-/** The mark is served by the web app, so no CDN or attachment is needed. */
+/**
+ * The mark is embedded rather than linked. Remote images are fetched by the
+ * recipient's mail infrastructure, so a URL only works if it is publicly
+ * reachable over HTTPS — which is never true in development, and not
+ * guaranteed in production where the API image does not carry the web app's
+ * public assets.
+ */
 export function logoUrl(): string {
-  const base = (config.APP_BASE_URL ?? config.PUBLIC_BASE_URL ?? "").replace(/\/+$/, "");
-  return base ? `${base}/orgni-mark.png` : "";
+  return ORGNI_MARK_DATA_URI;
 }
 
 export function appUrl(path = ""): string {
