@@ -43,6 +43,13 @@
       "when": 1790967141921,
       "tag": "0005_certain_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790969243679,
+      "tag": "0006_tricky_human_torch",
+      "breakpoints": true
     }
   ]
 }

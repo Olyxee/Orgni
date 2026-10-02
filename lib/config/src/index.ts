@@ -28,6 +28,13 @@ export const apiEnvSchema = baseEnvSchema.extend({
    * Ignored in development (all origins allowed for local DX).
    */
   CORS_ORIGINS: z.string().optional(),
+  /**
+   * Number of reverse-proxy hops in front of this service, so `req.ip` is the
+   * real client address rather than the proxy's. Set to the hop count your
+   * platform reports (1 for a single nginx/Front Door/Azure LB). Required for
+   * the per-IP rate limiting on credential endpoints to be correct.
+   */
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).optional(),
   /** pino log level (fatal|error|warn|info|debug|trace). */
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace"])

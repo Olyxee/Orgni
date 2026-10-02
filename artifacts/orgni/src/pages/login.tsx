@@ -1,8 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { AuthCard, FormError, TextField } from "@/components/auth-shell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { useSeo } from "@/hooks/use-seo";
@@ -12,9 +11,9 @@ const messages: Record<string, string> = {
   invalid_organization: "Enter an organization name of up to 120 characters.",
   invalid_password: "Use a password between 12 and 128 characters.",
   password_mismatch: "Your passwords do not match.",
-  account_exists: "An account with this email already exists. Please sign in.",
+  account_exists: "An account with this email already exists. Sign in or reset your password.",
   invalid_credentials: "Email or password is incorrect.",
-  too_many_attempts: "Too many attempts. Please wait a minute and try again.",
+  too_many_attempts: "Too many attempts. Please wait a few minutes and try again.",
   persistence_unavailable: "Account services are temporarily unavailable. Please try again later.",
 };
 
@@ -48,39 +47,48 @@ export default function Login({ register = false }: { register?: boolean }) {
     } finally { setBusy(false); }
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground px-4 py-8">
-      <div className="w-full max-w-sm">
-        <Link href="/" className="block text-2xl font-semibold tracking-tight mb-1">Orgni</Link>
-        <p className="text-sm text-muted-foreground mb-8">{register ? "Create your Orgni account" : "Sign in to your workspace"}</p>
-        <form onSubmit={onSubmit} className="space-y-4" aria-busy={busy} aria-describedby={error ? "auth-error" : undefined}>
-          <fieldset disabled={busy} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Work email</Label>
-              <Input id="email" type="email" autoComplete="email" placeholder="you@company.com" maxLength={254} value={email} onChange={e => setEmail(e.target.value)} required />
-            </div>
-            {register && <div className="space-y-1.5">
-              <Label htmlFor="org">Organization</Label>
-              <Input id="org" autoComplete="organization" placeholder="Acme Inc." maxLength={120} value={organization} onChange={e => setOrganization(e.target.value)} required />
-              <p className="text-xs text-muted-foreground">Creates a new private workspace for your account.</p>
-            </div>}
-            <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? 12 : undefined} maxLength={128} value={password} onChange={e => setPassword(e.target.value)} required aria-describedby={register ? "password-help" : undefined} />
-              {register && <p id="password-help" className="text-xs text-muted-foreground">Use 12–128 characters. A long, unique passphrase works well.</p>}
-            </div>
-            {register && <div className="space-y-1.5">
-              <Label htmlFor="confirmation">Confirm password</Label>
-              <Input id="confirmation" type="password" autoComplete="new-password" maxLength={128} value={confirmation} onChange={e => setConfirmation(e.target.value)} required />
-            </div>}
-            {error && <p id="auth-error" role="alert" className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={busy}>{busy ? (register ? "Creating account…" : "Signing in…") : (register ? "Create account" : "Sign in")}</Button>
-          </fieldset>
-        </form>
-        <p className="text-sm text-muted-foreground mt-6">
+    <AuthCard
+      heading={register ? "Create your Orgni account" : "Sign in to your workspace"}
+      footer={
+        <>
           {register ? "Already have an account? " : "New to Orgni? "}
-          <Link href={register ? "/login" : "/sign-up"} className="text-foreground underline">{register ? "Sign in" : "Create account"}</Link>
-        </p>
-      </div>
-    </div>
+          <Link href={register ? "/login" : "/sign-up"} className="text-foreground underline">
+            {register ? "Sign in" : "Create account"}
+          </Link>
+          {!register && (
+            <>
+              {" · "}
+              <Link href="/forgot-password" className="text-foreground underline">
+                Forgot password?
+              </Link>
+            </>
+          )}
+        </>
+      }
+    >
+      <form onSubmit={onSubmit} className="space-y-4" aria-busy={busy} aria-describedby={error ? "auth-error" : undefined}>
+        <fieldset disabled={busy} className="space-y-4">
+          <TextField id="email" label="Work email" type="email" autoComplete="email"
+            placeholder="you@company.com" maxLength={254} required
+            value={email} onChange={setEmail} />
+          {register && <TextField id="org" label="Organization" autoComplete="organization"
+            placeholder="Acme Inc." maxLength={120} required
+            help="Creates a new private workspace for your account."
+            value={organization} onChange={setOrganization} />}
+          <TextField id="password" label="Password" type="password"
+            autoComplete={register ? "new-password" : "current-password"}
+            minLength={register ? 12 : undefined} maxLength={128} required
+            help={register ? "Use 12–128 characters. A long, unique passphrase works well." : undefined}
+            value={password} onChange={setPassword} />
+          {register && <TextField id="confirmation" label="Confirm password" type="password"
+            autoComplete="new-password" maxLength={128} required
+            value={confirmation} onChange={setConfirmation} />}
+          {error && <FormError id="auth-error">{error}</FormError>}
+          <Button type="submit" className="w-full" disabled={busy}>
+            {busy ? (register ? "Creating account…" : "Signing in…") : (register ? "Create account" : "Sign in")}
+          </Button>
+        </fieldset>
+      </form>
+    </AuthCard>
   );
 }

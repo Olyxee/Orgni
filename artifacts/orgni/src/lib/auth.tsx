@@ -13,7 +13,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { login as apiLogin, type Session } from "./api";
+import {
+  confirmPasswordReset as apiConfirmPasswordReset,
+  login as apiLogin,
+  register as apiRegister,
+  requestPasswordReset as apiRequestPasswordReset,
+  type Session,
+} from "./api";
 
 const STORAGE_KEY = "orgni.session";
 
@@ -21,6 +27,8 @@ interface AuthValue {
   session: Session | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, organization: string, password: string, confirmation: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  confirmPasswordReset: (token: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -38,17 +46,36 @@ function loadSession(): Session | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(loadSession);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const s = await apiLogin(email, password);
+  const adopt = useCallback((s: Session) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
     setSession(s);
   }, []);
 
-  const signup = useCallback(async (email: string, organization: string, password: string, confirmation: string) => {
-    const s = await apiLogin(email, password, organization, confirmation);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    setSession(s);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      adopt(await apiLogin(email, password));
+    },
+    [adopt],
+  );
+
+  const signup = useCallback(
+    async (email: string, organization: string, password: string, confirmation: string) => {
+      adopt(await apiRegister({ email, organization, password, confirmPassword: confirmation }));
+    },
+    [adopt],
+  );
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    await apiRequestPasswordReset(email);
   }, []);
+
+  // A completed reset hands back a session, so adopt it and skip the sign-in form.
+  const confirmPasswordReset = useCallback(
+    async (token: string, password: string) => {
+      adopt(await apiConfirmPasswordReset(token, password));
+    },
+    [adopt],
+  );
 
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
@@ -56,8 +83,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({ session, login, signup, logout }),
-    [session, login, signup, logout],
+    () => ({ session, login, signup, requestPasswordReset, confirmPasswordReset, logout }),
+    [session, login, signup, requestPasswordReset, confirmPasswordReset, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

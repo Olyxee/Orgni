@@ -57,6 +57,30 @@ export async function sendMemberInvite(input: {
   return send(input.to, `You've been added to Orgni — ${input.organisationName}`, html);
 }
 
+/**
+ * Password-reset link for an existing account.
+ *
+ * Sent only in response to a request for an address that actually has an
+ * account, so the endpoint that triggers it can stay enumeration-safe.
+ */
+export async function sendPasswordReset(input: {
+  to: string;
+  resetUrl: string;
+  expiresInMinutes: number;
+}): Promise<boolean> {
+  const hours = Math.max(1, Math.round(input.expiresInMinutes / 60));
+  const html = `
+    <div style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;font-size:15px;color:#171717">
+      <p>We received a request to reset the Orgni password for this address.</p>
+      <p><a href="${escapeHtml(input.resetUrl)}" style="color:#FE5101">Choose a new password</a></p>
+      <p style="color:#666;font-size:13px">This link expires in ${hours} hour${
+        hours === 1 ? "" : "s"
+      } and can only be used once. If you did not request this, you can ignore
+      this email — your password will not change.</p>
+    </div>`;
+  return send(input.to, "Reset your Orgni password", html);
+}
+
 function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,

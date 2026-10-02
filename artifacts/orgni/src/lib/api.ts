@@ -98,25 +98,17 @@ async function request<T>(
   return (await res.json()) as T;
 }
 
-export async function login(
-  email: string,
-  password: string,
-  organization?: string,
-  confirmPassword?: string,
-): Promise<Session> {
-  const data = await request<{
-    token: string;
-    principal: {
-      email: string;
-      tenantId: string;
-      organization: string;
-      roles: string[];
-    };
-  }>(organization === undefined ? "/api/auth/login" : "/api/auth/register", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, organization, password, confirmPassword }),
-  });
+interface SessionResponse {
+  token: string;
+  principal: {
+    email: string;
+    tenantId: string;
+    organization: string;
+    roles: string[];
+  };
+}
+
+function toSession(data: SessionResponse): Session {
   return {
     token: data.token,
     email: data.principal.email,
@@ -124,6 +116,42 @@ export async function login(
     tenantId: data.principal.tenantId,
     roles: data.principal.roles,
   };
+}
+
+function postAuth<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function login(email: string, password: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/login", { email, password }).then(toSession);
+}
+
+export function register(input: {
+  email: string;
+  organization: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/register", input).then(toSession);
+}
+
+/**
+ * Ask for a reset link. The API answers identically for known and unknown
+ * addresses, so a success here never confirms whether an account exists.
+ */
+export function requestPasswordReset(email: string): Promise<{ accepted: boolean }> {
+  return postAuth("/api/auth/password-reset/request", { email });
+}
+
+/** Spend a reset token. Returns a session so the user lands in the workspace. */
+export function confirmPasswordReset(token: string, password: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/password-reset/confirm", { token, password }).then(
+    toSession,
+  );
 }
 
 export function getCurrentSession(

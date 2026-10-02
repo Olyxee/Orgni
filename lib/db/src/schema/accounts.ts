@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 import { organisations } from "./product";
 
@@ -8,3 +8,23 @@ export const accounts = pgTable("accounts", {
   passwordHash: text("password_hash").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Outstanding password-reset tokens.
+ *
+ * Only the SHA-256 of the emailed token is stored, so a leaked database dump
+ * cannot be replayed against the reset endpoint. Rows are deleted on use and on
+ * any new request, which keeps at most one live token per address and lets the
+ * table stay small without a cleanup job.
+ */
+export const passwordResets = pgTable(
+  "password_resets",
+  {
+    /** SHA-256 hex of the emailed token; the token itself is never stored. */
+    tokenHash: text("token_hash").primaryKey(),
+    email: text("email").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("password_resets_email_idx").on(t.email)],
+);
