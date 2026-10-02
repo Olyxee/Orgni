@@ -21,52 +21,29 @@ import { Label } from "@/components/ui/label";
 
 const MARK = `${import.meta.env.BASE_URL}orgni-mark.png`;
 
-/** Concentric arcs behind the panel, echoing the converging-lines motif on
- *  the product hero. Purely decorative, so hidden from assistive tech. */
-const ARCS = [90, 150, 210, 270, 330, 390, 450];
-
+/**
+ * Oversized Orgni mark, sitting in the gap between the lock and the headline.
+ * On this light panel the orange glyph has enough contrast to read at this
+ * size, so it can be a real graphic rather than a faint smudge.
+ */
 function PanelBackdrop() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <svg
-        viewBox="0 0 100 160"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full text-primary/25"
-      >
-        {ARCS.map((r) => (
-          <circle
-            key={r}
-            cx="16"
-            cy="12"
-            r={r}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="0.35"
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
-      </svg>
-      {/* Oversized mark, bleeding off the corner. */}
+      <div className="absolute -left-24 -top-28 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <img
         src={MARK}
         alt=""
-        className="absolute -right-28 -top-24 w-[460px] opacity-[0.08]"
+        className="absolute right-[-10%] top-1/2 w-[300px] -translate-y-1/2 opacity-[0.18]"
       />
-      {/* Warmth gathering behind the mark. */}
-      <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
-      <div className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
     </div>
   );
 }
 
-function BrandLock({ tone }: { tone: "onDark" | "onLight" }) {
+function BrandLock() {
   return (
-    <Link
-      href="/"
-      className={`flex min-h-10 items-center gap-3 ${tone === "onDark" ? "justify-start" : ""}`}
-    >
+    <Link href="/" className="flex min-h-10 items-center gap-3">
       <img src={MARK} alt="Orgni logo" className="h-8 w-8 object-contain" />
-      <span className="font-serif text-2xl leading-none">Orgni</span>
+      <span className="font-serif text-2xl leading-none text-foreground">Orgni</span>
     </Link>
   );
 }
@@ -75,39 +52,41 @@ export function AuthCard({
   eyebrow,
   title,
   description,
+  panel,
   children,
   footer,
 }: {
   eyebrow?: string;
   title: string;
   description: string;
+  /** Brand-panel copy, distinct per screen so the four pages do not read alike. */
+  panel: { kicker: string; headline: string };
   children?: ReactNode;
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-8 dark:bg-zinc-950 sm:px-6 sm:py-12">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-zinc-200 bg-background shadow-sm dark:border-zinc-800 lg:grid-cols-2">
+    <div className="flex min-h-screen items-center justify-center bg-orange-50/60 px-4 py-8 dark:bg-zinc-950 sm:px-6 sm:py-12">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-orange-100 bg-background shadow-sm dark:border-zinc-800 lg:grid-cols-2">
         {/* Brand panel. Hidden on small screens, where the lock above the form
             carries the identity instead. */}
-        <aside className="relative hidden flex-col justify-between overflow-hidden bg-zinc-900 p-10 text-zinc-50 lg:flex xl:p-12">
+        <aside className="relative hidden flex-col justify-between overflow-hidden bg-primary/[0.05] p-10 text-foreground lg:flex lg:border-r lg:border-orange-100 dark:lg:border-zinc-800 xl:p-12">
           <PanelBackdrop />
           <div className="relative">
-            <BrandLock tone="onDark" />
+            <BrandLock />
           </div>
           <div className="relative">
             <p className="mb-3 font-mono text-xs font-bold text-primary">
-              Operational intelligence
+              {panel.kicker}
             </p>
-            <p className="max-w-sm text-2xl font-semibold leading-tight tracking-tight xl:text-3xl">
-              Understand what is happening in your organisation, and keep work
-              moving.
+            <p className="max-w-sm text-2xl font-semibold leading-tight tracking-tight text-foreground xl:text-3xl">
+              {panel.headline}
             </p>
           </div>
         </aside>
 
         <div className="p-8 sm:p-12">
           <div className="mb-8 lg:hidden">
-            <BrandLock tone="onLight" />
+            <BrandLock />
           </div>
 
           {eyebrow && (

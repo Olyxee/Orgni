@@ -57,6 +57,10 @@ export function ForgotPassword() {
       eyebrow="RECOVER"
       title="Reset your password"
       description="We'll email you a link to choose a new one. The link expires in 30 minutes."
+      panel={{
+        kicker: "Account recovery",
+        headline: "Tell us the address on the account and we will send a link straight to it.",
+      }}
       footer={
         <>
           Remembered it?{" "}
@@ -115,6 +119,10 @@ export function ResetPassword() {
         eyebrow="RECOVER"
         title="Reset link needed"
         description="This page works from the link we email you. Request a new one and we'll send it straight away."
+        panel={{
+          kicker: "Link expired",
+          headline: "Reset links work once and last 30 minutes. We can always send you another.",
+        }}
         footer={
           <Link href="/forgot-password" className="text-foreground underline underline-offset-4">
             Request a new link
@@ -148,6 +156,10 @@ export function ResetPassword() {
       eyebrow="RECOVER"
       title="Choose a new password"
       description="Pick something you don't use anywhere else."
+      panel={{
+        kicker: "Almost there",
+        headline: "Choose a long passphrase and you are back in before this page closes.",
+      }}
       footer={
         <Link href="/login" className="text-foreground underline underline-offset-4">
           Back to sign in

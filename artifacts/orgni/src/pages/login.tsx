@@ -54,6 +54,17 @@ export default function Login({ register = false }: { register?: boolean }) {
           ? "Set up a private workspace for your organisation in under a minute."
           : "Sign in to your Orgni workspace."
       }
+      panel={
+        register
+          ? {
+              kicker: "Your own workspace",
+              headline: "One private place for your organisation, set up in under a minute.",
+            }
+          : {
+              kicker: "Welcome back",
+              headline: "Pick up exactly where your organisation left off.",
+            }
+      }
       footer={
         <>
           {register ? "Already have an account? " : "New to Orgni? "}
