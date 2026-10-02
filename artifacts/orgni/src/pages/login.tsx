@@ -48,7 +48,12 @@ export default function Login({ register = false }: { register?: boolean }) {
   return (
     <AuthCard
       eyebrow={register ? "CREATE ACCOUNT" : "SIGN IN"}
-      heading={register ? "Create your Orgni account" : "Sign in to your workspace"}
+      title={register ? "Create an account" : "Welcome back"}
+      description={
+        register
+          ? "Set up a private workspace for your organisation in under a minute."
+          : "Sign in to your Orgni workspace."
+      }
       footer={
         <>
           {register ? "Already have an account? " : "New to Orgni? "}

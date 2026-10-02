@@ -4,10 +4,10 @@
  * Sign-in, sign-up and password recovery all render through these so the
  * recovery flow cannot drift away from the sign-in flow it sits beside.
  *
- * The treatments deliberately mirror the marketing surface rather than the
- * default form primitives: the orange mono eyebrow and the near-black pill
- * button are the two most recognisable devices on the public site, and a
- * full-width orange button is the one treatment that brand never uses.
+ * The layout is a split card: a near-black brand panel beside the form. Black
+ * rather than an orange gradient, because the Orgni mark is orange and would
+ * disappear into it — and because the inverted card on the pricing page is
+ * already the brand's established dark treatment.
  */
 import {
   useState,
@@ -19,38 +19,107 @@ import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+const MARK = `${import.meta.env.BASE_URL}orgni-mark.png`;
+
+/** Concentric arcs behind the panel, echoing the converging-lines motif on
+ *  the product hero. Purely decorative, so hidden from assistive tech. */
+const ARCS = [90, 150, 210, 270, 330, 390, 450];
+
+function PanelBackdrop() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      <svg
+        viewBox="0 0 100 160"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 h-full w-full text-primary/25"
+      >
+        {ARCS.map((r) => (
+          <circle
+            key={r}
+            cx="16"
+            cy="12"
+            r={r}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.35"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+      </svg>
+      {/* Oversized mark, bleeding off the corner. */}
+      <img
+        src={MARK}
+        alt=""
+        className="absolute -right-28 -top-24 w-[460px] opacity-[0.08]"
+      />
+      {/* Warmth gathering behind the mark. */}
+      <div className="absolute -right-24 -top-28 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
+      <div className="absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+    </div>
+  );
+}
+
+function BrandLock({ tone }: { tone: "onDark" | "onLight" }) {
+  return (
+    <Link
+      href="/"
+      className={`flex min-h-10 items-center gap-3 ${tone === "onDark" ? "justify-start" : ""}`}
+    >
+      <img src={MARK} alt="Orgni logo" className="h-8 w-8 object-contain" />
+      <span className="font-serif text-2xl leading-none">Orgni</span>
+    </Link>
+  );
+}
+
 export function AuthCard({
   eyebrow,
-  heading,
+  title,
+  description,
   children,
   footer,
 }: {
-  /** Short orange mono label, e.g. "SIGN UP". Mirrors the pricing page. */
   eyebrow?: string;
-  heading: string;
-  children: ReactNode;
+  title: string;
+  description: string;
+  children?: ReactNode;
   footer?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 text-foreground sm:py-16">
-      <div className="w-full max-w-sm">
-        <Link href="/" className="group mb-10 flex min-h-10 items-center gap-3">
-          <img
-            src={`${import.meta.env.BASE_URL}orgni-mark.png`}
-            alt="Orgni logo"
-            className="h-8 w-8 object-contain"
-          />
-          <span className="font-serif text-2xl leading-none text-foreground">Orgni</span>
-        </Link>
+    <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4 py-8 dark:bg-zinc-950 sm:px-6 sm:py-12">
+      <div className="grid w-full max-w-5xl overflow-hidden rounded-3xl border border-zinc-200 bg-background shadow-sm dark:border-zinc-800 lg:grid-cols-2">
+        {/* Brand panel. Hidden on small screens, where the lock above the form
+            carries the identity instead. */}
+        <aside className="relative hidden flex-col justify-between overflow-hidden bg-zinc-900 p-10 text-zinc-50 lg:flex xl:p-12">
+          <PanelBackdrop />
+          <div className="relative">
+            <BrandLock tone="onDark" />
+          </div>
+          <div className="relative">
+            <p className="mb-3 font-mono text-xs font-bold text-primary">
+              Operational intelligence
+            </p>
+            <p className="max-w-sm text-2xl font-semibold leading-tight tracking-tight xl:text-3xl">
+              Understand what is happening in your organisation, and keep work
+              moving.
+            </p>
+          </div>
+        </aside>
 
-        {eyebrow && (
-          <div className="mb-3 font-mono text-xs font-bold text-primary">{eyebrow}</div>
-        )}
-        <p className="mb-8 text-sm text-muted-foreground">{heading}</p>
+        <div className="p-8 sm:p-12">
+          <div className="mb-8 lg:hidden">
+            <BrandLock tone="onLight" />
+          </div>
 
-        {children}
+          {eyebrow && (
+            <div className="mb-3 font-mono text-xs font-bold text-primary">{eyebrow}</div>
+          )}
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
 
-        {footer && <div className="mt-8 text-sm text-muted-foreground">{footer}</div>}
+          <div className="mt-8">{children}</div>
+
+          {footer && <div className="mt-8 text-sm text-muted-foreground">{footer}</div>}
+        </div>
       </div>
     </div>
   );

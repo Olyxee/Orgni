@@ -55,7 +55,8 @@ export function ForgotPassword() {
   return (
     <AuthCard
       eyebrow="RECOVER"
-      heading="Reset your password"
+      title="Reset your password"
+      description="We'll email you a link to choose a new one. The link expires in 30 minutes."
       footer={
         <>
           Remembered it?{" "}
@@ -112,17 +113,14 @@ export function ResetPassword() {
     return (
       <AuthCard
         eyebrow="RECOVER"
-        heading="Choose a new password"
+        title="Reset link needed"
+        description="This page works from the link we email you. Request a new one and we'll send it straight away."
         footer={
           <Link href="/forgot-password" className="text-foreground underline underline-offset-4">
             Request a new link
           </Link>
         }
-      >
-        <p className="text-sm text-foreground">
-          This page needs a reset link. Request a new one and we will email it to you.
-        </p>
-      </AuthCard>
+      />
     );
   }
 
@@ -148,7 +146,8 @@ export function ResetPassword() {
   return (
     <AuthCard
       eyebrow="RECOVER"
-      heading="Choose a new password"
+      title="Choose a new password"
+      description="Pick something you don't use anywhere else."
       footer={
         <Link href="/login" className="text-foreground underline underline-offset-4">
           Back to sign in
