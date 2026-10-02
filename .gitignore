@@ -53,6 +53,9 @@ Thumbs.db
 .cache/
 .local/
 
+# Kilo agent state (worktrees, agent-manager.json, session config)
+/.kilo/
+
 # Local env
 .env
 *.local
