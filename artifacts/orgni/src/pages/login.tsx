@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { AuthCard, FormError, TextField } from "@/components/auth-shell";
+import { AuthCard, AuthSubmit, FormError, PasswordField, TextField } from "@/components/auth-shell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { useSeo } from "@/hooks/use-seo";
@@ -48,26 +47,35 @@ export default function Login({ register = false }: { register?: boolean }) {
   }
   return (
     <AuthCard
+      eyebrow={register ? "CREATE ACCOUNT" : "SIGN IN"}
       heading={register ? "Create your Orgni account" : "Sign in to your workspace"}
       footer={
         <>
           {register ? "Already have an account? " : "New to Orgni? "}
-          <Link href={register ? "/login" : "/sign-up"} className="text-foreground underline">
+          <Link href={register ? "/login" : "/sign-up"} className="text-foreground underline underline-offset-4">
             {register ? "Sign in" : "Create account"}
           </Link>
           {!register && (
             <>
               {" · "}
-              <Link href="/forgot-password" className="text-foreground underline">
+              <Link href="/forgot-password" className="text-foreground underline underline-offset-4">
                 Forgot password?
               </Link>
             </>
           )}
+          {register && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Need SSO or a deployment we run for you?{" "}
+              <Link href="/contact" className="text-foreground underline underline-offset-4">
+                Talk to sales
+              </Link>
+            </p>
+          )}
         </>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4" aria-busy={busy} aria-describedby={error ? "auth-error" : undefined}>
-        <fieldset disabled={busy} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-5" aria-busy={busy} aria-describedby={error ? "auth-error" : undefined}>
+        <fieldset disabled={busy} className="space-y-5">
           <TextField id="email" label="Work email" type="email" autoComplete="email"
             placeholder="you@company.com" maxLength={254} required
             value={email} onChange={setEmail} />
@@ -75,18 +83,18 @@ export default function Login({ register = false }: { register?: boolean }) {
             placeholder="Acme Inc." maxLength={120} required
             help="Creates a new private workspace for your account."
             value={organization} onChange={setOrganization} />}
-          <TextField id="password" label="Password" type="password"
+          <PasswordField id="password" label="Password"
             autoComplete={register ? "new-password" : "current-password"}
             minLength={register ? 12 : undefined} maxLength={128} required
             help={register ? "Use 12–128 characters. A long, unique passphrase works well." : undefined}
             value={password} onChange={setPassword} />
-          {register && <TextField id="confirmation" label="Confirm password" type="password"
+          {register && <PasswordField id="confirmation" label="Confirm password"
             autoComplete="new-password" maxLength={128} required
             value={confirmation} onChange={setConfirmation} />}
           {error && <FormError id="auth-error">{error}</FormError>}
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? (register ? "Creating account…" : "Signing in…") : (register ? "Create account" : "Sign in")}
-          </Button>
+          <AuthSubmit busy={busy}
+            idle={register ? "Create account" : "Sign in"}
+            pending={register ? "Creating account…" : "Signing in…"} />
         </fieldset>
       </form>
     </AuthCard>

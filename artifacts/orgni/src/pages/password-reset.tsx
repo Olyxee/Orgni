@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { Button } from "@/components/ui/button";
-import { AuthCard, FormError, TextField } from "@/components/auth-shell";
+import { AuthCard, AuthSubmit, FormError, PasswordField, TextField } from "@/components/auth-shell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { useSeo } from "@/hooks/use-seo";
@@ -55,11 +54,12 @@ export function ForgotPassword() {
 
   return (
     <AuthCard
+      eyebrow="RECOVER"
       heading="Reset your password"
       footer={
         <>
           Remembered it?{" "}
-          <Link href="/login" className="text-foreground underline">
+          <Link href="/login" className="text-foreground underline underline-offset-4">
             Back to sign in
           </Link>
         </>
@@ -70,11 +70,11 @@ export function ForgotPassword() {
           <p className="text-sm text-foreground" role="status">
             {SENT}
           </p>
-          <p className="text-sm text-muted-foreground mt-4">
+          <p className="mt-4 text-sm text-muted-foreground">
             Wrong address?{" "}
             <button
               type="button"
-              className="text-foreground underline"
+              className="text-foreground underline underline-offset-4"
               onClick={() => setSent(false)}
             >
               Try another
@@ -82,15 +82,13 @@ export function ForgotPassword() {
           </p>
         </>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4" aria-busy={busy} aria-describedby={error ? "reset-error" : undefined}>
-          <fieldset disabled={busy} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-5" aria-busy={busy} aria-describedby={error ? "reset-error" : undefined}>
+          <fieldset disabled={busy} className="space-y-5">
             <TextField id="email" label="Work email" type="email" autoComplete="email"
               placeholder="you@company.com" maxLength={254} required
               value={email} onChange={setEmail} />
             {error && <FormError id="reset-error">{error}</FormError>}
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? "Sending…" : "Send reset link"}
-            </Button>
+            <AuthSubmit busy={busy} idle="Send reset link" pending="Sending…" />
           </fieldset>
         </form>
       )}
@@ -113,9 +111,10 @@ export function ResetPassword() {
   if (!token) {
     return (
       <AuthCard
+        eyebrow="RECOVER"
         heading="Choose a new password"
         footer={
-          <Link href="/forgot-password" className="text-foreground underline">
+          <Link href="/forgot-password" className="text-foreground underline underline-offset-4">
             Request a new link
           </Link>
         }
@@ -148,26 +147,25 @@ export function ResetPassword() {
 
   return (
     <AuthCard
+      eyebrow="RECOVER"
       heading="Choose a new password"
       footer={
-        <Link href="/login" className="text-foreground underline">
+        <Link href="/login" className="text-foreground underline underline-offset-4">
           Back to sign in
         </Link>
       }
     >
-      <form onSubmit={onSubmit} className="space-y-4" aria-busy={busy} aria-describedby={error ? "reset-error" : undefined}>
-        <fieldset disabled={busy} className="space-y-4">
-          <TextField id="password" label="New password" type="password" autoComplete="new-password"
+      <form onSubmit={onSubmit} className="space-y-5" aria-busy={busy} aria-describedby={error ? "reset-error" : undefined}>
+        <fieldset disabled={busy} className="space-y-5">
+          <PasswordField id="password" label="New password" autoComplete="new-password"
             minLength={12} maxLength={128} required
             help="Use 12–128 characters. A long, unique passphrase works well."
             value={password} onChange={setPassword} />
-          <TextField id="confirmation" label="Confirm new password" type="password"
+          <PasswordField id="confirmation" label="Confirm new password"
             autoComplete="new-password" maxLength={128} required
             value={confirmation} onChange={setConfirmation} />
           {error && <FormError id="reset-error">{error}</FormError>}
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? "Updating…" : "Update password"}
-          </Button>
+          <AuthSubmit busy={busy} idle="Update password" pending="Updating…" />
         </fieldset>
       </form>
     </AuthCard>
