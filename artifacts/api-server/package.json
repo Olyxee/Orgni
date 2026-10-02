@@ -9,7 +9,8 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:postgres": "vitest run tests/auth-postgres.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
