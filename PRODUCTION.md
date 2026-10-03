@@ -88,13 +88,28 @@ Before going live you should still:
 2. Verify `TRUST_PROXY_HOPS` matches your real hop count. Wrong in either
    direction and the limiter either throttles everyone together or trusts
    spoofed `X-Forwarded-For`.
-3. Add email verification. Anyone can currently register an address they do not
-   own, which permanently blocks the real owner from registering it — the reset
-   flow is the only way back, and it depends on the address receiving mail.
 
 Sessions are bearer tokens held in `localStorage`, which is readable by any
 script on the page. That is acceptable behind a strict CSP; move to an
 `HttpOnly` cookie before handling anything that would be costly to leak.
+
+### Email verification
+
+Registration requires the address to be confirmed before it receives a session.
+`POST /api/auth/register` returns **202 with no session** and emails a
+single-use link; `POST /api/auth/verify-email` spends it, stamps
+`accounts.email_verified_at`, and returns a session so the user lands directly
+in onboarding. `POST /api/auth/verify-email/resend` re-sends the link and
+answers `202` for every address, so it cannot be used to enumerate users.
+
+**This makes email a hard dependency of signup, not just of recovery.** If
+`RESEND_API_KEY` and `EMAIL_FROM` are both set, verification is enforced. If
+they are not, verification is skipped and the account is stamped verified, so
+local and preview environments still work — but production logs a loud error
+saying verification is off. Treat that log line as a launch blocker.
+
+Existing accounts are backfilled as verified by migration `0007`, so switching
+this on does not lock anyone out.
 
 ---
 

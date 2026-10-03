@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import express from "express";
 import type { Server } from "node:http";
-import { accounts, members, organisations, passwordResets } from "@workspace/db/schema";
+import { accounts, emailVerifications, members, organisations, passwordResets } from "@workspace/db/schema";
 
 /**
  * In-memory stand-in for the four tables the auth routes touch. `where` is
@@ -13,8 +13,12 @@ const state = vi.hoisted(() => ({
   orgs: new Map<string, any>(),
   members: new Map<string, any>(),
   resets: new Map<string, any>(),
+  verifications: new Map<string, any>(),
   failure: false,
+  /** Flipped per test to exercise the verification gate. */
+  verification: false,
   mail: [] as { to: string; resetUrl: string }[],
+  verifyMail: [] as { to: string; verifyUrl: string }[],
 }));
 
 vi.mock("../src/lib/config", () => ({
@@ -25,10 +29,17 @@ vi.mock("../src/lib/logger", () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), fatal: vi.fn(), debug: vi.fn() },
 }));
 vi.mock("../src/lib/email", () => ({
+  emailConfigured: () => state.verification,
   sendPasswordReset: vi.fn(async ({ to, resetUrl }: { to: string; resetUrl: string }) => {
     state.mail.push({ to, resetUrl });
     return true;
   }),
+  sendVerificationEmail: vi.fn(
+    async ({ to, verifyUrl }: { to: string; verifyUrl: string }) => {
+      state.verifyMail.push({ to, verifyUrl });
+      return true;
+    },
+  ),
 }));
 vi.mock("@workspace/db/connect", () => ({ createDb: () => ({ db: makeDb() }) }));
 
@@ -70,6 +81,7 @@ function tableFor(table: unknown) {
   if (table === organisations) return { rows: state.orgs, key: "tenantId" };
   if (table === members) return { rows: state.members, key: null };
   if (table === passwordResets) return { rows: state.resets, key: "tokenHash" };
+  if (table === emailVerifications) return { rows: state.verifications, key: "tokenHash" };
   throw new Error("unexpected table in auth route");
 }
 
@@ -85,7 +97,7 @@ function makeDb() {
   };
   return {
     async transaction(fn: any) {
-      const snapshot = ["accounts", "orgs", "members", "resets"].map((name) => [
+      const snapshot = ["accounts", "orgs", "members", "resets", "verifications"].map((name) => [
         name,
         new Map((state as any)[name]),
       ]) as [string, Map<string, any>][];
@@ -182,8 +194,11 @@ beforeEach(() => {
   state.orgs.clear();
   state.members.clear();
   state.resets.clear();
+  state.verifications.clear();
+  state.verification = false;
   state.failure = false;
   state.mail.length = 0;
+  state.verifyMail.length = 0;
 });
 
 describe("credential registration and sign in", () => {
@@ -343,6 +358,102 @@ describe("password recovery", () => {
     const result = await post("password-reset/request", { email: input.email });
     expect(result.status).toBe(202);
     expect(result.body).toEqual({ accepted: true });
+  });
+});
+
+describe("email verification", () => {
+  // Turn the gate on for this block only; beforeEach resets it.
+  beforeEach(() => {
+    state.verification = true;
+  });
+
+  it("issues no session until the address is confirmed", async () => {
+    const created = await post("register", input);
+    expect(created.status).toBe(202);
+    expect(created.body).toEqual({ pendingVerification: true, email: "owner@example.com" });
+    expect(created.body.token).toBeUndefined();
+
+    // The workspace exists but cannot be reached without a session.
+    expect(state.accounts.get("owner@example.com").emailVerifiedAt).toBeNull();
+    expect(state.verifyMail).toHaveLength(1);
+    expect(state.verifications.size).toBe(1);
+  });
+
+  it("refuses sign-in with the right password until confirmed", async () => {
+    await post("register", input);
+    const login = await post("login", { email: input.email, password: input.password });
+    expect(login.status).toBe(403);
+    expect(login.body.error).toBe("email_unverified");
+  });
+
+  it("confirms, returns a session, and admits sign-in afterwards", async () => {
+    await post("register", input);
+    const token = new URL(state.verifyMail[0].verifyUrl).searchParams.get("token")!;
+    const confirmed = await post("verify-email", { token });
+    expect(confirmed.status).toBe(200);
+    expect(confirmed.body.principal.email).toBe("owner@example.com");
+
+    expect(state.accounts.get("owner@example.com").emailVerifiedAt).toBeInstanceOf(Date);
+    // Token spent, so the link cannot be replayed.
+    expect(state.verifications.size).toBe(0);
+    expect((await post("login", { email: input.email, password: input.password })).status).toBe(200);
+    expect((await post("verify-email", { token })).status).toBe(400);
+  });
+
+  it("stores only a digest of the verification token", async () => {
+    await post("register", input);
+    const token = new URL(state.verifyMail[0].verifyUrl).searchParams.get("token")!;
+    const [row] = state.verifications.values();
+    expect(row.tokenHash).not.toBe(token);
+    expect(row.tokenHash).toHaveLength(64);
+    expect(row.expiresAt.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("honours the 24 hour window", async () => {
+    await post("register", input);
+    const [row] = state.verifications.values();
+    row.expiresAt = new Date(Date.now() - 1000);
+    const result = await post("verify-email", { token: new URL(state.verifyMail[0].verifyUrl).searchParams.get("token")! });
+    expect(result.status).toBe(400);
+    expect(result.body.error).toBe("invalid_token");
+  });
+
+  it("resends for an unconfirmed address and stays silent about the rest", async () => {
+    await post("register", input);
+    const known = await post("verify-email/resend", { email: input.email });
+    const unknown = await post("verify-email/resend", { email: "nobody@example.com" });
+    expect(known.status).toBe(202);
+    expect(unknown.status).toBe(202);
+    expect(unknown.body).toEqual(known.body);
+    // Only the genuinely unverified account gets another link.
+    expect(state.verifyMail).toHaveLength(2);
+    expect(state.verifyMail.every((m) => m.to === "owner@example.com")).toBe(true);
+  });
+
+  it("does not resend to an already confirmed address", async () => {
+    await post("register", input);
+    await post("verify-email", { token: new URL(state.verifyMail[0].verifyUrl).searchParams.get("token")! });
+    state.verifyMail.length = 0;
+    const resend = await post("verify-email/resend", { email: input.email });
+    expect(resend.status).toBe(202);
+    expect(state.verifyMail).toHaveLength(0);
+  });
+
+  it("replaces an outstanding link when a new one is requested", async () => {
+    await post("register", input);
+    const stale = new URL(state.verifyMail[0].verifyUrl).searchParams.get("token")!;
+    await post("verify-email/resend", { email: input.email });
+    expect(state.verifications.size).toBe(1);
+    expect((await post("verify-email", { token: stale })).status).toBe(400);
+  });
+
+  it("skips verification entirely when email is not configured", async () => {
+    state.verification = false;
+    const created = await post("register", input);
+    expect(created.status).toBe(201);
+    expect(created.body.token).toBeTruthy();
+    expect(state.verifyMail).toHaveLength(0);
+    expect((await post("login", { email: input.email, password: input.password })).status).toBe(200);
   });
 });
 

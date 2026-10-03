@@ -130,13 +130,41 @@ export function login(email: string, password: string): Promise<Session> {
   return postAuth<SessionResponse>("/api/auth/login", { email, password }).then(toSession);
 }
 
+/**
+ * Registering either returns a session (email delivery not in force) or a
+ * pending state (the address must be proven first). Callers must handle both.
+ */
+export type RegisterResult =
+  | { pending: true; email: string }
+  | { pending: false; session: Session };
+
 export function register(input: {
   email: string;
   organization: string;
   password: string;
   confirmPassword: string;
-}): Promise<Session> {
-  return postAuth<SessionResponse>("/api/auth/register", input).then(toSession);
+}): Promise<RegisterResult> {
+  return postAuth<{ pendingVerification?: true; email?: string } | SessionResponse>(
+    "/api/auth/register",
+    input,
+  ).then((data) =>
+    "token" in data
+      ? { pending: false, session: toSession(data) }
+      : { pending: true, email: data.email ?? input.email },
+  );
+}
+
+/** Spend a verification token. Returns a session so onboarding can follow. */
+export function verifyEmail(token: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/verify-email", { token }).then(toSession);
+}
+
+/**
+ * Ask for another verification link. The API answers identically for known
+ * and unknown addresses, so this never confirms whether an account exists.
+ */
+export function resendVerification(email: string): Promise<{ accepted: boolean }> {
+  return postAuth("/api/auth/verify-email/resend", { email });
 }
 
 /**

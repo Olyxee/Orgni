@@ -17,7 +17,7 @@ import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
 import Login from "@/pages/login";
-import { ForgotPassword, ResetPassword } from "@/pages/password-reset";
+import { ForgotPassword, ResetPassword, VerifyEmail } from "@/pages/password-reset";
 import AppShell from "@/pages/app/shell";
 import { CommandPaletteProvider } from "@/components/command-palette";
 import { ScrollToTopButton } from "@/components/scroll-to-top";
@@ -59,6 +59,9 @@ function Router() {
       <Route path="/reset-password/*?">
         <ResetPassword key="reset" />
       </Route>
+      <Route path="/verify-email/*?">
+        <VerifyEmail key="verify" />
+      </Route>
       <Route path="/app" component={AppShell} />
       <Route path="/app/:section" component={AppShell} />
       <Route path="/app/:section/:id" component={AppShell} />
@@ -74,6 +77,7 @@ function ExperienceShell() {
     location.startsWith("/sign-up") ||
     location.startsWith("/forgot-password") ||
     location.startsWith("/reset-password") ||
+    location.startsWith("/verify-email") ||
     location.startsWith("/app");
 
   return (

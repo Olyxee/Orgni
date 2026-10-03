@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation } from "wouter";
-import { AuthCard, AuthSubmit, FormError, PasswordField, TextField } from "@/components/auth-shell";
+import { AuthCard, AuthSubmit, FormError, PasswordField, TextField, authButtonClass } from "@/components/auth-shell";
 import { useAuth } from "@/lib/auth";
 import { ApiError } from "@/lib/api";
 import { useSeo } from "@/hooks/use-seo";
@@ -12,6 +12,7 @@ const messages: Record<string, string> = {
   password_mismatch: "Your passwords do not match.",
   account_exists: "An account with this email already exists. Sign in or reset your password.",
   invalid_credentials: "Email or password is incorrect.",
+  email_unverified: "Confirm your email address first. We can send the link again.",
   too_many_attempts: "Too many attempts. Please wait a few minutes and try again.",
   persistence_unavailable: "Account services are temporarily unavailable. Please try again later.",
 };
@@ -20,7 +21,7 @@ export default function Login({ register = false }: { register?: boolean }) {
   useSeo({ title: `${register ? "Create account" : "Sign in"} - Orgni`,
     description: "Access your private Orgni workspace.", path: register ? "/sign-up" : "/login",
     robots: "noindex, nofollow, noarchive" });
-  const { login, signup } = useAuth();
+  const { login, signup, resendVerification, pendingVerification, clearPendingVerification } = useAuth();
   const [, navigate] = useLocation();
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
@@ -28,6 +29,8 @@ export default function Login({ register = false }: { register?: boolean }) {
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [awaiting, setAwaiting] = useState<string | null>(register ? null : pendingVerification);
+  const [resent, setResent] = useState(false);
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
@@ -38,12 +41,87 @@ export default function Login({ register = false }: { register?: boolean }) {
     }
     setBusy(true);
     try {
-      if (register) await signup(email.trim(), organization.trim(), password, confirmation);
-      else await login(email.trim(), password);
+      if (register) {
+        const outcome = await signup(email.trim(), organization.trim(), password, confirmation);
+        if (outcome === "pending") {
+          setAwaiting(email.trim().toLowerCase());
+          return;
+        }
+      } else {
+        await login(email.trim(), password);
+      }
       navigate("/app");
     } catch (err) {
+      // Correct password but unproven address: offer the resend instead of a
+      // dead-end error.
+      if (err instanceof ApiError && err.code === "email_unverified") {
+        setAwaiting(email.trim().toLowerCase());
+        return;
+      }
       setError(err instanceof ApiError ? messages[err.code] ?? "Could not complete your request. Please try again." : "Could not connect. Please try again.");
     } finally { setBusy(false); }
+  }
+  async function onResend() {
+    if (!awaiting || busy) return;
+    setBusy(true);
+    setResent(false);
+    try {
+      await resendVerification(awaiting);
+      setResent(true);
+    } catch {
+      setError("Could not send another link. Please try again.");
+    } finally { setBusy(false); }
+  }
+  // Address created but not yet proven — no session exists yet.
+  if (awaiting) {
+    return (
+      <AuthCard
+        eyebrow="CHECK YOUR EMAIL"
+        title="Confirm your address"
+        description={`We sent a confirmation link to ${awaiting}. Confirm it and you will go straight into setup.`}
+        panel={{
+          kicker: "Almost there",
+          headline: "One click and your workspace is ready to set up.",
+        }}
+        footer={
+          <button
+            type="button"
+            className="text-foreground underline underline-offset-4"
+            onClick={() => {
+              // Must clear the flag, otherwise /login renders this same screen
+              // again and the link goes nowhere.
+              clearPendingVerification();
+              setAwaiting(null);
+              setResent(false);
+            }}
+          >
+            Back to sign in
+          </button>
+        }
+      >
+        <div className="space-y-4">
+          <button type="button" className={authButtonClass} onClick={onResend} disabled={busy}>
+            {busy ? "Sending…" : "Send another link"}
+          </button>
+          <p aria-live="polite" className="text-center text-xs text-muted-foreground">
+            {resent
+              ? "If that address needs confirming, another link is on its way."
+              : "The link expires in 24 hours and can only be used once."}
+          </p>
+          <button
+            type="button"
+            className="w-full text-center text-xs text-muted-foreground underline underline-offset-4"
+            onClick={() => {
+              clearPendingVerification();
+              setAwaiting(null);
+              setResent(false);
+            }}
+          >
+            Use a different email address
+          </button>
+        </div>
+      </AuthCard>
+    );
   }
   return (
     <AuthCard

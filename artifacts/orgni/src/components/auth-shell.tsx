@@ -119,10 +119,15 @@ export function AuthCard({
 }
 
 /**
- * Full-width submit in the marketing CTA shape: pill, near-black, turning
- * orange on hover. Deliberately no arrow glyph — that marks navigation
- * elsewhere on the site, and this performs an action instead.
+ * The marketing CTA shape: pill, near-black, turning orange on hover. Shared
+ * so secondary actions on these screens match the submit.
+ *
+ * Deliberately no arrow glyph — that marks navigation elsewhere on the site,
+ * and these perform actions instead.
  */
+export const authButtonClass =
+  "inline-flex h-12 w-full items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-60";
+
 export function AuthSubmit({
   idle,
   pending,
@@ -133,11 +138,7 @@ export function AuthSubmit({
   busy: boolean;
 }) {
   return (
-    <button
-      type="submit"
-      disabled={busy}
-      className="inline-flex h-12 w-full items-center justify-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-60"
-    >
+    <button type="submit" disabled={busy} className={authButtonClass}>
       {busy ? pending : idle}
     </button>
   );

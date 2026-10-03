@@ -50,6 +50,13 @@
       "when": 1790969243679,
       "tag": "0006_tricky_human_torch",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791016205697,
+      "tag": "0007_curious_living_mummy",
+      "breakpoints": true
     }
   ]
 }

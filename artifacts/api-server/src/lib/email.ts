@@ -72,6 +72,30 @@ export async function sendMemberInvite(input: {
 }
 
 /**
+ * Verification link sent at sign-up.
+ *
+ * The address is not proven until this is clicked, so this is what stands
+ * between someone registering a colleague's address and holding a workspace
+ * under their identity.
+ */
+export async function sendVerificationEmail(input: {
+  to: string;
+  verifyUrl: string;
+  expiresInMinutes: number;
+}): Promise<boolean> {
+  const { html, text } = layout({
+    preheader: "Confirm your email to finish setting up Orgni",
+    heading: "Confirm your email",
+    paragraphs: [
+      "Confirm this address and your Orgni workspace is ready. You will go straight to the setup steps.",
+    ],
+    action: { label: "Confirm my email", url: input.verifyUrl },
+    note: `This link can only be used once and expires in ${duration(input.expiresInMinutes)}. If you did not create an Orgni account, ignore this email — no account will be activated.`,
+  });
+  return send(input.to, "Confirm your email for Orgni", html, text);
+}
+
+/**
  * Password-reset link for an existing account.
  *
  * Sent only in response to a request for an address that actually has an

@@ -18,21 +18,42 @@ import {
   login as apiLogin,
   register as apiRegister,
   requestPasswordReset as apiRequestPasswordReset,
+  resendVerification as apiResendVerification,
+  verifyEmail as apiVerifyEmail,
   type Session,
 } from "./api";
 
 const STORAGE_KEY = "orgni.session";
+const PENDING_KEY = "orgni.pendingVerification";
 
 interface AuthValue {
   session: Session | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, organization: string, password: string, confirmation: string) => Promise<void>;
+  signup: (
+    email: string,
+    organization: string,
+    password: string,
+    confirmation: string,
+  ) => Promise<"verified" | "pending">;
   requestPasswordReset: (email: string) => Promise<void>;
   confirmPasswordReset: (token: string, password: string) => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
+  /** Address awaiting confirmation, so the UI can offer a resend after a reload. */
+  pendingVerification: string | null;
+  clearPendingVerification: () => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
+
+function readPending(): string | null {
+  try {
+    return localStorage.getItem(PENDING_KEY);
+  } catch {
+    return null;
+  }
+}
 
 function loadSession(): Session | null {
   try {
@@ -45,9 +66,12 @@ function loadSession(): Session | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(loadSession);
+  const [pendingVerification, setPendingVerification] = useState<string | null>(readPending);
 
   const adopt = useCallback((s: Session) => {
+    localStorage.removeItem(PENDING_KEY);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    setPendingVerification(null);
     setSession(s);
   }, []);
 
@@ -59,8 +83,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const signup = useCallback(
-    async (email: string, organization: string, password: string, confirmation: string) => {
-      adopt(await apiRegister({ email, organization, password, confirmPassword: confirmation }));
+    async (
+      email: string,
+      organization: string,
+      password: string,
+      confirmation: string,
+    ): Promise<"verified" | "pending"> => {
+      const result = await apiRegister({
+        email,
+        organization,
+        password,
+        confirmPassword: confirmation,
+      });
+      if (result.pending) {
+        // No session yet: keep the address so the page can offer a resend.
+        localStorage.setItem(PENDING_KEY, result.email);
+        setPendingVerification(result.email);
+        return "pending";
+      }
+      adopt(result.session);
+      return "verified";
     },
     [adopt],
   );
@@ -77,14 +119,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [adopt],
   );
 
+  // Confirmation also returns a session, landing the user in onboarding.
+  const verifyEmail = useCallback(
+    async (token: string) => {
+      adopt(await apiVerifyEmail(token));
+    },
+    [adopt],
+  );
+
+  const resendVerification = useCallback(async (email: string) => {
+    await apiResendVerification(email);
+  }, []);
+
+  const clearPendingVerification = useCallback(() => {
+    localStorage.removeItem(PENDING_KEY);
+    setPendingVerification(null);
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setSession(null);
   }, []);
 
   const value = useMemo(
-    () => ({ session, login, signup, requestPasswordReset, confirmPasswordReset, logout }),
-    [session, login, signup, requestPasswordReset, confirmPasswordReset, logout],
+    () => ({
+      session,
+      login,
+      signup,
+      requestPasswordReset,
+      confirmPasswordReset,
+      verifyEmail,
+      resendVerification,
+      pendingVerification,
+      clearPendingVerification,
+      logout,
+    }),
+    [
+      session,
+      login,
+      signup,
+      requestPasswordReset,
+      confirmPasswordReset,
+      verifyEmail,
+      resendVerification,
+      pendingVerification,
+      clearPendingVerification,
+      logout,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

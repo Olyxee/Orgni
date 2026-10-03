@@ -9,12 +9,18 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { createDb } from "@workspace/db/connect";
-import { accounts, members as membersTable, organisations, passwordResets } from "@workspace/db/schema";
+import {
+  accounts,
+  emailVerifications,
+  members as membersTable,
+  organisations,
+  passwordResets,
+} from "@workspace/db/schema";
 import { authSecret, config } from "../lib/config";
 import { issueToken } from "../lib/auth";
 import { authenticate } from "../lib/authenticate";
 import { hashPassword, verifyPassword } from "../lib/passwords";
-import { sendPasswordReset } from "../lib/email";
+import { emailConfigured, sendPasswordReset, sendVerificationEmail } from "../lib/email";
 import { logger } from "../lib/logger";
 import {
   credentialPolicy,
@@ -33,9 +39,32 @@ const MIN_PASSWORD = 12;
 const MAX_ORGANIZATION = 120;
 const RESET_TTL_MINUTES = 30;
 const RESET_TTL_MS = RESET_TTL_MINUTES * 60_000;
+const VERIFY_TTL_MINUTES = 24 * 60;
+const VERIFY_TTL_MS = VERIFY_TTL_MINUTES * 60_000;
 
 /** Verified against when no account matches, so timing does not reveal existence. */
 const DECOY_HASH = `scrypt:${"0".repeat(32)}:${"0".repeat(128)}`;
+
+let warnedAboutVerification = false;
+
+/**
+ * Whether an address must be proven before it can receive a session.
+ *
+ * Gated on email being configured, so local and preview environments still
+ * work without Resend. In production an unconfigured seam is a mistake, so it
+ * is logged loudly rather than silently downgrading to unverified sign-ups.
+ */
+function verificationRequired(): boolean {
+  const configured = emailConfigured();
+  if (!configured && config.NODE_ENV === "production" && !warnedAboutVerification) {
+    warnedAboutVerification = true;
+    logger.error(
+      {},
+      "email is not configured — registration will NOT require verification. Set RESEND_API_KEY and EMAIL_FROM",
+    );
+  }
+  return configured;
+}
 
 /** The emailed token is never stored; only its digest is, so a dump cannot be replayed. */
 function tokenDigest(token: string): string {
@@ -81,7 +110,38 @@ async function organizationName(tenantId: string): Promise<string | null> {
   return org?.name ?? null;
 }
 
-/** POST /api/auth/register — create the account, its tenant, and its first owner. */
+/**
+ * Mint a verification token and email the link. Single-use, 24h, and a new
+ * request voids any outstanding link for the address.
+ */
+async function issueVerification(email: string): Promise<void> {
+  const token = randomBytes(32).toString("hex");
+  await store!.db.transaction(async (tx) => {
+    await tx.delete(emailVerifications).where(eq(emailVerifications.email, email));
+    await tx.insert(emailVerifications).values({
+      tokenHash: tokenDigest(token),
+      email,
+      expiresAt: new Date(Date.now() + VERIFY_TTL_MS),
+    });
+  });
+  const base = (config.APP_BASE_URL ?? config.PUBLIC_BASE_URL ?? "").replace(/\/+$/, "");
+  if (!base) {
+    logger.warn({}, "verification requested without APP_BASE_URL — no link sent");
+    return;
+  }
+  await sendVerificationEmail({
+    to: email,
+    verifyUrl: `${base}/verify-email?token=${token}`,
+    expiresInMinutes: VERIFY_TTL_MINUTES,
+  });
+}
+
+/**
+ * POST /api/auth/register — create the account, its tenant, and its first owner.
+ *
+ * Returns 202 with no session when the address still needs verifying, so an
+ * unproven address never reaches the onboarding steps.
+ */
 router.post("/auth/register", async (req: Request, res: Response) => {
   res.setHeader("Cache-Control", "no-store");
   if (!enforce(signupPolicy, "signup", req, res)) return;
@@ -100,17 +160,26 @@ router.post("/auth/register", async (req: Request, res: Response) => {
   if (password !== req.body?.confirmPassword) return invalid(res, "password_mismatch");
 
   const tenantId = `tenant_${randomUUID()}`;
+  const mustVerify = verificationRequired();
   try {
     const passwordHash = await hashPassword(password);
     await store.db.transaction(async (tx) => {
       await tx.insert(organisations).values({ tenantId, name: organization, workEmail: email });
-      await tx.insert(accounts).values({ email, tenantId, passwordHash });
+      await tx.insert(accounts).values({
+        email,
+        tenantId,
+        passwordHash,
+        // No email configured means the address cannot be proven, so stamp it
+        // rather than locking every future sign-in out of its own account.
+        emailVerifiedAt: mustVerify ? null : new Date(),
+      });
       // Without this the new workspace has no members at all, so the member
       // list and Teams user matching would start empty for its own owner.
       await tx
         .insert(membersTable)
         .values({ tenantId, email, role: "owner", status: "active" });
     });
+    if (mustVerify) await issueVerification(email);
   } catch (error) {
     if (isUniqueViolation(error)) {
       res.status(409).json({ error: "account_exists" });
@@ -120,7 +189,83 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     return unavailable(res);
   }
   recordOutcome(signupPolicy, "signup", req, "success");
+  if (mustVerify) {
+    res.status(202).json({ pendingVerification: true, email });
+    return;
+  }
   res.status(201).json(session(email, tenantId, organization));
+});
+
+/**
+ * POST /api/auth/verify-email — spend a verification token.
+ *
+ * Returns a session on success so the user lands directly in onboarding
+ * rather than being sent back to the sign-in form they just completed.
+ */
+router.post("/auth/verify-email", async (req: Request, res: Response) => {
+  res.setHeader("Cache-Control", "no-store");
+  if (!enforce(credentialPolicy, "credentials", req, res)) return;
+  if (!store) return unavailable(res);
+
+  const token = readText(req.body?.token);
+  if (!token || token.length > MAX_PASSWORD) return invalid(res, "invalid_token");
+
+  try {
+    const [row] = await store.db
+      .select()
+      .from(emailVerifications)
+      .where(eq(emailVerifications.tokenHash, tokenDigest(token)));
+    const [account] =
+      row && row.expiresAt.getTime() > Date.now()
+        ? await store.db
+            .select()
+            .from(accounts)
+            .where(eq(accounts.email, row.email))
+        : [];
+    const name = account ? await organizationName(account.tenantId) : null;
+    if (!account || !name) {
+      recordOutcome(credentialPolicy, "credentials", req, "failure");
+      return invalid(res, "invalid_token");
+    }
+
+    await store.db.transaction(async (tx) => {
+      await tx
+        .update(accounts)
+        .set({ emailVerifiedAt: new Date() })
+        .where(eq(accounts.email, account.email));
+      await tx.delete(emailVerifications).where(eq(emailVerifications.email, account.email));
+    });
+    recordOutcome(credentialPolicy, "credentials", req, "success");
+    res.json(session(account.email, account.tenantId, name));
+  } catch (error) {
+    logger.error({ err: error }, "email verification failed");
+    return unavailable(res);
+  }
+});
+
+/**
+ * POST /api/auth/verify-email/resend — send another verification link.
+ *
+ * Answers 202 whatever the address is, so it cannot be used to discover who is
+ * registered, and only resends when the account is genuinely unverified.
+ */
+router.post("/auth/verify-email/resend", async (req: Request, res: Response) => {
+  res.setHeader("Cache-Control", "no-store");
+  if (!enforce(recoveryPolicy, "recovery", req, res)) return;
+
+  const email = readText(req.body?.email).toLowerCase();
+  if (store && validEmail(email) && emailConfigured()) {
+    try {
+      const [account] = await store.db
+        .select()
+        .from(accounts)
+        .where(eq(accounts.email, email));
+      if (account && !account.emailVerifiedAt) await issueVerification(email);
+    } catch (error) {
+      logger.error({ err: error }, "verification resend failed");
+    }
+  }
+  res.status(202).json({ accepted: true });
 });
 
 /** POST /api/auth/login — exchange credentials for a session. */
@@ -145,6 +290,12 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     if (!account || !valid || !name) {
       recordOutcome(credentialPolicy, "credentials", req, "failure");
       res.status(401).json({ error: "invalid_credentials" });
+      return;
+    }
+    // The password is correct but the address was never proven. Refuse rather
+    // than issue a session, so there is no half-access state to work around.
+    if (verificationRequired() && !account.emailVerifiedAt) {
+      res.status(403).json({ error: "email_unverified" });
       return;
     }
     recordOutcome(credentialPolicy, "credentials", req, "success");
