@@ -102,9 +102,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Visible from sm up, not just lg: below lg the page links live in the
+              overlay, so a tablet-width window had no way to sign in without
+              opening the menu. Phones stay burger-only, which fits three
+              controls without crowding. */}
           <a
             href={LOGIN_URL}
-            className="hidden h-10 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-primary lg:inline-flex"
+            className="hidden h-10 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-primary sm:inline-flex"
           >
             Sign in
             <ArrowUpRight className="h-4 w-4" />
