@@ -57,6 +57,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
     (item.match?.some((path) => location.startsWith(path)) ?? false);
 
   return (
+    <>
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
         dark ? "dark" : ""
@@ -120,7 +121,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           </button>
         </div>
       </div>
+    </header>
 
+      {/* Rendered as a sibling of the header, not a child. The header sets
+          `backdrop-filter`, which makes it a containing block for
+          fixed-position descendants — so a `fixed` panel nested inside it
+          resolves against the 73px header instead of the viewport and
+          collapses to zero height, spilling its links over the page. */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -128,7 +135,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 bottom-0 top-[72px] z-40 flex flex-col bg-background lg:hidden"
+            className="fixed inset-x-0 bottom-0 top-[var(--site-header-height)] z-40 flex flex-col bg-background lg:hidden"
           >
             <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-6">
               {navItems.map((item) => {
@@ -158,6 +165,6 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }
