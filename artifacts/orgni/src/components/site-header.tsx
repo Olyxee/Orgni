@@ -66,7 +66,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           : "border-b border-transparent bg-background/70 backdrop-blur-md"
       }`}
     >
-      <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-[calc(var(--site-header-height)-1px)] max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-10">
           <Link href="/" className="group flex min-h-10 items-center gap-3">
             <img
