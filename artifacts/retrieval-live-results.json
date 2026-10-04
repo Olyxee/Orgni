@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-01T20:20:56.347Z",
+  "base": "http://127.0.0.1:8080",
+  "syntheticOrganisationPrefix": "Retrieval Evaluation 1790886055776",
+  "health": {
+    "status": 200,
+    "ms": 4.959099999999978,
+    "data": {
+      "status": "ok"
+    }
+  },
+  "readiness": {
+    "status": 503,
+    "ms": 144.03930000000003,
+    "data": {
+      "status": "degraded",
+      "checks": {
+        "database": true,
+        "documentIntelligence": false,
+        "ontology": true
+      }
+    }
+  },
+  "unauthenticated": {
+    "status": 401,
+    "ms": 17.882799999999975,
+    "data": {
+      "error": "unauthenticated"
+    }
+  },
+  "tampered": {
+    "status": 401,
+    "ms": 8.222399999999993,
+    "data": {
+      "error": "invalid_token"
+    }
+  },
+  "model": {
+    "status": 503,
+    "ms": 7.59559999999999,
+    "data": {
+      "error": "persistence_unavailable"
+    }
+  },
+  "normal": {
+    "status": 200,
+    "ms": 26.986800000000017,
+    "data": {
+      "reply": "I don't have enough connected yet to answer that confidently. Once Microsoft 365 and your files are connected I'll be able to.",
+      "action": {
+        "id": "92d27d40-740a-49e6-ada3-896536cf52f1",
+        "title": "What is Acme Ltd credit limit and who does it supply?",
+        "status": "completed",
+        "at": "2026-10-01T20:20:56.201Z",
+        "requestedBy": "retrieval-test@example.com",
+        "capability": "answer_questions",
+        "understood": "Someone asked Orgni to answer a question: \"What is Acme Ltd credit limit and who does it supply?\"",
+        "sourcesUsed": [],
+        "actionsPerformed": [
+          "Answered the question"
+        ],
+        "reason": "Within the current capability and approval settings.",
+        "result": "Done.",
+        "source": "web"
+      },
+      "needsApproval": false
+    }
+  },
+  "repeated": {
+    "count": 20,
+    "successful": 20,
+    "medianMs": 3.1381000000000085,
+    "p95Ms": 4.857999999999947,
+    "maxMs": 9.509199999999964,
+    "distinctContexts": 1
+  },
+  "concurrent": {
+    "count": 20,
+    "successful": 20,
+    "medianMs": 39.22260000000006,
+    "p95Ms": 52.72269999999992,
+    "maxMs": 55.146499999999946,
+    "activityBefore": 21,
+    "activityAfter": 41,
+    "recordedActions": 20
+  },
+  "tenantIsolation": {
+    "betaActivityCount": 0,
+    "durable": false
+  }
+}

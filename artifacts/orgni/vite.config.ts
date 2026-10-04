@@ -5,22 +5,9 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
-// PORT is only needed for the dev/preview servers. On static hosts such as
-// Vercel the config is loaded for `vite build` without a PORT, so we only
-// enforce it when a server is actually going to start.
-const isServe = process.argv.some(
-  (arg) => arg === 'serve' || arg === 'dev' || arg === 'preview',
-) || !process.argv.includes('build');
-
+// Respect the hosting environment's PORT and use Vite's default locally.
 const rawPort = process.env.PORT;
-
-if (isServe && !rawPort) {
-  throw new Error(
-    'PORT environment variable is required but was not provided.',
-  );
-}
-
-const port = rawPort ? Number(rawPort) : undefined;
+const port = rawPort ? Number(rawPort) : 5173;
 
 if (rawPort && (Number.isNaN(port) || (port as number) <= 0)) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
@@ -72,6 +59,9 @@ export default defineConfig({
     strictPort: true,
     host: '0.0.0.0',
     allowedHosts: true,
+    proxy: process.env.ORGNI_API_PROXY
+      ? { '/api': { target: process.env.ORGNI_API_PROXY, changeOrigin: true } }
+      : undefined,
     fs: {
       strict: true,
     },

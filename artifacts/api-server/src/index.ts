@@ -27,14 +27,24 @@ function startDocumentIntelligence(): ChildProcess | null {
     throw new Error("Bundled Document Intelligence service is missing.");
   }
   const child = spawn(
-    "python3",
+    process.platform === "win32" ? "python" : "python3",
     ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
     { cwd: serviceDir, stdio: ["ignore", "inherit", "inherit"] },
   );
+  child.on("error", (err) => {
+    if (config.NODE_ENV === "production") {
+      logger.fatal({ err }, "Could not start Document Intelligence");
+      process.exit(1);
+    }
+    logger.warn({ err }, "Document Intelligence unavailable; document processing requires the Python service");
+  });
   child.on("exit", (code) => {
     if (code !== 0) {
-      logger.fatal({ code }, "Document Intelligence exited");
-      process.exit(1);
+      if (config.NODE_ENV === "production") {
+        logger.fatal({ code }, "Document Intelligence exited");
+        process.exit(1);
+      }
+      logger.warn({ code }, "Document Intelligence exited; document processing requires the Python service");
     }
   });
   return child;
