@@ -1,0 +1,278 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Check Docker containers",
+			"type": "shell",
+			"command": "docker ps -a",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Start PostgreSQL container",
+			"type": "shell",
+			"command": "docker start orgni-auth-test",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Orgni web app",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/orgni dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Orgni web app on 5173",
+			"type": "shell",
+			"command": "$env:PORT='5173'; pnpm --filter @workspace/orgni dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify Docker services",
+			"type": "shell",
+			"command": "docker ps --format \"table {{.Names}}\\t{{.Status}}\\t{{.Ports}}\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify Docker container",
+			"type": "shell",
+			"command": "docker ps",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Orgni API server",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Orgni API health",
+			"type": "shell",
+			"command": "curl.exe -i http://127.0.0.1:8080/api/healthz",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check frontend API port",
+			"type": "shell",
+			"command": "curl.exe -i http://127.0.0.1:8080/api/healthz",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Diagnose Orgni API startup",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server dev",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Orgni API server with external intelligence",
+			"type": "shell",
+			"command": "$env:DOCUMENT_INTELLIGENCE_URL='http://127.0.0.1:8000'; pnpm --filter @workspace/api-server dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify API health endpoint",
+			"type": "shell",
+			"command": "curl.exe -i http://127.0.0.1:8080/api/healthz",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check PostgreSQL readiness",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test pg_isready -U postgres -d orgni",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect PostgreSQL container",
+			"type": "shell",
+			"command": "docker inspect orgni-auth-test --format \"{{json .Config.Env}}\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Orgni database schema",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U postgres -d orgni -c \"\\dt\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect PostgreSQL settings",
+			"type": "shell",
+			"command": "docker inspect orgni-auth-test --format '{{range .Config.Env}}{{println .}}{{end}}'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Orgni database tables",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c \"\\dt\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Orgni API readiness",
+			"type": "shell",
+			"command": "curl.exe -i http://127.0.0.1:8080/api/health/ready",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Probe authentication endpoint",
+			"type": "shell",
+			"command": "curl.exe -i -X POST http://127.0.0.1:8080/api/auth/login -H \"Content-Type: application/json\" --data '{\"email\":\"nobody@example.invalid\",\"password\":\"invalid-password\"}'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect accounts schema",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c \"\\d accounts\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect account columns",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c \"select column_name from information_schema.columns where table_name='accounts' order by ordinal_position\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect account columns safely",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c 'select column_name from information_schema.columns where table_name = ''accounts'' order by ordinal_position'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart API with local database",
+			"type": "shell",
+			"command": "$connection = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue; if ($connection) { Stop-Process -Id $connection.OwningProcess -Force }; $env:DATABASE_URL='postgresql://orgni:testpass@127.0.0.1:55432/orgni'; $env:DOCUMENT_INTELLIGENCE_URL='http://127.0.0.1:8000'; $env:PORT='8080'; pnpm --filter @workspace/api-server dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify API database access",
+			"type": "shell",
+			"command": "curl.exe -i http://127.0.0.1:8080/api/health/ready",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify auth response",
+			"type": "shell",
+			"command": "curl.exe -i -X POST http://127.0.0.1:8080/api/auth/login -H \"Content-Type: application/json\" --data '{\"email\":\"nobody@example.invalid\",\"password\":\"invalid-password\"}'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check changed files",
+			"type": "shell",
+			"command": "git status --short",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect test database tables",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c \"select tablename from pg_tables where schemaname = 'public' order by tablename\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Clear test auth database",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c 'TRUNCATE TABLE public.accounts, public.api_keys, public.approval_policies, public.capabilities, public.connections, public.email_verifications, public.external_identities, public.facts, public.members, public.microsoft_connections, public.organisations, public.orgni_actions, public.password_resets, public.permissions_state, public.processed_teams_activities, public.reviews, public.sources, public.teams_audit_log, public.teams_conversations, public.teams_integration, public.tokens RESTART IDENTITY CASCADE;'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify empty test database",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c 'select count(*) as accounts from public.accounts; select count(*) as organisations from public.organisations; select count(*) as members from public.members; select count(*) as email_verifications from public.email_verifications; select count(*) as password_resets from public.password_resets;'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run API with email verification",
+			"type": "shell",
+			"command": "$envFile = 'artifacts\\api-server\\.env'; Get-Content $envFile | ForEach-Object { if ($_ -match '^\\s*([^#=][^=]*)=(.*)$') { $name = $matches[1].Trim(); $value = $matches[2].Trim(); if ($value.Length -gt 0) { [Environment]::SetEnvironmentVariable($name, $value, 'Process') } } }; $env:DATABASE_URL='postgresql://orgni:testpass@127.0.0.1:55432/orgni'; $env:DOCUMENT_INTELLIGENCE_URL='http://127.0.0.1:8000'; $env:PORT='8080'; pnpm --filter @workspace/api-server dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify pending registration flow",
+			"type": "shell",
+			"command": "$body = @{ email = 'verification-check@example.com'; organization = 'Verification Check'; password = 'correct horse battery staple'; confirmPassword = 'correct horse battery staple' } | ConvertTo-Json; try { $response = Invoke-WebRequest -Uri 'http://127.0.0.1:8080/api/auth/register' -Method Post -ContentType 'application/json' -Body $body; \"Status: $($response.StatusCode)\"; $response.Content } catch { if ($_.Exception.Response) { $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream()); \"Status: $([int]$_.Exception.Response.StatusCode)\"; $reader.ReadToEnd() } else { throw } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Test email verification registration",
+			"type": "shell",
+			"command": "$body = @{ email = 'verification-check@example.com'; organization = 'Verification Check'; password = 'correct horse battery staple'; confirmPassword = 'correct horse battery staple' } | ConvertTo-Json; try { $response = Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8080/api/auth/register' -Method Post -ContentType 'application/json' -Body $body; Write-Output (\"Status: \" + $response.StatusCode); Write-Output $response.Content } catch { if ($_.Exception.Response) { $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream()); Write-Output (\"Status: \" + [int]$_.Exception.Response.StatusCode); Write-Output $reader.ReadToEnd() } else { throw } }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Reset test database after flow test",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c 'TRUNCATE TABLE public.accounts, public.api_keys, public.approval_policies, public.capabilities, public.connections, public.email_verifications, public.external_identities, public.facts, public.members, public.microsoft_connections, public.organisations, public.orgni_actions, public.password_resets, public.permissions_state, public.processed_teams_activities, public.reviews, public.sources, public.teams_audit_log, public.teams_conversations, public.teams_integration, public.tokens RESTART IDENTITY CASCADE;'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Restart API with automatic env loading",
+			"type": "shell",
+			"command": "$connection = Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue; if ($connection) { Stop-Process -Id $connection.OwningProcess -Force }; pnpm --filter @workspace/api-server dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify email verification response",
+			"type": "shell",
+			"command": "node -e \"fetch('http://127.0.0.1:8080/api/auth/register',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:'verification-check@example.com',organization:'Verification Check',password:'correct horse battery staple',confirmPassword:'correct horse battery staple'})}).then(async r=>console.log(r.status,await r.text()))\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify registration verification gate",
+			"type": "shell",
+			"command": "curl.exe -sS -i -X POST http://127.0.0.1:8080/api/auth/register -H \"Content-Type: application/json\" --data \"{\\\"email\\\":\\\"verification-check@example.com\\\",\\\"organization\\\":\\\"Verification Check\\\",\\\"password\\\":\\\"correct horse battery staple\\\",\\\"confirmPassword\\\":\\\"correct horse battery staple\\\"}\"",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Verify email verification gate",
+			"type": "shell",
+			"command": "$payload = @{ email = 'fresh-verification@example.com'; organization = 'Fresh Verification'; password = 'correct horse battery staple'; confirmPassword = 'correct horse battery staple' } | ConvertTo-Json; try { $result = Invoke-RestMethod -Uri 'http://127.0.0.1:8080/api/auth/register' -Method Post -ContentType 'application/json' -Body $payload; Write-Output ('pendingVerification=' + $result.pendingVerification); Write-Output ('email=' + $result.email) } catch { Write-Output $_.Exception.Message; exit 1 }",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Clean verification test account",
+			"type": "shell",
+			"command": "docker exec orgni-auth-test psql -U orgni -d orgni -c 'TRUNCATE TABLE public.accounts, public.api_keys, public.approval_policies, public.capabilities, public.connections, public.email_verifications, public.external_identities, public.facts, public.members, public.microsoft_connections, public.organisations, public.orgni_actions, public.password_resets, public.permissions_state, public.processed_teams_activities, public.reviews, public.sources, public.teams_audit_log, public.teams_conversations, public.teams_integration, public.tokens RESTART IDENTITY CASCADE;'",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Correct auth screenshot names",
+			"type": "shell",
+			"command": "$screenshots = Join-Path (Get-Location) 'screenshots'; $temp = Join-Path $screenshots 'verification-email.tmp.png'; Move-Item -LiteralPath (Join-Path $screenshots 'sign-in.png') -Destination $temp -Force; Move-Item -LiteralPath (Join-Path $screenshots 'verification-pending.png') -Destination (Join-Path $screenshots 'sign-in.png') -Force; Move-Item -LiteralPath $temp -Destination (Join-Path $screenshots 'verification-email.png') -Force; Get-ChildItem -LiteralPath $screenshots -File | Select-Object -ExpandProperty Name",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

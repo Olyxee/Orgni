@@ -1,4 +1,5 @@
-# Orgni — Authentication
+
+# Orgni - Authentication
 
 Credential authentication for Orgni: registration, sign-in, password recovery
 and email verification.
@@ -287,6 +288,50 @@ Design notes:
   (`Show password` vs `Show confirm password`) so the two on sign-up are not
   identical to a screen reader.
 - Errors render with `role="alert"`; submitting disables the `fieldset`.
+
+### Screenshots
+
+The authentication experience uses one consistent visual system across account
+creation, sign-in, verification, and recovery. The captures below document the
+current web console. They use fictional data and contain no passwords, API
+keys, session tokens, or real email addresses.
+
+#### Sign in
+
+Users with a verified account exchange their credentials for a session at
+`/api/auth/login`.
+
+![Orgni sign-in screen](screenshots/sign-in.png)
+
+#### Create an account
+
+Registration creates a private organisation workspace and its first Owner.
+When email delivery is configured, registration returns a pending state rather
+than granting access to onboarding.
+
+![Orgni account creation screen](screenshots/sign-up.png)
+
+#### Confirm the email address
+
+The confirmation message contains a single-use link that expires after 24
+hours. Following it verifies the address and creates the session used to enter
+onboarding.
+
+![Orgni email confirmation message](screenshots/verification-email.png)
+
+#### Recover an account
+
+The recovery screen accepts the account email and sends a time-limited reset
+link without revealing whether an address is registered.
+
+![Orgni password recovery screen](screenshots/forgot-password.png)
+
+> **Documentation note:** Add screenshots for the post-registration
+> “Confirm your address” state, the new-password form, the successful
+> verification result, and the first onboarding screen as those states are
+> captured. Keep them in `screenshots/` and follow the existing naming pattern:
+> `verification-pending.png`, `reset-password.png`, `email-verified.png`, and
+> `onboarding.png`.
 
 ---
 
