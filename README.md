@@ -301,8 +301,9 @@ keys, session tokens, or real email addresses.
 
 Users with a verified account exchange their credentials for a session at
 `/api/auth/login`.
+![Orgni email confirmation message](screenshots/verification-email.png)
 
-![Orgni sign-in screen](screenshots/sign-in.png)
+
 
 #### Create an account
 
@@ -317,8 +318,7 @@ than granting access to onboarding.
 The confirmation message contains a single-use link that expires after 24
 hours. Following it verifies the address and creates the session used to enter
 onboarding.
-
-![Orgni email confirmation message](screenshots/verification-email.png)
+![Orgni sign-in screen](screenshots/sign-in.png)
 
 #### Recover an account
 
