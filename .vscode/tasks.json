@@ -273,6 +273,83 @@
 			"command": "$screenshots = Join-Path (Get-Location) 'screenshots'; $temp = Join-Path $screenshots 'verification-email.tmp.png'; Move-Item -LiteralPath (Join-Path $screenshots 'sign-in.png') -Destination $temp -Force; Move-Item -LiteralPath (Join-Path $screenshots 'verification-pending.png') -Destination (Join-Path $screenshots 'sign-in.png') -Force; Move-Item -LiteralPath $temp -Destination (Join-Path $screenshots 'verification-email.png') -Force; Get-ChildItem -LiteralPath $screenshots -File | Select-Object -ExpandProperty Name",
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Typecheck auth changes",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server typecheck; pnpm --filter @workspace/orgni typecheck",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run auth tests",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server exec vitest run tests/registration.test.ts",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run auth unit tests",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server exec vitest run tests/registration.test.ts",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Typecheck auth migration",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server typecheck; pnpm --filter @workspace/orgni typecheck",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Postgres auth tests",
+			"type": "shell",
+			"command": "$env:TEST_DATABASE_URL='postgresql://orgni:testpass@127.0.0.1:55432/orgni'; pnpm --filter @workspace/api-server exec vitest run tests/auth-postgres.test.ts",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Typecheck completed auth changes",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server typecheck; pnpm --filter @workspace/orgni typecheck",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Diagnose Postgres auth tests",
+			"type": "shell",
+			"command": "$env:TEST_DATABASE_URL='postgresql://orgni:testpass@127.0.0.1:55432/orgni'; pnpm --filter @workspace/api-server exec vitest run tests/auth-postgres.test.ts --reporter=verbose",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run Postgres auth verification suite",
+			"type": "shell",
+			"command": "$env:TEST_DATABASE_URL='postgresql://orgni:testpass@127.0.0.1:55432/orgni'; $env:DATABASE_URL=$env:TEST_DATABASE_URL; $env:APP_BASE_URL='http://127.0.0.1:5173'; $env:RESEND_API_KEY='test-key'; $env:EMAIL_FROM='Orgni <test@example.com>'; pnpm --filter @workspace/api-server exec vitest run tests/auth-postgres.test.ts",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Final auth typecheck",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server typecheck; pnpm --filter @workspace/orgni typecheck",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Final auth unit tests",
+			"type": "shell",
+			"command": "pnpm --filter @workspace/api-server exec vitest run tests/registration.test.ts",
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Inspect final auth diff",
+			"type": "shell",
+			"command": "git diff --check; git status --short; git diff --stat",
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

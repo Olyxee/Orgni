@@ -1,9 +1,8 @@
 /**
  * Auth context for the web console.
  *
- * Holds the session (token + principal) and persists it in localStorage so a
- * refresh keeps you logged in. `useAuth` is the single source of truth for
- * "am I logged in / who am I".
+ * Holds the principal locally while the API keeps the session in an HttpOnly
+ * cookie. The cookie is never readable by application JavaScript.
  */
 import {
   createContext,
@@ -20,6 +19,7 @@ import {
   requestPasswordReset as apiRequestPasswordReset,
   resendVerification as apiResendVerification,
   verifyEmail as apiVerifyEmail,
+  logout as apiLogout,
   type Session,
 } from "./api";
 
@@ -139,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setSession(null);
+    void apiLogout();
   }, []);
 
   const value = useMemo(

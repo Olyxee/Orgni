@@ -15,7 +15,13 @@ import express from "express";
 import { sql } from "drizzle-orm";
 import type { Server } from "node:http";
 import { createDb } from "@workspace/db/connect";
-import { accounts, members, organisations, passwordResets } from "@workspace/db/schema";
+import {
+  accounts,
+  emailVerifications,
+  members,
+  organisations,
+  passwordResets,
+} from "@workspace/db/schema";
 
 const url = process.env.TEST_DATABASE_URL;
 const describeLive = url ? describe : describe.skip;
@@ -26,11 +32,17 @@ if (!url) {
 }
 
 const mail: { to: string; resetUrl: string }[] = [];
+const verificationMail: { to: string; verifyUrl: string }[] = [];
+let requireVerification = false;
 vi.mock("../src/lib/email", () => ({
-  emailConfigured: () => true,
+  emailConfigured: () => requireVerification,
   sendMemberInvite: vi.fn(async () => true),
   sendPasswordReset: vi.fn(async ({ to, resetUrl }: { to: string; resetUrl: string }) => {
     mail.push({ to, resetUrl });
+    return true;
+  }),
+  sendVerificationEmail: vi.fn(async ({ to, verifyUrl }: { to: string; verifyUrl: string }) => {
+    verificationMail.push({ to, verifyUrl });
     return true;
   }),
 }));
@@ -61,11 +73,14 @@ const input = {
 async function clear() {
   await db.db.transaction(async (tx) => {
     await tx.delete(passwordResets);
+    await tx.delete(emailVerifications);
     await tx.delete(accounts);
     await tx.delete(members);
     await tx.delete(organisations);
   });
   mail.length = 0;
+  verificationMail.length = 0;
+  requireVerification = false;
 }
 
 describeLive("credential auth against Postgres", () => {
@@ -152,6 +167,33 @@ describeLive("credential auth against Postgres", () => {
     const replay = await post("password-reset/confirm", { token, password: "yet another passphrase" });
     expect(replay.status).toBe(400);
     expect(replay.body.error).toBe("invalid_token");
+  });
+
+  it("verifies an account with a real single-use database token", async () => {
+    requireVerification = true;
+    const pending = await post("register", input);
+    expect(pending.status).toBe(202);
+    expect(pending.body).toEqual({
+      pendingVerification: true,
+      email: "owner@example.com",
+    });
+    expect(verificationMail).toHaveLength(1);
+
+    const token = new URL(verificationMail[0].verifyUrl).searchParams.get("token")!;
+    const [stored] = await db.db.select().from(emailVerifications);
+    expect(stored.email).toBe("owner@example.com");
+    expect(stored.tokenHash).not.toBe(token);
+    expect(stored.tokenHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(stored.expiresAt.getTime()).toBeGreaterThan(Date.now());
+
+    const verified = await post("verify-email", { token });
+    expect(verified.status).toBe(200);
+    expect(verified.body.principal.email).toBe("owner@example.com");
+    expect(await db.db.select().from(emailVerifications)).toHaveLength(0);
+
+    const [account] = await db.db.select().from(accounts);
+    expect(account.emailVerifiedAt).not.toBeNull();
+    expect((await post("verify-email", { token })).body.error).toBe("invalid_token");
   });
 
   it("honours the expiry the real timestamp column stores", async () => {

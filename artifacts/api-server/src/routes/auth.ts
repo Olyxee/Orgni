@@ -18,7 +18,7 @@ import {
 } from "@workspace/db/schema";
 import { authSecret, config } from "../lib/config";
 import { issueToken } from "../lib/auth";
-import { authenticate } from "../lib/authenticate";
+import { authenticate, SESSION_COOKIE } from "../lib/authenticate";
 import { hashPassword, verifyPassword } from "../lib/passwords";
 import { emailConfigured, sendPasswordReset, sendVerificationEmail } from "../lib/email";
 import { logger } from "../lib/logger";
@@ -100,6 +100,21 @@ function isUniqueViolation(error: unknown): boolean {
 function session(email: string, tenantId: string, organization: string) {
   const { token, principal } = issueToken({ email, tenantId, roles: ["Owner"] }, authSecret);
   return { token, principal: { email, tenantId, organization, roles: principal.roles } };
+}
+
+function sendSession(
+  res: Response,
+  email: string,
+  tenantId: string,
+  organization: string,
+): void {
+  const result = session(email, tenantId, organization);
+  const secure = config.NODE_ENV === "production" ? "; Secure" : "";
+  res.setHeader(
+    "Set-Cookie",
+    `${SESSION_COOKIE}=${encodeURIComponent(result.token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800${secure}`,
+  );
+  res.json({ principal: result.principal });
 }
 
 async function organizationName(tenantId: string): Promise<string | null> {
@@ -193,7 +208,13 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     res.status(202).json({ pendingVerification: true, email });
     return;
   }
-  res.status(201).json(session(email, tenantId, organization));
+  const result = session(email, tenantId, organization);
+  const secure = config.NODE_ENV === "production" ? "; Secure" : "";
+  res.setHeader(
+    "Set-Cookie",
+    `${SESSION_COOKIE}=${encodeURIComponent(result.token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800${secure}`,
+  );
+  res.status(201).json({ principal: result.principal });
 });
 
 /**
@@ -236,7 +257,7 @@ router.post("/auth/verify-email", async (req: Request, res: Response) => {
       await tx.delete(emailVerifications).where(eq(emailVerifications.email, account.email));
     });
     recordOutcome(credentialPolicy, "credentials", req, "success");
-    res.json(session(account.email, account.tenantId, name));
+    sendSession(res, account.email, account.tenantId, name);
   } catch (error) {
     logger.error({ err: error }, "email verification failed");
     return unavailable(res);
@@ -299,7 +320,7 @@ router.post("/auth/login", async (req: Request, res: Response) => {
       return;
     }
     recordOutcome(credentialPolicy, "credentials", req, "success");
-    res.json(session(email, account.tenantId, name));
+    sendSession(res, email, account.tenantId, name);
   } catch (error) {
     logger.error({ err: error }, "login failed");
     return unavailable(res);
@@ -396,7 +417,7 @@ router.post("/auth/password-reset/confirm", async (req: Request, res: Response) 
       await tx.delete(passwordResets).where(eq(passwordResets.email, account.email));
     });
     recordOutcome(credentialPolicy, "credentials", req, "success");
-    res.json(session(account.email, account.tenantId, name));
+    sendSession(res, account.email, account.tenantId, name);
   } catch (error) {
     logger.error({ err: error }, "password reset confirmation failed");
     return unavailable(res);
@@ -408,6 +429,15 @@ router.get("/auth/me", authenticate, (req: Request, res: Response) => {
   res.setHeader("Cache-Control", "no-store");
   const p = req.principal!;
   res.json({ email: p.sub, tenantId: p.tenantId, roles: p.roles });
+});
+
+/** POST /api/auth/logout — expire the browser session cookie. */
+router.post("/auth/logout", (_req: Request, res: Response) => {
+  res.setHeader(
+    "Set-Cookie",
+    `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`,
+  );
+  res.status(204).end();
 });
 
 export default router;

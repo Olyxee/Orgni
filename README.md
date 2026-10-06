@@ -30,6 +30,7 @@ All under `/api`, all session-free except `GET /auth/me`.
 | `POST` | `/auth/password-reset/request` | Email a reset link | `202` (always) |
 | `POST` | `/auth/password-reset/confirm` | Spend a reset token | `200` + session |
 | `GET` | `/auth/me` | Identify the current session | `200` principal |
+| `POST` | `/auth/logout` | Expire the browser session cookie | `204` |
 
 ---
 
@@ -264,14 +265,14 @@ Four screens share one frame, so recovery cannot drift from sign-in.
 flowchart LR
     Home["/ or /pricing"] --> Login["/login"]
     Home --> Signup["/sign-up"]
-    Signup -->|"201 session"| Onboard["/app/onboarding"]
+    Signup -->|"201 + HttpOnly cookie"| Onboard["/app/onboarding"]
     Signup -->|"202 pending"| Confirm["Confirm your address"]
     Confirm -->|"link clicked"| Onboard
-    Login -->|"200"| Onboard
+    Login -->|"200 + HttpOnly cookie"| Onboard
     Login -->|"403 email_unverified"| Confirm
     Login --> Forgot["/forgot-password"]
     Forgot --> Reset["/reset-password"]
-    Reset -->|"200 session"| Onboard
+    Reset -->|"200 + HttpOnly cookie"| Onboard
 ```
 
 Design notes:
@@ -384,11 +385,13 @@ identity store reads it too and will hit the live database.
 
 ## Known gaps
 
-- **Email verification is not on the Postgres suite.** The verification path is
-  covered only against the in-memory fake.
-- **No `HttpOnly` cookie.** Sessions are bearer tokens in `localStorage`,
-  readable by any script on the page. Acceptable behind a strict CSP; move to a
-  cookie before handling anything costly to leak.
+- **Email verification is covered in both suites.** The unit suite exercises
+  validation and edge cases; the opt-in Postgres suite verifies the real token
+  digest, expiry column, account update, and single-use deletion.
+- **Browser sessions use an `HttpOnly` cookie.** The web console no longer
+  persists session bearer tokens in `localStorage`. The API still accepts
+  `Authorization: Bearer` for service clients and API keys; browser requests
+  authenticate through the `SameSite=Lax` session cookie.
 - **No social or SSO sign-in.** Self-service only. The pricing page advertises
   SSO/SAML for Enterprise, which is a sales conversation, not a self-service
   path.

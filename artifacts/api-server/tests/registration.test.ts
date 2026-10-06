@@ -150,7 +150,6 @@ function makeDb() {
 }
 
 import router from "../src/routes/auth";
-import { verifyToken } from "../src/lib/auth";
 import { hashPassword, verifyPassword } from "../src/lib/passwords";
 
 let server: Server;
@@ -222,7 +221,7 @@ describe("credential registration and sign in", () => {
     expect(created.status).toBe(201);
     expect(created.headers.get("cache-control")).toBe("no-store");
     expect(created.body.principal.email).toBe("owner@example.com");
-    expect(verifyToken(created.body.token, "test-secret")?.tenantId).toBe(created.body.principal.tenantId);
+    expect(created.body.token).toBeUndefined();
 
     const account = state.accounts.get("owner@example.com");
     expect(account.passwordHash).not.toContain(input.password);
@@ -451,7 +450,7 @@ describe("email verification", () => {
     state.verification = false;
     const created = await post("register", input);
     expect(created.status).toBe(201);
-    expect(created.body.token).toBeTruthy();
+    expect(created.body.token).toBeUndefined();
     expect(state.verifyMail).toHaveLength(0);
     expect((await post("login", { email: input.email, password: input.password })).status).toBe(200);
   });

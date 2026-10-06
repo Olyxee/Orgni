@@ -7,11 +7,7 @@
  */
 const configuredApiUrl = import.meta.env.VITE_API_URL ?? "";
 
-// On Windows, localhost can resolve through an unresponsive WSL relay while
-// the local Docker API is listening on IPv4.
-const API_URL = configuredApiUrl
-  .replace(/^http:\/\/localhost(?=[:/]|$)/, "http://127.0.0.1")
-  .replace(/\/+$/, "");
+const API_URL = configuredApiUrl.replace(/\/+$/, "");
 
 export interface Session {
   token: string;
@@ -99,7 +95,6 @@ async function request<T>(
 }
 
 interface SessionResponse {
-  token: string;
   principal: {
     email: string;
     tenantId: string;
@@ -110,7 +105,7 @@ interface SessionResponse {
 
 function toSession(data: SessionResponse): Session {
   return {
-    token: data.token,
+    token: "",
     email: data.principal.email,
     organization: data.principal.organization,
     tenantId: data.principal.tenantId,
@@ -148,7 +143,7 @@ export function register(input: {
     "/api/auth/register",
     input,
   ).then((data) =>
-    "token" in data
+    "principal" in data
       ? { pending: false, session: toSession(data) }
       : { pending: true, email: data.email ?? input.email },
   );
@@ -180,6 +175,10 @@ export function confirmPasswordReset(token: string, password: string): Promise<S
   return postAuth<SessionResponse>("/api/auth/password-reset/confirm", { token, password }).then(
     toSession,
   );
+}
+
+export function logout(): Promise<void> {
+  return request<void>("/api/auth/logout", { method: "POST" });
 }
 
 export function getCurrentSession(
