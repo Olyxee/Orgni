@@ -14,14 +14,15 @@ says so and the connection is marked `mode: "mock"`.
 | Area | Env / action | Status without it |
 |---|---|---|
 | **Database** | `DATABASE_URL` + run migrations | Product state is in‑memory (lost on restart) |
-| **Auth** | Replace the dev login with real OIDC | **No authentication in production** (dev login is 404‑gated) |
+| **Auth** | `DATABASE_URL` (accounts table) | Registration and sign‑in return `503` — no accounts can be created |
 | **Session signing** | `SESSION_SECRET` (≥32 chars) | API refuses to start in production |
+| **Rate limiting** | `TRUST_PROXY_HOPS` (default `1`) | All clients share one throttle bucket if the real client IP is hidden behind a proxy |
 | **CORS** | `CORS_ORIGINS` | Cross‑origin requests blocked (same‑origin only) |
 | **Public URL** | `PUBLIC_BASE_URL` | Teams manifest / email links fall back to request origin |
 | **LLM** | `ANTHROPIC_API_KEY` (+ `ORGNI_MODEL`) | Engine uses deterministic template replies |
 | **Teams bot** | `MICROSOFT_APP_ID/PASSWORD/TYPE`, `TEAMS_APP_ID`, Azure Bot registration | `@Orgni` in Teams doesn't work |
 | **Teams tenant linking** | Redirect URI `${PUBLIC_BASE_URL}/api/teams/connect/callback` on the app registration | "Connect Microsoft Teams" button stays disabled; orgs must use the manual tenant‑id fallback |
-| **Email (invites)** | `RESEND_API_KEY` + `EMAIL_FROM` | Member invites are added but no email is sent |
+| **Email (invites + password reset)** | `RESEND_API_KEY` + `EMAIL_FROM` + `APP_BASE_URL` | Invites and reset links are recorded as "not configured — skipped"; **nobody can recover a lost password** |
 | **Knowledge ingestion** | `DOCUMENT_INTELLIGENCE_URL`, `ONTOLOGY_URL` | File upload + the Knowledge map stay empty |
 | **Microsoft 365 sync** | OAuth + Microsoft Graph (not built) | "Connect Microsoft" is a guided demo, nothing syncs |
 | **Other connectors** | Salesforce / SAP / Xero / Google (not built) | Same — demo connect flow only |
@@ -52,27 +53,63 @@ server after `DATABASE_URL` is set — it auto‑detects Postgres at boot
 
 ---
 
-## 2. Authentication — the biggest gap
+## 2. Authentication
 
-`POST /api/auth/login` is a **dev‑only** endpoint: email + organisation, **no
-password**, HMAC‑signed session. It returns `404` when `NODE_ENV=production`, so
-**there is currently no way to authenticate in production.**
+Credential auth is live in every environment. `POST /api/auth/register` creates an
+account, a fresh tenant, and the registrant as its first Owner;
+`POST /api/auth/login` exchanges email + password for an HMAC-signed session.
+Passwords are scrypt hashes (N=32768, per-account salt) and never stored in the
+clear. Sign-in does the same verification work for unknown addresses, so response
+time does not reveal whether an account exists.
 
-Before going live you must:
+`POST /api/auth/password-reset/request` emails a single-use link
+(`POST /api/auth/password-reset/confirm` spends it). It answers `202` for every
+address, known or not, so it cannot be used to enumerate users. Only the SHA-256
+of the token is stored, links expire after 30 minutes, and requesting a new one
+voids the old.
 
-1. Wire a real identity provider. The code is built for **Microsoft Entra
-   External ID** (OIDC) — the comments in `artifacts/api-server/src/lib/auth.ts`
-   and `authenticate.ts` mark the single seam (`verifyToken` /
-   `req.principal`). Downstream code only reads `req.principal` (`{ sub,
-   tenantId, roles }`), so nothing else changes.
-2. Map the IdP tenant/domain to an Orgni `tenantId` (today: `tenantIdFromOrg()`).
-3. Replace the web app's `/login` page (`artifacts/orgni/src/pages/login.tsx`) —
-   it currently renders the dev email/org form.
-4. Set `SESSION_SECRET` (≥32 chars) — the API **throws on boot** in production
-   without it.
+**Email is the hard dependency here.** Without `RESEND_API_KEY` + `EMAIL_FROM` +
+`APP_BASE_URL` the request still returns `202`, but no link is sent and a user who
+forgets their password has no way back in. This is the most important env var pair
+in the file.
 
-Until then, run with `NODE_ENV=development` behind your own gateway, or finish
-the OIDC integration.
+Rate limiting is per client IP and only counts *failures* (20 per 15 min on
+sign-in and reset; sign-up is charged on success, 10/hour), so a shared office
+egress is never throttled for signing in successfully. Counters are in-process:
+behind multiple replicas, add a shared gateway limit as well.
+
+Before going live you should still:
+
+1. Consider wiring a real identity provider. The code is built for **Microsoft
+   Entra External ID** (OIDC) — the comments in
+   `artifacts/api-server/src/lib/auth.ts` and `authenticate.ts` mark the single
+   seam (`verifyToken` / `req.principal`). Downstream code only reads
+   `req.principal` (`{ sub, tenantId, roles }`), so nothing else changes.
+2. Verify `TRUST_PROXY_HOPS` matches your real hop count. Wrong in either
+   direction and the limiter either throttles everyone together or trusts
+   spoofed `X-Forwarded-For`.
+
+Sessions are bearer tokens held in `localStorage`, which is readable by any
+script on the page. That is acceptable behind a strict CSP; move to an
+`HttpOnly` cookie before handling anything that would be costly to leak.
+
+### Email verification
+
+Registration requires the address to be confirmed before it receives a session.
+`POST /api/auth/register` returns **202 with no session** and emails a
+single-use link; `POST /api/auth/verify-email` spends it, stamps
+`accounts.email_verified_at`, and returns a session so the user lands directly
+in onboarding. `POST /api/auth/verify-email/resend` re-sends the link and
+answers `202` for every address, so it cannot be used to enumerate users.
+
+**This makes email a hard dependency of signup, not just of recovery.** If
+`RESEND_API_KEY` and `EMAIL_FROM` are both set, verification is enforced. If
+they are not, verification is skipped and the account is stamped verified, so
+local and preview environments still work — but production logs a loud error
+saying verification is off. Treat that log line as a launch blocker.
+
+Existing accounts are backfilled as verified by migration `0007`, so switching
+this on does not lock anyone out.
 
 ---
 
@@ -87,9 +124,10 @@ the OIDC integration.
 | `PUBLIC_BASE_URL` | Public origin of the API, e.g. `https://api.orgni.com`. Used in the Teams manifest. |
 | `LOG_LEVEL` | pino level (default `info`). |
 | `MAX_UPLOAD_BYTES` | Document upload cap (default 20 MB). |
+| `TRUST_PROXY_HOPS` | Reverse-proxy hops in front of the API (default `1`). Sets the hop count Express uses to resolve `req.ip`, which the credential rate limiting keys on. |
+| `APP_BASE_URL` | Web app origin, used to build password-reset links. Falls back to `PUBLIC_BASE_URL`. |
 
-**Dev‑only endpoints (404 in production):** `POST /api/auth/login`,
-`POST /api/product/reset`.
+**Dev‑only endpoints (404 in production):** `POST /api/product/reset`.
 
 ---
 

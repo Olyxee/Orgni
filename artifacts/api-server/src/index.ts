@@ -24,7 +24,8 @@ function startDocumentIntelligence(): ChildProcess | null {
     existsSync(path.join(candidate, "main.py")),
   );
   if (!serviceDir) {
-    throw new Error("Bundled Document Intelligence service is missing.");
+    logger.warn("Bundled Document Intelligence service is missing; continuing without it.");
+    return null;
   }
   const child = spawn(
     "python3",
@@ -33,8 +34,7 @@ function startDocumentIntelligence(): ChildProcess | null {
   );
   child.on("exit", (code) => {
     if (code !== 0) {
-      logger.fatal({ code }, "Document Intelligence exited");
-      process.exit(1);
+      logger.warn({ code }, "Document Intelligence exited; auth/testing flows can continue without it.");
     }
   });
   return child;

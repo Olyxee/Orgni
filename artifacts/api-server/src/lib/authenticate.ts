@@ -1,7 +1,8 @@
 /**
  * Authentication middleware — the single place a request's tenant is decided.
  *
- * Production: requires a valid signed session token (Authorization: Bearer).
+ * Production: requires a valid signed session token (HttpOnly cookie or
+ * Authorization: Bearer).
  * Non-production: also accepts an `X-Tenant-Id` header as a convenience for
  * local scripts and tests, so `curl -H "X-Tenant-Id: ..."` keeps working.
  *
@@ -27,6 +28,15 @@ declare global {
 }
 
 const isProd = config.NODE_ENV === "production";
+export const SESSION_COOKIE = "orgni_session";
+
+function readCookie(header: string | undefined, name: string): string | null {
+  const value = header
+    ?.split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`));
+  return value ? decodeURIComponent(value.slice(name.length + 1)) : null;
+}
 
 export async function authenticate(
   req: Request,
@@ -34,8 +44,11 @@ export async function authenticate(
   next: NextFunction,
 ): Promise<void> {
   const header = req.header("authorization");
-  if (header?.startsWith("Bearer ")) {
-    const bearer = header.slice(7).trim();
+  const headerToken = header?.startsWith("Bearer ")
+    ? header.slice(7).trim()
+    : "";
+  const bearer = headerToken || readCookie(req.header("cookie"), SESSION_COOKIE);
+  if (bearer) {
 
     // API key (agents / services): resolve to its tenant via the DB.
     if (looksLikeApiKey(bearer)) {

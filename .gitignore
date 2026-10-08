@@ -8,6 +8,11 @@ out-tsc
 .expo
 .expo-shared
 
+# python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
 # dependencies
 node_modules
 
@@ -47,6 +52,9 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Kilo agent state (worktrees, agent-manager.json, session config)
+/.kilo/
 
 # Local env
 .env

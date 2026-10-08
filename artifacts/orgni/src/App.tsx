@@ -17,6 +17,7 @@ import Pricing from "@/pages/pricing";
 import Docs from "@/pages/docs";
 import Thesis from "@/pages/thesis";
 import Login from "@/pages/login";
+import { ForgotPassword, ResetPassword, VerifyEmail } from "@/pages/password-reset";
 import AppShell from "@/pages/app/shell";
 import { CommandPaletteProvider } from "@/components/command-palette";
 import { ScrollToTopButton } from "@/components/scroll-to-top";
@@ -45,12 +46,21 @@ function Router() {
         <Redirect to="/docs" />
       </Route>
       <Route path="/thesis" component={Thesis} />
-      <Route path="/login" component={Login} />
+      <Route path="/login"><Login key="login" /></Route>
       <Route path="/sign-in/*?">
         <Redirect to="/login" />
       </Route>
       <Route path="/sign-up/*?">
-        <Redirect to="/login" />
+        <Login key="signup" register />
+      </Route>
+      <Route path="/forgot-password/*?">
+        <ForgotPassword key="forgot" />
+      </Route>
+      <Route path="/reset-password/*?">
+        <ResetPassword key="reset" />
+      </Route>
+      <Route path="/verify-email/*?">
+        <VerifyEmail key="verify" />
       </Route>
       <Route path="/app" component={AppShell} />
       <Route path="/app/:section" component={AppShell} />
@@ -63,7 +73,12 @@ function Router() {
 function ExperienceShell() {
   const [location] = useLocation();
   const isProductSurface =
-    location === "/login" || location.startsWith("/app");
+    location === "/login" ||
+    location.startsWith("/sign-up") ||
+    location.startsWith("/forgot-password") ||
+    location.startsWith("/reset-password") ||
+    location.startsWith("/verify-email") ||
+    location.startsWith("/app");
 
   return (
     <div

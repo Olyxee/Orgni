@@ -57,6 +57,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
     (item.match?.some((path) => location.startsWith(path)) ?? false);
 
   return (
+    <>
     <header
       className={`fixed left-0 right-0 top-0 z-50 transition-all duration-300 ${
         dark ? "dark" : ""
@@ -66,7 +67,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           : "border-b border-transparent bg-background/70 backdrop-blur-md"
       }`}
     >
-      <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-[calc(var(--site-header-height)-1px)] max-w-6xl items-center justify-between px-6">
         <div className="flex items-center gap-10">
           <Link href="/" className="group flex min-h-10 items-center gap-3">
             <img
@@ -101,9 +102,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Visible from sm up, not just lg: below lg the page links live in the
+              overlay, so a tablet-width window had no way to sign in without
+              opening the menu. Phones stay burger-only, which fits three
+              controls without crowding. */}
           <a
             href={LOGIN_URL}
-            className="hidden h-10 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-primary lg:inline-flex"
+            className="hidden h-10 items-center gap-2 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-primary sm:inline-flex"
           >
             Sign in
             <ArrowUpRight className="h-4 w-4" />
@@ -120,7 +125,13 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           </button>
         </div>
       </div>
+    </header>
 
+      {/* Rendered as a sibling of the header, not a child. The header sets
+          `backdrop-filter`, which makes it a containing block for
+          fixed-position descendants — so a `fixed` panel nested inside it
+          resolves against the 73px header instead of the viewport and
+          collapses to zero height, spilling its links over the page. */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -128,7 +139,7 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 bottom-0 top-[72px] z-40 flex flex-col bg-background lg:hidden"
+            className="fixed inset-x-0 bottom-0 top-[var(--site-header-height)] z-40 flex flex-col bg-background lg:hidden"
           >
             <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-6 py-6">
               {navItems.map((item) => {
@@ -158,6 +169,6 @@ export function SiteHeader({ dark }: { dark?: boolean }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </>
   );
 }

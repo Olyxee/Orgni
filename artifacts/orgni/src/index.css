@@ -111,6 +111,13 @@
   --app-font-serif: "Geist", sans-serif;
   --app-font-mono: "Geist Mono", ui-monospace, monospace;
   --radius: 0.5rem;
+
+  /**
+   * Total vertical space the fixed site header occupies: 72px of content plus
+   * its 1px bottom border. Sticky sub-navigation must offset by this, not by
+   * the content height, or it tucks underneath the header.
+   */
+  --site-header-height: 73px;
 }
 
 .dark {

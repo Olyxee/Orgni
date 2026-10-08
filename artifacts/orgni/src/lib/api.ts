@@ -7,11 +7,7 @@
  */
 const configuredApiUrl = import.meta.env.VITE_API_URL ?? "";
 
-// On Windows, localhost can resolve through an unresponsive WSL relay while
-// the local Docker API is listening on IPv4.
-const API_URL = configuredApiUrl
-  .replace(/^http:\/\/localhost(?=[:/]|$)/, "http://127.0.0.1")
-  .replace(/\/+$/, "");
+const API_URL = configuredApiUrl.replace(/\/+$/, "");
 
 export interface Session {
   token: string;
@@ -98,30 +94,91 @@ async function request<T>(
   return (await res.json()) as T;
 }
 
-export async function login(
-  email: string,
-  organization: string,
-): Promise<Session> {
-  const data = await request<{
-    token: string;
-    principal: {
-      email: string;
-      tenantId: string;
-      organization: string;
-      roles: string[];
-    };
-  }>("/api/auth/login", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, organization }),
-  });
+interface SessionResponse {
+  principal: {
+    email: string;
+    tenantId: string;
+    organization: string;
+    roles: string[];
+  };
+}
+
+function toSession(data: SessionResponse): Session {
   return {
-    token: data.token,
+    token: "",
     email: data.principal.email,
     organization: data.principal.organization,
     tenantId: data.principal.tenantId,
     roles: data.principal.roles,
   };
+}
+
+function postAuth<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+export function login(email: string, password: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/login", { email, password }).then(toSession);
+}
+
+/**
+ * Registering either returns a session (email delivery not in force) or a
+ * pending state (the address must be proven first). Callers must handle both.
+ */
+export type RegisterResult =
+  | { pending: true; email: string }
+  | { pending: false; session: Session };
+
+export function register(input: {
+  email: string;
+  organization: string;
+  password: string;
+  confirmPassword: string;
+}): Promise<RegisterResult> {
+  return postAuth<{ pendingVerification?: true; email?: string } | SessionResponse>(
+    "/api/auth/register",
+    input,
+  ).then((data) =>
+    "principal" in data
+      ? { pending: false, session: toSession(data) }
+      : { pending: true, email: data.email ?? input.email },
+  );
+}
+
+/** Spend a verification token. Returns a session so onboarding can follow. */
+export function verifyEmail(token: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/verify-email", { token }).then(toSession);
+}
+
+/**
+ * Ask for another verification link. The API answers identically for known
+ * and unknown addresses, so this never confirms whether an account exists.
+ */
+export function resendVerification(email: string): Promise<{ accepted: boolean }> {
+  return postAuth("/api/auth/verify-email/resend", { email });
+}
+
+/**
+ * Ask for a reset link. The API answers identically for known and unknown
+ * addresses, so a success here never confirms whether an account exists.
+ */
+export function requestPasswordReset(email: string): Promise<{ accepted: boolean }> {
+  return postAuth("/api/auth/password-reset/request", { email });
+}
+
+/** Spend a reset token. Returns a session so the user lands in the workspace. */
+export function confirmPasswordReset(token: string, password: string): Promise<Session> {
+  return postAuth<SessionResponse>("/api/auth/password-reset/confirm", { token, password }).then(
+    toSession,
+  );
+}
+
+export function logout(): Promise<void> {
+  return request<void>("/api/auth/logout", { method: "POST" });
 }
 
 export function getCurrentSession(

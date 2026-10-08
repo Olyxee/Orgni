@@ -63,6 +63,13 @@ app.use(
   }),
 );
 app.use(cors({ origin: buildCorsOrigin(), credentials: true }));
+
+// `req.ip` only resolves to the real client behind a proxy when the hop count
+// is declared. Without this every request appears to come from the proxy and
+// the per-IP rate limiting on the credential endpoints throttles all users
+// together. Default 1 hop: the deployed topology is a single ingress.
+app.set("trust proxy", config.TRUST_PROXY_HOPS ?? 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
