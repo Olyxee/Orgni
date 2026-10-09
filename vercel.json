@@ -1,3 +1,4 @@
+
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "pnpm install --frozen-lockfile",
@@ -5,6 +6,10 @@
   "outputDirectory": "artifacts/orgni/dist/public",
   "framework": null,
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://orgni-api.happyrock-65c5dcaf.southafricanorth.azurecontainerapps.io/api/:path*"
+    },
     {
       "source": "/((?!.*\\.).*)",
       "destination": "/index.html"
