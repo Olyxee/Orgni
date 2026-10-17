@@ -1,0 +1,5 @@
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+Need to install the following packages:
+vitest@5.0.5
+Ok to proceed? (y) 

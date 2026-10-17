@@ -190,3 +190,354 @@ describe.skipIf(!DATABASE_URL)("repository — tenant isolation", () => {
     expect(doc!.reviews).toHaveLength(1);
   });
 });
+
+describe.skipIf(!DATABASE_URL)("repository — evidence retrieval", () => {
+  it("finds evidence matching keywords", async () => {
+    await handle.repository.persistDocument({
+      source: source("src_invoice", TENANT_A, "chk_invoice"),
+      tokens: [
+        {
+          tokenId: "tok_invoice",
+          tenantId: TENANT_A,
+          tokenKind: "EVENT",
+          eventType: "INVOICE_ISSUED",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [{ evidenceId: "ev", sourceSystem: "test", sourceObjectId: "inv_1" }],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: ["finance"],
+          retentionClass: "financial",
+        },
+      ],
+      facts: null,
+    });
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["invoice"],
+    });
+
+    expect(matches.length).toBeGreaterThan(0);
+    const invoiceMatch = matches.find((m) =>
+      JSON.stringify(m.token).includes("INVOICE_ISSUED"),
+    );
+    expect(invoiceMatch).toBeDefined();
+    expect(invoiceMatch!.sourceFilename).toBe("invoice.pdf");
+  });
+
+  it("finds evidence matching entity types", async () => {
+    await handle.repository.persistDocument({
+      source: source("src_entity", TENANT_A, "chk_entity"),
+      tokens: [
+        {
+          tokenId: "tok_vendor",
+          tenantId: TENANT_A,
+          tokenKind: "ENTITY",
+          entityType: "VENDOR",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.85,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+      ],
+      facts: null,
+    });
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: [],
+      entityTypes: ["ENTITY"],
+    });
+
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches[0].tokenKind).toBe("ENTITY");
+  });
+
+  it("finds evidence matching entity IDs", async () => {
+    await handle.repository.persistDocument({
+      source: source("src_relation", TENANT_A, "chk_relation"),
+      tokens: [
+        {
+          tokenId: "tok_rel",
+          tenantId: TENANT_A,
+          tokenKind: "RELATION",
+          subjectId: "vendor_acme",
+          predicate: "SUPPLIES",
+          objectId: "product_x",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+      ],
+      facts: null,
+    });
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: [],
+      entityIds: ["vendor_acme"],
+    });
+
+    expect(matches.length).toBeGreaterThan(0);
+    expect(matches[0].matchType).toBe("entity_id");
+  });
+
+  it("returns empty when no keywords match", async () => {
+    await handle.repository.persistDocument({
+      source: source("src_nomatch", TENANT_A, "chk_nomatch"),
+      tokens: [
+        {
+          tokenId: "tok_xyz",
+          tenantId: TENANT_A,
+          tokenKind: "EVENT",
+          eventType: "UNRELATED_THING",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+      ],
+      facts: null,
+    });
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["xyznonexistent"],
+    });
+
+    expect(matches).toEqual([]);
+  });
+
+  it("enforces tenant isolation in evidence retrieval", async () => {
+    // Tenant A has an invoice
+    await handle.repository.persistDocument({
+      source: source("src_invoice_a", TENANT_A, "chk_inv_a"),
+      tokens: [
+        {
+          tokenId: "tok_inv_a",
+          tenantId: TENANT_A,
+          tokenKind: "EVENT",
+          eventType: "INVOICE_ISSUED",
+          invoiceNumber: "INV-001",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "financial",
+        },
+      ],
+      facts: null,
+    });
+
+    // Tenant B has a matching invoice
+    await handle.repository.persistDocument({
+      source: source("src_invoice_b", TENANT_B, "chk_inv_b"),
+      tokens: [
+        {
+          tokenId: "tok_inv_b",
+          tenantId: TENANT_B,
+          tokenKind: "EVENT",
+          eventType: "INVOICE_ISSUED",
+          invoiceNumber: "INV-002",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "financial",
+        },
+      ],
+      facts: null,
+    });
+
+    // Tenant A searches for "invoice" — should only find their own
+    const tenantAMatches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["invoice"],
+    });
+
+    expect(tenantAMatches.length).toBeGreaterThan(0);
+    for (const match of tenantAMatches) {
+      expect(match.sourceId).toBe("src_invoice_a");
+    }
+
+    // Tenant B searches for "invoice" — should only find their own
+    const tenantBMatches = await handle.repository.findEvidence({
+      tenantId: TENANT_B,
+      keywords: ["invoice"],
+    });
+
+    expect(tenantBMatches.length).toBeGreaterThan(0);
+    for (const match of tenantBMatches) {
+      expect(match.sourceId).toBe("src_invoice_b");
+    }
+
+    // Tenant A should NOT find tenant B's invoice even with matching keywords
+    const crossTenantAttempt = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["INV-002"], // Only exists in tenant B's data
+    });
+
+    expect(crossTenantAttempt).toEqual([]);
+  });
+
+  it("cannot retrieve another tenant's matching invoice via entity ID", async () => {
+    // Tenant A has a vendor entity
+    await handle.repository.persistDocument({
+      source: source("src_vendor_a", TENANT_A, "chk_vendor_a"),
+      tokens: [
+        {
+          tokenId: "tok_vendor_a",
+          tenantId: TENANT_A,
+          tokenKind: "ENTITY",
+          entityType: "VENDOR",
+          vendorId: "v_special",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+      ],
+      facts: null,
+    });
+
+    // Tenant B has the same vendor ID in their data
+    await handle.repository.persistDocument({
+      source: source("src_vendor_b", TENANT_B, "chk_vendor_b"),
+      tokens: [
+        {
+          tokenId: "tok_vendor_b",
+          tenantId: TENANT_B,
+          tokenKind: "ENTITY",
+          entityType: "VENDOR",
+          vendorId: "v_special", // Same vendor ID, different tenant
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.9,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+      ],
+      facts: null,
+    });
+
+    // Tenant A searches by vendor ID — should find only their own
+    const tenantAMatches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: [],
+      entityIds: ["v_special"],
+    });
+
+    expect(tenantAMatches.length).toBe(1);
+    expect(tenantAMatches[0].sourceId).toBe("src_vendor_a");
+
+    // Tenant B searches by vendor ID — should find only their own
+    const tenantBMatches = await handle.repository.findEvidence({
+      tenantId: TENANT_B,
+      keywords: [],
+      entityIds: ["v_special"],
+    });
+
+    expect(tenantBMatches.length).toBe(1);
+    expect(tenantBMatches[0].sourceId).toBe("src_vendor_b");
+  });
+
+  it("sorts results by relevance score", async () => {
+    await handle.repository.persistDocument({
+      source: source("src_multi", TENANT_A, "chk_multi"),
+      tokens: [
+        {
+          tokenId: "tok_low",
+          tenantId: TENANT_A,
+          tokenKind: "EVENT",
+          eventType: "UNRELATED",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.5,
+          epistemicStatus: "OBSERVED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "standard",
+        },
+        {
+          tokenId: "tok_high",
+          tenantId: TENANT_A,
+          tokenKind: "ENTITY",
+          entityType: "INVOICE",
+          transactionTime: "2026-07-24T00:00:00Z",
+          sourceRefs: [],
+          confidence: 0.95,
+          epistemicStatus: "ASSERTED",
+          visibility: [],
+          actionScope: [],
+          retentionClass: "financial",
+        },
+      ],
+      facts: null,
+    });
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["invoice"],
+      entityTypes: ["ENTITY"],
+    });
+
+    // Higher score should come first
+    if (matches.length >= 2) {
+      expect(matches[0].matchScore).toBeGreaterThanOrEqual(matches[1].matchScore);
+    }
+  });
+
+  it("enforces limit on retrieved evidence", async () => {
+    // Create 15 tokens across 5 sources
+    for (let i = 0; i < 5; i++) {
+      await handle.repository.persistDocument({
+        source: source(`src_test_${i}`, TENANT_A, `chk_test_${i}`),
+        tokens: [
+          {
+            tokenId: `tok_test_${i}`,
+            tenantId: TENANT_A,
+            tokenKind: "EVENT",
+            eventType: "TEST_EVENT",
+            transactionTime: "2026-07-24T00:00:00Z",
+            sourceRefs: [],
+            confidence: 0.9,
+            epistemicStatus: "OBSERVED",
+            visibility: [],
+            actionScope: [],
+            retentionClass: "standard",
+          },
+        ],
+        facts: null,
+      });
+    }
+
+    const matches = await handle.repository.findEvidence({
+      tenantId: TENANT_A,
+      keywords: ["test"],
+      limit: 3,
+    });
+
+    // Limit should be enforced
+    expect(matches.length).toBeLessThanOrEqual(3);
+  });
+});

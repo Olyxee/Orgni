@@ -1,0 +1,16 @@
+Scope: all 15 workspace projects
+. preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+. preinstall: Done
+? Verifying lockfile against supply-chain policies (638 entries)...
+artifacts/mockup-sandbox                 | [WARN] deprecated recharts@2.15.4
+✗ Lockfile failed supply-chain policy check (638 entries in 1.1s)
+Error: ERR_PNPM_FETCH_404
+
+  × installing dependencies
+  ╰─▶ Failed to resolve dependency tree: GET https://registry.npmjs.org/
+      @workspace%2Fdb: Not Found - 404
+  help: @workspace/db is not in the npm registry, or you have no permission to
+        fetch it.
+        
+        No authorization header was set for the request.
+
