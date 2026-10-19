@@ -292,30 +292,34 @@ export async function resolveAction(
   approve: boolean,
 ): Promise<OrgniAction | null> {
   const store = getProductStore();
-  const state = await store.getState(tenantId);
-  const idx = state.activity.findIndex((a) => a.id === actionId);
-  if (idx === -1) return null;
-  const updated: OrgniAction = {
-    ...state.activity[idx]!,
-    status: approve ? "completed" : "rejected",
-    result: approve ? "Approved and carried out." : "Rejected — no action taken.",
-    actionsPerformed: approve
-      ? [...state.activity[idx]!.actionsPerformed, "Carried out after approval"]
-      : state.activity[idx]!.actionsPerformed,
-  };
-  state.activity[idx] = updated;
-  await store.putState(tenantId, state);
+  let updated: OrgniAction | null = null;
+  await store.updateState(tenantId, (state) => {
+    const idx = state.activity.findIndex((a) => a.id === actionId);
+    if (idx === -1) return;
+    updated = {
+      ...state.activity[idx]!,
+      status: approve ? "completed" : "rejected",
+      result: approve ? "Approved and carried out." : "Rejected — no action taken.",
+      actionsPerformed: approve
+        ? [...state.activity[idx]!.actionsPerformed, "Carried out after approval"]
+        : state.activity[idx]!.actionsPerformed,
+    };
+    state.activity[idx] = updated;
+    return state;
+  });
   return updated;
 }
 
 async function persist(
   store: ReturnType<typeof getProductStore>,
   tenantId: string,
-  state: OrgniState,
+  _state: OrgniState,
   action: OrgniAction,
 ): Promise<void> {
-  state.activity = [action, ...state.activity].slice(0, 200);
-  await store.putState(tenantId, state);
+  await store.updateState(tenantId, (currentState) => {
+    currentState.activity = [action, ...currentState.activity].slice(0, 200);
+    return currentState;
+  });
 }
 
 /* ---- small helpers ---------------------------------------------- */
