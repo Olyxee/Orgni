@@ -53,3 +53,10 @@ Thumbs.db
 *.local
 .env.*
 !.env.example
+
+# Python virtual environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
