@@ -27,6 +27,7 @@ export type {
   IngestionInput,
   IngestionRecord,
   IngestionState,
+  IngestOptions,
 } from "./ingestion/pipeline.js";
 
-export { SUPPORTED_MIME_TYPES, checksumOf } from "./ingestion/pipeline.js";
+export { SUPPORTED_MIME_TYPES, checksumOf, computeRetryDelay } from "./ingestion/pipeline.js";

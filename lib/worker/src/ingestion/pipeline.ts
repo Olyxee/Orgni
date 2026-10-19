@@ -15,6 +15,7 @@ import { createHash, randomUUID } from "node:crypto";
 import type { PrincipalRule } from "@workspace/contracts";
 
 import type { NormalizedEnvelope } from "../envelope/types.js";
+import { DocumentIntelligenceError } from "../document-intelligence/client.js";
 
 export type IngestionState = "RECEIVED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
@@ -142,26 +143,91 @@ export function isSupportedMimeType(
 /** Errors worth retrying: transient transport/availability problems. */
 export function isRecoverable(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
-  const message = error.message.toLowerCase();
+
+  // Structured errors from the Document Intelligence client are checked first
+  // so retry classification is based on typed fields, not string parsing.
+  if (error instanceof DocumentIntelligenceError) {
+    // Client-side timeout: always recoverable — the service may just be slow.
+    if (error.isTimeout) return true;
+
+    // HTTP response received: retry only on transient server/gateway errors and
+    // rate-limiting.  4xx (except 429) are permanent client errors; do not retry.
+    if (error.status !== undefined) {
+      return error.status === 429 || error.status === 502 || error.status === 503;
+    }
+
+    // No status means the request never got a response (network-level failure).
+    // Fall through to the message-based checks below.
+  }
+
+  // Fallback: plain Error instances thrown by test mocks or future transports
+  // that don't use DocumentIntelligenceError.  Keep the existing keywords so
+  // existing behaviour is preserved.
+  const msg = error.message.toLowerCase();
   return (
-    message.includes("econnrefused") ||
-    message.includes("etimedout") ||
-    message.includes("econnreset") ||
-    message.includes("socket hang up") ||
-    message.includes("network") ||
-    message.includes("timeout") ||
-    message.includes("503") ||
-    message.includes("502") ||
-    message.includes("429")
+    msg.includes("econnrefused") ||
+    msg.includes("etimedout") ||
+    msg.includes("econnreset") ||
+    msg.includes("socket hang up") ||
+    msg.includes("network") ||
+    msg.includes("timeout") ||
+    msg.includes("503") ||
+    msg.includes("502") ||
+    msg.includes("429")
   );
 }
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Compute the delay in milliseconds before the next retry attempt.
+ *
+ * Uses exponential backoff with ±10 % uniform jitter.  When the error carries
+ * a `Retry-After` header value the server's requested delay is used instead,
+ * but it is capped at the maximum delay computed from `retryBaseMs` and
+ * `maxAttempts` so operator-configured limits are always respected.
+ *
+ * Exported for direct unit testing.
+ *
+ * @param attempt        1-based index of the attempt that just failed.
+ * @param limits         Active ingestion limits.
+ * @param error          The error that was thrown (may carry retryAfterMs).
+ * @param randomFraction A value in [0, 1) substituted for Math.random() in
+ *                       tests to make jitter deterministic.
+ */
+export function computeRetryDelay(
+  attempt: number,
+  limits: IngestionLimits,
+  error: unknown,
+  randomFraction = Math.random(),
+): number {
+  // Maximum delay any attempt may wait (caps Retry-After values too).
+  const maxDelay = limits.retryBaseMs * 2 ** (limits.maxAttempts - 1);
+
+  // Honour a server-supplied Retry-After, capped at maxDelay.
+  if (error instanceof DocumentIntelligenceError && error.retryAfterMs !== undefined) {
+    return Math.min(error.retryAfterMs, maxDelay);
+  }
+
+  // Exponential base for this attempt index (attempt is 1-based; the delay
+  // applies before attempt+1, so we use the current attempt as the exponent).
+  const base = limits.retryBaseMs * 2 ** (attempt - 1);
+  // ±10 % uniform jitter: multiplier in [0.9, 1.1)
+  const jittered = Math.round(base * (0.9 + randomFraction * 0.2));
+  return Math.min(jittered, maxDelay);
+}
+
+const defaultDelay = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export interface IngestOptions {
   limits?: Partial<IngestionLimits>;
   logger?: PipelineLogger;
   seen?: SeenStore;
+  /**
+   * Override the sleep function used between retry attempts.
+   * Injected in tests to record delay values without actually waiting.
+   * Production code leaves this unset and gets real `setTimeout`-based delay.
+   */
+  _delayfn?: (ms: number) => Promise<void>;
 }
 
 /**
@@ -176,6 +242,7 @@ export async function ingestDocument(
   const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const log = options.logger ?? noopLogger;
   const seen = options.seen;
+  const sleep = options._delayfn ?? defaultDelay;
 
   const checksum = checksumOf(input.content);
   const byteSize = byteLength(input.content);
@@ -283,18 +350,61 @@ export async function ingestDocument(
         "document intelligence attempt failed",
       );
       if (!recoverable || attempt === limits.maxAttempts) break;
-      await delay(limits.retryBaseMs * 2 ** (attempt - 1));
+      const delayMs = computeRetryDelay(attempt, limits, error);
+      log.info(
+        { sourceId: record.sourceId, attempt, delayMs },
+        "retrying after delay",
+      );
+      await sleep(delayMs);
     }
   }
 
   record.state = "FAILED";
-  record.errors.push(
-    `document_intelligence_failed: ${
-      lastError instanceof Error ? lastError.message : String(lastError)
-    }`,
-  );
+
+  // Classify the failure so callers can distinguish between a permanent client
+  // error (e.g. HTTP 400 — no point retrying) and a transient failure that
+  // exhausted all configured attempts.  The distinction is recorded both in the
+  // human-readable error string and in the structured log payload.
+  const failureKind =
+    lastError instanceof DocumentIntelligenceError &&
+    lastError.status !== undefined &&
+    !isRecoverable(lastError)
+      ? "permanent"
+      : "transient_exhausted";
+
+  // Build a diagnostic message that preserves the HTTP status and any response
+  // body excerpt when the failure came from the Document Intelligence client.
+  let failureDetail: string;
+  if (lastError instanceof DocumentIntelligenceError) {
+    const parts = [lastError.message];
+    if (lastError.responseBody) {
+      parts.push(`response: ${lastError.responseBody}`);
+    }
+    failureDetail = parts.join(" | ");
+  } else {
+    failureDetail =
+      lastError instanceof Error ? lastError.message : String(lastError);
+  }
+  record.errors.push(`document_intelligence_failed (${failureKind}): ${failureDetail}`);
+
   log.error(
-    { sourceId: record.sourceId, attempts: record.attempts },
+    {
+      sourceId: record.sourceId,
+      attempts: record.attempts,
+      failureKind,
+      status:
+        lastError instanceof DocumentIntelligenceError
+          ? lastError.status
+          : undefined,
+      // Include the original error name and message so structured log sinks
+      // (e.g. pino + transport) can surface the root cause without parsing the
+      // string above.  We do not log the full stack because it would expose
+      // file system paths and could be noisy in production.
+      cause:
+        lastError instanceof Error
+          ? { name: lastError.name, message: lastError.message }
+          : undefined,
+    },
     "document intelligence failed after retries",
   );
   return record;
