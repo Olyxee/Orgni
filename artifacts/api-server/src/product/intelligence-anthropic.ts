@@ -41,9 +41,21 @@ export function createAnthropicProvider(): IntelligenceProvider {
       const { request, intent, organisationName, evidence } = ctx;
       const assessment = assessEvidence(evidence ?? null);
 
-      // When there is nothing to work with, skip the model call entirely and
-      // return a grounded no-knowledge response immediately.
-      if (assessment.kind === "none" || assessment.kind === "insufficient") {
+      // For evidence-dependent capabilities (answering questions, finding
+      // documents), skip the model call when there is nothing useful to work
+      // with — return a grounded no-knowledge response immediately.
+      // For action-oriented capabilities (schedule, draft, send, prepare),
+      // proceed to the model even without document evidence: those tasks do
+      // not require document retrieval to produce a useful reply.
+      const evidenceDependentCapabilities = new Set([
+        "answer_questions",
+        "find_documents",
+        "financial_actions",
+      ]);
+      if (
+        evidenceDependentCapabilities.has(intent.capability) &&
+        (assessment.kind === "none" || assessment.kind === "insufficient")
+      ) {
         return noKnowledgeReply(intent.capability);
       }
 

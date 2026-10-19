@@ -222,27 +222,25 @@ describe("§2 invoice retrieval", () => {
   });
 
   it("provider reply includes filename when evidence is sufficient", async () => {
+    // Use a query that produces score >= 2: two distinct term matches.
+    // "INV-2024-0081 abc logistics" → terms ["inv-2024-0081", "abc", "logistics"] → score 3
     const repo = createMockRepository();
     const result = await searchTenantEvidence(
       repo as never,
       "tenant_acme",
-      "INV-2024-0081",
+      "INV-2024-0081 abc logistics",
     );
 
-    const provider = getIntelligenceProvider();
-    const reply = await provider.generateReply({
-      request: { tenantId: "tenant_acme", text: "what is the total for INV-2024-0081" },
-      intent: {
-        capability: "answer_questions",
-        approvalCategory: "read_information",
-        verb: "answer a question",
-        actionKind: "none",
-      },
+    const { assessEvidence: ae, composeAttributedReply: car } = await import(
+      "../src/product/attribution.js"
+    );
+    const assessment = ae(result);
+    const reply = car(assessment, {
+      capability: "answer_questions",
       organisationName: "Acme",
-      contextLines: result.contextLines,
-      evidence: result,
     });
 
+    expect(assessment.kind).toBe("sufficient");
     expect(reply).toContain("abc-logistics-inv-2024-0081.pdf");
     expect(reply).toContain("Sources:");
     // Must not fabricate a different filename

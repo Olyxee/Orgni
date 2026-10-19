@@ -474,3 +474,202 @@ describe("engine — response compatibility", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 5 regressions: relevance floor, insufficient path, contradiction fix,
+// Anthropic capability routing
+// ---------------------------------------------------------------------------
+
+describe("assessEvidence — relevance floor (MIN_ATTRIBUTION_SCORE = 2)", () => {
+  it("returns insufficient when all matches score exactly 1 (single common word)", () => {
+    // score 1 = one generic term matched — below the floor of 2
+    const ev = makeEvidence({
+      matches: [makeMatch("src_1", 1, { eventType: "INVOICE_ISSUED", subjectId: "X" })],
+      contextLines: ["[doc.pdf] INVOICE_ISSUED: X"],
+      sourcesUsed: [{ sourceId: "src_1", filename: "doc.pdf" }],
+    });
+    expect(assessEvidence(ev).kind).toBe("insufficient");
+  });
+
+  it("returns sufficient when top match scores 2 (two term matches)", () => {
+    const ev = makeEvidence({
+      matches: [makeMatch("src_1", 2, { eventType: "INVOICE_ISSUED", subjectId: "Acme" })],
+      contextLines: ["[invoice.pdf] detail"],
+      sourcesUsed: [{ sourceId: "src_1", filename: "invoice.pdf" }],
+    });
+    expect(assessEvidence(ev).kind).toBe("sufficient");
+  });
+
+  it("returns sufficient when top match is a business-identifier hit (score 10)", () => {
+    const ev = makeEvidence({
+      matches: [makeMatch("src_1", 10, { eventType: "INVOICE_TOTAL", subjectId: "CI-2026-01052" })],
+      contextLines: ["[invoice.pdf] CI-2026-01052"],
+      sourcesUsed: [{ sourceId: "src_1", filename: "invoice.pdf" }],
+    });
+    expect(assessEvidence(ev).kind).toBe("sufficient");
+  });
+
+  it("insufficient is now reachable: single-word 'status' match produces score 1, below floor", () => {
+    // This is the exact case the reviewer raised: querying "status" alone must
+    // not produce cited evidence.
+    const ev = makeEvidence({
+      matches: [makeMatch("src_1", 1, { tokenKind: "STATE", subjectId: "status" })],
+      contextLines: ["[doc.pdf] STATE: status"],
+      sourcesUsed: [{ sourceId: "src_1", filename: "doc.pdf" }],
+    });
+    const result = assessEvidence(ev);
+    expect(result.kind).toBe("insufficient");
+    // composeAttributedReply must not cite any source
+    const reply = composeAttributedReply(result, { capability: "answer_questions", organisationName: "Acme" });
+    expect(reply).not.toContain("Sources:");
+    expect(reply).not.toContain("doc.pdf");
+  });
+});
+
+describe("assessEvidence — contradiction detection with single-source evidence", () => {
+  it("does NOT flag contradiction when all qualifying matches are from the same source", () => {
+    // Same source, two tokens with the same (eventType, subjectId) but
+    // different scalarValue — could happen with multi-page extraction; must not
+    // be labelled contradictory.
+    const ev = makeEvidence({
+      matches: [
+        makeMatch("src_1", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 1000 }),
+        makeMatch("src_1", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 1200 }),
+      ],
+      contextLines: ["[a.pdf] 1000", "[a.pdf] 1200"],
+      sourcesUsed: [{ sourceId: "src_1", filename: "a.pdf" }],
+    });
+    // Single distinct source — must be sufficient, not contradictory
+    expect(assessEvidence(ev).kind).toBe("sufficient");
+  });
+
+  it("flags contradiction only when two DISTINCT sources disagree", () => {
+    const ev = makeEvidence({
+      matches: [
+        makeMatch("src_1", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 1000 }),
+        makeMatch("src_2", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 9999 }),
+      ],
+      contextLines: ["[a.pdf] 1000", "[b.pdf] 9999"],
+      sourcesUsed: [
+        { sourceId: "src_1", filename: "a.pdf" },
+        { sourceId: "src_2", filename: "b.pdf" },
+      ],
+    });
+    expect(assessEvidence(ev).kind).toBe("contradictory");
+  });
+
+  it("does NOT flag contradiction when two sources agree on the same fact", () => {
+    const ev = makeEvidence({
+      matches: [
+        makeMatch("src_1", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 1000 }),
+        makeMatch("src_2", 5, { eventType: "INVOICE_TOTAL", subjectId: "CI-001", scalarValue: 1000 }),
+      ],
+      contextLines: ["[a.pdf] 1000", "[b.pdf] 1000"],
+      sourcesUsed: [
+        { sourceId: "src_1", filename: "a.pdf" },
+        { sourceId: "src_2", filename: "b.pdf" },
+      ],
+    });
+    expect(assessEvidence(ev).kind).toBe("sufficient");
+  });
+});
+
+describe("Anthropic provider — capability routing for non-document requests", () => {
+  // These tests check the TemplateIntelligenceProvider directly to avoid
+  // depending on the global provider state (which may have been swapped by
+  // earlier tests using setIntelligenceProvider).
+  async function templateReply(
+    capability: string,
+    verb: string,
+    approvalCategory: string,
+    text: string,
+  ): Promise<string> {
+    // Re-import to get a fresh template provider instance.
+    const { assessEvidence: ae, composeAttributedReply: car } = await import(
+      "../src/product/attribution.js"
+    );
+    // The template provider logic is: for action-oriented capabilities,
+    // return confirmatory text + appendEvidence(""). For question-answering
+    // capabilities, return composeAttributedReply(assessment).
+    // We validate this through processRequest (which always uses the current
+    // global provider) — but first restore it to template.
+    const { getIntelligenceProvider: getP, setIntelligenceProvider: setP } =
+      await import("../src/product/engine.js");
+    setP({
+      name: "template",
+      async generateReply(ctx: Parameters<typeof getP extends () => { generateReply: infer F } ? F : never>[0]) {
+        return car(ae(ctx.evidence ?? null), {
+          capability: ctx.intent.capability,
+          organisationName: ctx.organisationName,
+        });
+      },
+    } as never);
+    return getP().generateReply({
+      request: { tenantId: "t1", text },
+      intent: { capability, approvalCategory: approvalCategory as never, verb, actionKind: "none" as const },
+      organisationName: "Acme",
+      contextLines: [],
+      evidence: null,
+    });
+  }
+
+  it("prepare_work with no evidence does NOT return a document no-knowledge reply", async () => {
+    const provider = getIntelligenceProvider();
+    // Reset to a fresh template instance to avoid stale spy state
+    const { TemplateProvider } = { TemplateProvider: null }; // can't access private class
+    // Instead test via the template provider's actual output path:
+    // prepare_work → "I've pulled together..." regardless of evidence
+    const reply = await provider.generateReply({
+      request: { tenantId: "t1", text: "prepare everything for tomorrow's board meeting" },
+      intent: {
+        capability: "prepare_work",
+        approvalCategory: "prepare_documents" as never,
+        verb: "prepare a brief",
+        actionKind: "none" as const,
+      },
+      organisationName: "Acme",
+      contextLines: [],
+      evidence: makeEvidence(), // empty — score 0 tokens
+    });
+    // Template provider for prepare_work returns "I've pulled together..."
+    // even with no evidence (it just omits the evidence appendix).
+    // Must NOT say "couldn't find a document" for a preparation request.
+    expect(reply.toLowerCase()).not.toMatch(/couldn.t find a document/);
+  });
+
+  it("schedule_meetings with no evidence gives a booking reply, not a document error", async () => {
+    const provider = getIntelligenceProvider();
+    const reply = await provider.generateReply({
+      request: { tenantId: "t1", text: "schedule a review with the team" },
+      intent: {
+        capability: "schedule_meetings",
+        approvalCategory: "schedule_meetings" as never,
+        verb: "schedule a meeting",
+        actionKind: "none" as const,
+      },
+      organisationName: "Acme",
+      contextLines: [],
+      evidence: makeEvidence(), // empty
+    });
+    expect(reply.toLowerCase()).not.toMatch(/couldn.t find a document/);
+  });
+
+  it("answer_questions with no evidence still returns no-knowledge (evidence-dependent)", async () => {
+    const provider = getIntelligenceProvider();
+    const reply = await provider.generateReply({
+      request: { tenantId: "t1", text: "what is the total on invoice CI-2026-01052?" },
+      intent: {
+        capability: "answer_questions",
+        approvalCategory: "read_information" as never,
+        verb: "answer a question",
+        actionKind: "none" as const,
+      },
+      organisationName: "Acme",
+      contextLines: [],
+      evidence: makeEvidence(), // empty
+    });
+    // Must return no-knowledge for unanswerable question
+    expect(reply.toLowerCase()).toMatch(/couldn.t find|don.t have|not found/);
+    expect(reply).not.toContain("Sources:");
+  });
+});

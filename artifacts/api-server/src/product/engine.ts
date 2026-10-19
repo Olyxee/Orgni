@@ -70,7 +70,11 @@ const INTENT_RULES: { match: RegExp; intent: Intent }[] = [
     intent: { capability: "update_systems", approvalCategory: "change_records", verb: "update a business record", actionKind: "record_update" },
   },
   {
-    match: /\b(pay|invoice|refund|transfer|payment|reconcile)\b/i,
+    // Only match when the user is requesting a financial *action* (pay, process,
+    // approve, raise, issue, reconcile).  Questions about invoice values such as
+    // "What is the total on invoice CI-2026-01052?" must fall through to
+    // answer_questions so evidence retrieval runs first.
+    match: /\b(pay|process payment|approve payment|raise invoice|issue invoice|refund|wire transfer|reconcile)\b/i,
     intent: { capability: "financial_actions", approvalCategory: "financial_actions", verb: "perform a financial action", actionKind: "financial" },
   },
   {

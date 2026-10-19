@@ -1,8 +1,8 @@
 # Evidence Retrieval — Implementation Guide
 
-This document covers the evidence retrieval layer added in Steps 1–5. It explains
+This document describes the evidence retrieval layer added to Orgni. It covers
 the retrieval flow, tenant isolation, relevance ranking, source attribution,
-no-knowledge behaviour, required configuration, and how to run the tests.
+no-knowledge behaviour, required configuration, and how to run the relevant tests.
 
 ---
 
@@ -12,53 +12,65 @@ no-knowledge behaviour, required configuration, and how to run the tests.
 User question
      │
      ▼
-engine.ts  ─── gatherContext(tenantId, question)
-                        │
-                        ├── repository.loadTenantModel()   (workspace counts)
-                        │
-                        └── searchTenantEvidence()         (lib/evidence.ts)
-                                    │
-                                    ├── extractKeywords()  (terms + business IDs)
-                                    ├── repository.listTenantTokens(tenantId)
-                                    ├── scoreToken()       (per token)
-                                    ├── repository.listSources(tenantId)
-                                    └── formatContextLine()  (with [filename])
-                                                │
-                                                ▼
-                             EvidenceResult { matches, contextLines,
-                                             sourcesUsed, totalConsidered }
-                                                │
-                                                ▼
-                        IntelligenceContext.evidence
-                                    │
-                    ┌───────────────┴────────────────┐
-                    ▼                                ▼
-         TemplateIntelligenceProvider     AnthropicIntelligenceProvider
-         (attribution.ts helpers)        (attribution.ts helpers)
-                    │                                │
-                    └───────────────┬────────────────┘
-                                    ▼
-                               reply (string)
+engine.ts — detectIntent(text)
+     │          ├─ answer_questions  ──────────────────────────────────┐
+     │          ├─ find_documents    ──────────────────────────────────┤ evidence-dependent
+     │          ├─ financial_actions (action verbs only) ─────────────┤
+     │          └─ prepare_work / schedule_meetings / ... (non-doc)    │
+     │                                                                 │
+     └─► gatherContext(tenantId, question)                             │
+              │                                                        │
+              ├── repository.loadTenantModel()  (workspace counts)    │
+              │                                                        │
+              └── searchTenantEvidence()   ◄── sole retrieval impl    │
+                       (artifacts/api-server/src/lib/evidence.ts)     │
+                              │                                        │
+                              ├── extractKeywords(question)           │
+                              ├── repository.listTenantTokens(tid)    │
+                              ├── scoreToken() per token              │
+                              ├── repository.listSources(tid)         │
+                              └── formatContextLine() → [filename]    │
+                                          │                           │
+                                          ▼                           │
+                             EvidenceResult { matches,  ◄────────────┘
+                                contextLines, sourcesUsed,
+                                totalConsidered }
+                                          │
+                              IntelligenceContext.evidence
+                                          │
+                    ┌─────────────────────┴──────────────────────┐
+                    ▼                                             ▼
+       TemplateIntelligenceProvider              AnthropicIntelligenceProvider
+       (attribution.ts helpers)                 (attribution.ts helpers)
 ```
 
 ---
 
-## How facts and tokens are used
+## Retrieval implementation
 
-Every processed source document produces **organizational tokens** stored in the
-`tokens` table. Each token is a JSON payload (`OrganizationalToken`) carrying:
+**Single authoritative file**: `artifacts/api-server/src/lib/evidence.ts`
 
-- `tokenKind` — EVENT, ENTITY, RELATION, STATE, POLICY, QUERY, or ACTION
-- `eventType`, `subjectId`, `objectId`, `predicate` — structural identity fields
-- `scalarValue` — the richest business content (invoice numbers, amounts, parties)
-- `sourceRefs[].excerpt` — a short text excerpt from the originating document
+`searchTenantEvidence(repository, tenantId, question, limits?)` is the only
+retrieval entry point. It is called by `gatherContext` in `engine.ts` and by the
+PostgreSQL integration tests in `lib/db/tests/evidence-retrieval.test.ts`.
+
+The `lib/evidence/` package and `findEvidence()` on the repository were removed
+— they were never used by the engine.
+
+---
+
+## How tokens are used
+
+Every processed source document produces **organizational tokens** in the
+`tokens` table. Each token carries:
+
+- `tokenKind` — EVENT, ENTITY, RELATION, STATE, POLICY, QUERY, ACTION
+- `eventType`, `subjectId`, `objectId` — structural identity fields
+- `scalarValue` — business content (invoice numbers, amounts, parties)
+- `sourceRefs[].excerpt` — short text excerpts from the source document
 - `confidence` — extraction confidence (0–1)
 
-The `facts` table stores the full `OntologyResult` payload per source (entities,
-relationships, conflicts, warnings). Facts are used by the organisational model
-views (`/api/model`). The retrieval layer uses **tokens**, not facts, because
-tokens carry normalised scalar values and source excerpts that match keyword queries
-directly without requiring ontology traversal.
+`searchTenantEvidence` searches these fields; it does not use the `facts` table.
 
 ---
 
@@ -67,153 +79,131 @@ directly without requiring ontology traversal.
 Every retrieval call is scoped with an explicit `tenantId`:
 
 ```typescript
-// engine.ts — tenantId comes from the authenticated session principal
 const evidenceResult = await searchTenantEvidence(
   modelStore.repository,
-  tenantId,        // <── from req.tenantId (set by authenticate middleware)
+  tenantId,   // always from req.principal.tenantId — never user-supplied
   question,
 );
 ```
 
-`searchTenantEvidence` calls `repository.listTenantTokens(tenantId)`, which
-executes `SELECT … WHERE tenant_id = ?`. The repository never accepts a
-caller-supplied tenant ID that has not been verified by the authentication
-middleware. Cross-tenant leakage is structurally impossible at the query level.
+`listTenantTokens(tenantId)` executes `SELECT … WHERE tenant_id = ?`.
+`listSources(tenantId)` does the same. Cross-tenant leakage is structurally
+impossible at the SQL level.
+
+---
+
+## Intent routing
+
+Invoice-lookup questions must not be mis-routed to `financial_actions`. The
+`financial_actions` intent rule matches only explicit action verbs:
+
+```
+/\b(pay|process payment|approve payment|raise invoice|issue invoice|
+    refund|wire transfer|reconcile)\b/i
+```
+
+Questions like "What is the total on invoice CI-2026-01052?" fall through to
+`answer_questions`, which is evidence-dependent and triggers retrieval.
 
 ---
 
 ## Keyword extraction
 
-`extractKeywords(question)` (in `lib/evidence.ts`) returns two buckets:
+`extractKeywords(question)` returns two buckets:
 
 | Bucket | How matched | Score weight |
 |--------|-------------|-------------|
-| **identifiers** | Business ID patterns: `CI-`, `SI-`, `PO-`, `INV-`, `EMP-`, etc. | **10 per hit** |
-| **terms** | Lowercased, de-duplicated words not in the English stop-word list | **1 per hit** |
+| **identifiers** | Structured patterns: `CI-`, `SI-`, `PO-`, `EMP-`, etc. | **10 per hit** |
+| **terms** | Lowercased, de-duplicated words not in the stop-word list | **1 per hit** |
 
-Business identifiers are extracted before normalisation so that `INV-2024-0081`
-is never split into `inv`, `2024`, `0081`.
+Business identifiers are extracted before normalisation so `CI-2026-01052` is
+never split into fragments.
 
 ---
 
-## Relevance ranking
+## Relevance ranking and relevance floor
 
-Each token is scored by `scoreToken(searchText, keywords)`:
+`scoreToken(searchText, keywords)` sums identifier hits (×10) + term hits (×1).
+Tokens with score 0 are excluded. Survivors are sorted by `score DESC,
+confidence DESC`.
 
-1. All identifier hits (×10) + all term hits (×1) are summed.
-2. Tokens with score 0 are excluded.
-3. Surviving tokens are sorted by `score DESC, confidence DESC`.
-4. The top `maxResults` tokens are taken forward.
+**Minimum attribution score: 2.** A single generic word match (score 1 — e.g.
+"status", "invoice" alone) is below the floor and produces an `insufficient`
+assessment, not a citation. This makes the `insufficient` outcome reachable and
+prevents single-word queries from generating unsupported citations.
 
 ---
 
 ## Retrieval limits
 
-| Limit | Default | Config key |
-|-------|---------|------------|
-| Maximum result records | 10 | `EvidenceRetrievalLimits.maxResults` |
-| Maximum total characters across all context lines | 3 000 | `EvidenceRetrievalLimits.maxTotalChars` |
-| Maximum characters per single context line | 300 | `EvidenceRetrievalLimits.maxLineChars` |
+| Limit | Default | Override |
+|-------|---------|----------|
+| Max result records | 10 | `maxResults` in `EvidenceRetrievalLimits` |
+| Max total context chars | 3 000 | `maxTotalChars` |
+| Max chars per context line | 300 | `maxLineChars` |
 
-Override per-call:
-
-```typescript
-await searchTenantEvidence(repo, tenantId, question, {
-  maxResults: 5,
-  maxTotalChars: 1500,
-});
-```
+Pass `limits` as the fourth argument to `searchTenantEvidence` to override.
 
 ---
 
 ## Source attribution
 
-After ranking, the retrieval layer:
+After ranking:
 
-1. Collects the unique `sourceId`s from the top matches.
-2. Calls `repository.listSources(tenantId)` (also tenant-scoped) to resolve
-   filenames.
-3. Formats each match as `[filename] <detail> (confidence%)` via
-   `formatContextLine()`.
-4. De-duplicates sources into `EvidenceResult.sourcesUsed`:
-   `Array<{ sourceId, filename }>`.
+1. Unique `sourceId`s are collected from the top matches.
+2. `listSources(tenantId)` (tenant-scoped) resolves filenames.
+3. Each match is formatted as `[filename] <detail> (confidence%)`.
+4. `sourcesUsed` is de-duplicated: `Array<{ sourceId, filename }>`.
 
-The `attribution.ts` module (in `artifacts/api-server/src/product/`) then
-classifies the result:
+`attribution.ts` classifies the result:
 
 | Assessment | Condition |
 |---|---|
-| `sufficient` | ≥1 match with score ≥ 1 and no contradictions |
-| `contradictory` | Same `(eventType, subjectId)` appears in 2+ sources with different scalar values |
-| `insufficient` | Matches exist but all score below the threshold |
+| `sufficient` | ≥ 1 match with score ≥ 2; no cross-source contradiction |
+| `contradictory` | Two **distinct** sources disagree on the same `(eventType, subjectId)` |
+| `insufficient` | Matches exist but all score < 2 |
 | `none` | No matches at all |
 
-`composeAttributedReply` formats the final reply:
-
-- **sufficient** — evidence lines + `Sources:` block with real filenames
-- **contradictory** — evidence lines + sources + explicit conflict warning
-- **insufficient** — "found related documents but they don't contain a clear answer"
-- **none** — capability-appropriate no-knowledge reply (no filenames invented)
-
-`buildSourceBlock` filters out the `"unknown"` placeholder — a source that could
-not be resolved is never cited.
+`composeAttributedReply` formats the final reply. `buildSourceBlock` filters out
+the `"unknown"` placeholder — no invented filenames are ever cited.
 
 ---
 
 ## No-knowledge behaviour
 
-When retrieval finds nothing, or when the database is unavailable:
+When retrieval finds nothing or evidence is insufficient:
 
-- `searchTenantEvidence` **never throws** — DB errors are caught and return an
-  empty `EvidenceResult`.
-- `assessEvidence(null)` returns `{ kind: "none" }`.
-- `noKnowledgeReply(capability)` returns a capability-appropriate message that
-  contains no filenames, document IDs, or numeric values.
-- The Anthropic provider **skips the model call entirely** for `none` or
-  `insufficient` assessments and returns the no-knowledge reply directly.
-- The template provider delegates `answer_questions` and `find_documents` entirely
-  to `composeAttributedReply`, so it never fabricates an answer.
+- `searchTenantEvidence` **never throws** — DB errors return an empty
+  `EvidenceResult`.
+- `assessEvidence(null)` → `{ kind: "none" }`.
+- `noKnowledgeReply(capability)` returns a capability-appropriate message with
+  no filenames, IDs, or numeric values.
+- The **Anthropic provider** skips the model call for `none`/`insufficient`
+  evidence **only** for evidence-dependent capabilities (`answer_questions`,
+  `find_documents`, `financial_actions`). Action-oriented capabilities
+  (`prepare_work`, `schedule_meetings`, `draft_emails`, `send_emails`) proceed
+  to the model regardless — they do not require document evidence.
 
 ---
 
-## Provider integration
+## Contradiction detection
 
-Both providers receive evidence through `IntelligenceContext.evidence`:
-
-```typescript
-export interface IntelligenceContext {
-  request: EngineRequest;
-  intent: Intent;
-  organisationName: string;
-  contextLines: string[];
-  evidence?: EvidenceResult | null;
-}
-```
-
-**Template provider** — `assessEvidence` + `composeAttributedReply` for
-`answer_questions` and `find_documents`; appends evidence only when `sufficient`
-for action-oriented capabilities.
-
-**Anthropic provider** — passes evidence lines and source attribution into the
-LLM user message. When assessment is `contradictory`, a `WARNING:` note is
-appended. System prompt explicitly instructs the model to report what documents
-say, flag contradictions, and never invent values not present in evidence.
+`assessEvidence` checks for the same `(eventType, subjectId)` key appearing in
+**two or more distinct sources** with different scalar values. A single source
+containing multiple tokens with the same key is not flagged — that is an
+expected product of multi-page extraction from one document.
 
 ---
 
 ## Configuration
 
-### Required environment variables
-
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | For evidence retrieval | PostgreSQL connection string. Without it, `gatherContext` returns null evidence and all questions get a no-knowledge reply. |
-| `ANTHROPIC_API_KEY` | Only for Anthropic provider | When set, the Anthropic provider is activated at boot (`index.ts`). Without it, the template provider is used. |
-| `ORGNI_MODEL` | No | Override the Anthropic model. Defaults to `claude-opus-5`. |
+| `DATABASE_URL` | For retrieval | PostgreSQL. Without it, `gatherContext` returns null evidence and all questions get a no-knowledge reply. |
+| `ANTHROPIC_API_KEY` | Optional | Activates the Anthropic provider at boot. Without it the template provider is used. |
+| `ORGNI_MODEL` | Optional | Override the Anthropic model (default `claude-opus-5`). |
 
-### Database setup
-
-Run migrations before starting the API server:
+Migrate the schema before starting:
 
 ```sh
 pnpm --filter @workspace/db run migrate
@@ -227,91 +217,81 @@ pnpm --filter @workspace/db run migrate
 
 ```sh
 # Evidence retrieval service
-pnpm exec vitest run lib/evidence/tests/index.test.ts
-
-# Attribution helpers
 pnpm exec vitest run artifacts/api-server/tests/attribution.test.ts
-
-# Engine + approval gate regression
+# Engine routing + evidence integration
 pnpm exec vitest run artifacts/api-server/tests/product-engine.test.ts
-
-# Step 5 acceptance criteria (invoice retrieval, no-knowledge, tenant isolation)
+# Step 5 acceptance criteria
 pnpm exec vitest run artifacts/api-server/tests/step5-verification.test.ts
+# Worker ingestion + retry
+pnpm exec vitest run lib/worker/tests/ingestion.test.ts
 ```
 
 Run all at once:
 
 ```sh
 pnpm exec vitest run \
-  lib/evidence/tests/index.test.ts \
   artifacts/api-server/tests/attribution.test.ts \
   artifacts/api-server/tests/product-engine.test.ts \
-  artifacts/api-server/tests/step5-verification.test.ts
+  artifacts/api-server/tests/step5-verification.test.ts \
+  lib/worker/tests/ingestion.test.ts
 ```
 
-Expected: **78 passed, 0 failed**.
+**Expected**: 75 + 64 = 139 passed, 0 failed (no DATABASE_URL).
 
 ### PostgreSQL integration tests
 
-These require a running Postgres instance with the schema migrated:
-
 ```sh
-DATABASE_URL=postgres://... pnpm exec vitest run lib/db/tests/repository.test.ts
+DATABASE_URL=postgres://... pnpm --filter @workspace/db run migrate
+DATABASE_URL=postgres://... pnpm exec vitest run \
+  lib/db/tests/evidence-retrieval.test.ts \
+  lib/db/tests/repository.test.ts
 ```
 
-Expected: **15 passed** (they use `skipIf(!DATABASE_URL)` and skip cleanly
-without a database).
-
-### Full api-server regression suite
-
-```sh
-pnpm exec vitest run artifacts/api-server/tests/
-```
+**Expected without DATABASE_URL**: 14 skipped, 0 failed.
+**Expected with DATABASE_URL**: 14 passed, 0 skipped.
 
 ---
 
 ## Document-processing service dependencies
 
-Evidence retrieval depends on documents having been **processed by the worker
-pipeline** before questions are asked. The pipeline:
+Evidence retrieval depends on documents having been fully processed by the
+worker pipeline before questions are asked:
 
-1. Receives an uploaded document via the `/api/documents` route (api-server).
-2. Publishes a job for the worker (`lib/worker`).
-3. The worker calls the **Document Intelligence service** (`intelligence/document-intelligence/main.py`), a Python service that extracts tokens and facts from the document.
-4. The worker persists the resulting tokens and facts to Postgres via `repository.persistDocument()`.
+1. Document uploaded via `POST /api/documents` (api-server).
+2. Worker calls the Document Intelligence service (Python FastAPI,
+   `intelligence/document-intelligence/`), which extracts tokens and facts.
+3. Worker persists via `repository.persistDocument()`.
 
-Until a document has been fully processed (state = `COMPLETED`), its tokens are
-not present in the `tokens` table and will not appear in evidence retrieval.
-
-### Operational prerequisites
+Until a document has state `COMPLETED`, its tokens are absent from the `tokens`
+table and will not appear in retrieval results.
 
 | Prerequisite | Notes |
 |---|---|
-| PostgreSQL | Schema migrated (`pnpm --filter @workspace/db run migrate`). Tables: `sources`, `tokens`, `facts`, `reviews`. |
-| Worker process | Must be running to process uploaded documents. Without it, uploads land in `RECEIVED` state and are never tokenised. |
-| Document Intelligence service | Python FastAPI service (`intelligence/document-intelligence/main.py`). Called by the worker. Required for token extraction. |
-| File storage | Uploaded documents must be reachable by the worker for extraction. |
+| PostgreSQL | Schema migrated. Tables: `sources`, `tokens`, `facts`, `reviews`. |
+| Worker process | Must run to process uploaded documents. |
+| Document Intelligence service | Python FastAPI — required for token extraction. |
 
-The retrieval layer itself requires only **Postgres** at query time. The worker
-and Document Intelligence service are only required when new documents are being
-ingested. Existing tokens in the database can be queried without those services
-running.
+The retrieval layer itself only requires PostgreSQL at query time.
 
 ---
 
-## Files added in Steps 1–5
+## Files added or modified
 
-| File | Purpose |
+| File | Change |
 |---|---|
-| `lib/db/src/repository.ts` | Added `findEvidence()`, `EvidenceMatch`, `EvidenceRetrievalOptions`, `EvidenceRetrievalResult` |
-| `lib/evidence/src/index.ts` | `retrieveEvidence()`, `retrieveEvidenceByType()`, `extractKeywords()`, `normalizeText()` |
-| `lib/evidence/package.json` | New `@workspace/evidence` package |
-| `lib/evidence/tests/index.test.ts` | 18 unit tests |
-| `artifacts/api-server/src/lib/evidence.ts` | `searchTenantEvidence()`, `extractKeywords()`, `scoreToken()`, `formatContextLine()` |
-| `artifacts/api-server/src/product/attribution.ts` | `assessEvidence()`, `composeAttributedReply()`, `buildSourceBlock()`, `noKnowledgeReply()` |
-| `artifacts/api-server/src/product/engine.ts` | Updated `gatherContext()`, `IntelligenceContext.evidence`, `TemplateIntelligenceProvider` |
-| `artifacts/api-server/src/product/intelligence-anthropic.ts` | Updated to use attribution helpers; skips model for no-evidence cases |
-| `artifacts/api-server/tests/attribution.test.ts` | 26 unit tests |
-| `artifacts/api-server/tests/product-engine.test.ts` | +6 evidence integration tests |
-| `artifacts/api-server/tests/step5-verification.test.ts` | 24 acceptance tests (§2–§5) |
-| `lib/db/tests/repository.test.ts` | +6 PostgreSQL integration tests for `findEvidence` and tenant isolation |
+| `artifacts/api-server/src/lib/evidence.ts` | Authoritative retrieval: `searchTenantEvidence`, `extractKeywords`, scoring, context formatting |
+| `artifacts/api-server/src/product/attribution.ts` | `assessEvidence` (floor=2, single-source contradiction guard), `composeAttributedReply`, `buildSourceBlock`, `noKnowledgeReply` |
+| `artifacts/api-server/src/product/engine.ts` | `gatherContext` calls retrieval; `IntelligenceContext.evidence`; narrowed `financial_actions` intent rule |
+| `artifacts/api-server/src/product/intelligence-anthropic.ts` | No-knowledge short-circuit scoped to evidence-dependent capabilities only |
+| `artifacts/api-server/tests/attribution.test.ts` | 36 unit tests (26 original + 10 Phase 5 regressions) |
+| `artifacts/api-server/tests/product-engine.test.ts` | +5 intent routing tests |
+| `artifacts/api-server/tests/step5-verification.test.ts` | 24 acceptance tests |
+| `lib/db/src/repository.ts` | Removed `findEvidence()` and unused exported types |
+| `lib/db/tests/repository.test.ts` | Removed obsolete `findEvidence` describe block |
+| `lib/db/tests/evidence-retrieval.test.ts` | 7 PostgreSQL integration tests (skip cleanly without DATABASE_URL) |
+| `lib/worker/src/document-intelligence/client.ts` | `DocumentIntelligenceError` with structured fields |
+| `lib/worker/src/ingestion/pipeline.ts` | `isRecoverable` uses typed fields; `computeRetryDelay` with jitter + Retry-After cap |
+| `lib/worker/tests/ingestion.test.ts` | 64 tests covering retry classification and backoff |
+| `lib/evidence/` | **Deleted** — unused duplicate implementation |
+| `RETRIEVAL.md` | This file |
+| `.gitignore` | Added `.venv/`, `__pycache__/`, `*.pyc` |

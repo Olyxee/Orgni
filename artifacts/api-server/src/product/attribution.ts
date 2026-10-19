@@ -25,10 +25,14 @@ export type EvidenceAssessment =
 
 /**
  * The minimum relevance score a token must have to be considered
- * "sufficient" for attribution. Lower-scored tokens may have matched
- * on a stop-word that slipped through; we do not cite them.
+ * "sufficient" for attribution.  A score of 1 means a single common word
+ * matched; that is too weak to cite as a source.  Requiring a score of at
+ * least 2 means the evidence must contain either a business-identifier match
+ * (score ≥ 10) or two or more distinct term matches, making the
+ * "insufficient" assessment reachable when only weak single-word matches
+ * exist.
  */
-const MIN_ATTRIBUTION_SCORE = 1;
+const MIN_ATTRIBUTION_SCORE = 2;
 
 /**
  * Assess the evidence result and classify it for the provider.
@@ -52,28 +56,33 @@ export function assessEvidence(evidence: EvidenceResult | null | undefined): Evi
 
   // Contradiction check: same (eventType, subjectId) appearing in more than
   // one distinct source with different scalar values.
+  // Only run when there are multiple distinct sources — a single source cannot
+  // contradict itself for contradiction-detection purposes.
+  const distinctSources = new Set(qualifying.map((m) => m.sourceId));
   const valueMap = new Map<string, { value: unknown; sourceId: string }>();
   let contradictionDetected = false;
 
-  for (const m of qualifying) {
-    const tok = m.token as Record<string, unknown>;
-    const eventType = typeof tok["eventType"] === "string" ? tok["eventType"] : null;
-    const subjectId = typeof tok["subjectId"] === "string" ? tok["subjectId"] : null;
-    if (!eventType || !subjectId) continue;
+  if (distinctSources.size > 1) {
+    for (const m of qualifying) {
+      const tok = m.token as Record<string, unknown>;
+      const eventType = typeof tok["eventType"] === "string" ? tok["eventType"] : null;
+      const subjectId = typeof tok["subjectId"] === "string" ? tok["subjectId"] : null;
+      if (!eventType || !subjectId) continue;
 
-    const key = `${eventType}::${subjectId}`;
-    const scalar = tok["scalarValue"];
-    if (scalar === undefined || scalar === null) continue;
+      const key = `${eventType}::${subjectId}`;
+      const scalar = tok["scalarValue"];
+      if (scalar === undefined || scalar === null) continue;
 
-    const existing = valueMap.get(key);
-    if (!existing) {
-      valueMap.set(key, { value: scalar, sourceId: m.sourceId });
-    } else if (
-      existing.sourceId !== m.sourceId &&
-      JSON.stringify(existing.value) !== JSON.stringify(scalar)
-    ) {
-      contradictionDetected = true;
-      break;
+      const existing = valueMap.get(key);
+      if (!existing) {
+        valueMap.set(key, { value: scalar, sourceId: m.sourceId });
+      } else if (
+        existing.sourceId !== m.sourceId &&
+        JSON.stringify(existing.value) !== JSON.stringify(scalar)
+      ) {
+        contradictionDetected = true;
+        break;
+      }
     }
   }
 

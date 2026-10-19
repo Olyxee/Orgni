@@ -197,3 +197,82 @@ describe("engine evidence integration", () => {
     expect(result.length).toBeGreaterThan(0);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 2 — intent routing: invoice-lookup questions must reach retrieval,
+// not be classified as financial actions.
+// ---------------------------------------------------------------------------
+
+describe("engine intent routing — invoice questions vs financial actions", () => {
+  it("routes 'What is the total on invoice CI-2026-01052?' to answer_questions", async () => {
+    const res = await processRequest({
+      tenantId: TENANT,
+      text: "What is the total on invoice CI-2026-01052?",
+    });
+    // answer_questions is enabled by default and has no approval gate
+    expect(res.action.capability).toBe("answer_questions");
+    expect(res.action.status).toBe("completed");
+    // Must NOT have required approval (financial_actions approval gate)
+    expect(res.needsApproval).toBe(false);
+  });
+
+  it("routes 'show me invoice CI-2026-01052' to find_documents", async () => {
+    const store = getProductStore();
+    const state = await store.getState(TENANT);
+    state.capabilities = state.capabilities.map((c) =>
+      c.key === "find_documents" ? { ...c, enabled: true } : c,
+    );
+    await store.putState(TENANT, state);
+
+    const res = await processRequest({
+      tenantId: TENANT,
+      text: "show me invoice CI-2026-01052",
+    });
+    expect(res.action.capability).toBe("find_documents");
+    expect(res.action.status).toBe("completed");
+  });
+
+  it("still routes genuine pay/financial actions to financial_actions", async () => {
+    const store = getProductStore();
+    const state = await store.getState(TENANT);
+    state.capabilities = state.capabilities.map((c) =>
+      c.key === "financial_actions" ? { ...c, enabled: true } : c,
+    );
+    await store.putState(TENANT, state);
+
+    const res = await processRequest({
+      tenantId: TENANT,
+      text: "pay invoice 4821 to the supplier",
+    });
+    expect(res.action.capability).toBe("financial_actions");
+    // financial_actions has approval level "always"
+    expect(res.needsApproval).toBe(true);
+  });
+
+  it("routes 'reconcile our accounts' to financial_actions", async () => {
+    const store = getProductStore();
+    const state = await store.getState(TENANT);
+    state.capabilities = state.capabilities.map((c) =>
+      c.key === "financial_actions" ? { ...c, enabled: true } : c,
+    );
+    await store.putState(TENANT, state);
+
+    const res = await processRequest({
+      tenantId: TENANT,
+      text: "reconcile our accounts for Q3",
+    });
+    expect(res.action.capability).toBe("financial_actions");
+  });
+
+  it("does not route plain invoice-query to financial_actions when that capability is disabled", async () => {
+    // financial_actions is disabled by default in the test store.
+    // If the routing were wrong the request would be rejected with "turned off".
+    const res = await processRequest({
+      tenantId: TENANT,
+      text: "What is the amount due on invoice CI-2026-01052?",
+    });
+    // Must NOT be rejected due to financial_actions being disabled
+    expect(res.action.status).not.toBe("rejected");
+    expect(res.action.capability).toBe("answer_questions");
+  });
+});
