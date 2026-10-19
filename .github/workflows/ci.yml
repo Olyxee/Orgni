@@ -1,0 +1,317 @@
+# =============================================================================
+# Orgni - CI Validation
+#
+# Triggers: pull_request -> main, push -> main
+# No secrets required. Postgres service container uses dummy credentials.
+#
+# Jobs:
+#   typecheck      - tsc --build (libs) + per-package typecheck
+#   test-tokenizer - @workspace/organizational-tokenizer vitest (hermetic)
+#   test-worker    - @workspace/worker vitest (hermetic; Python required)
+#   test-api       - @workspace/api-server vitest run (hermetic unit tests)
+#   test-db        - @workspace/db vitest + api-server postgres suite
+#                    (uses Postgres 17 service container)
+#
+# Stable job names so they can be set as required checks by an admin later.
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs for the same PR ref; let push-to-main always finish.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: "10"
+  NODE_VERSION: "24"
+  PYTHON_VERSION: "3.13"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # TYPE CHECK
+  # ---------------------------------------------------------------------------
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck libs (tsc --build)
+        run: pnpm run typecheck:libs
+
+      - name: Typecheck all packages
+        run: pnpm -r --if-present run typecheck
+
+  # ---------------------------------------------------------------------------
+  # TOKENIZER - hermetic, no services needed
+  # ---------------------------------------------------------------------------
+  test-tokenizer:
+    name: Test / tokenizer
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Test - organizational-tokenizer
+        run: pnpm --filter @workspace/organizational-tokenizer run test
+
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "### Test suite: organizational-tokenizer" >> "$GITHUB_STEP_SUMMARY"
+          echo "Suite completed - check step output above for counts." >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # WORKER - hermetic + e2e (Python Document Intelligence invoked via spawnSync)
+  # Python 3.13 matches .replit (python-base-3.13). No pip packages needed.
+  # ---------------------------------------------------------------------------
+  test-worker:
+    name: Test / worker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Test - worker (unit + e2e with real Python DI)
+        run: pnpm --filter @workspace/worker run test
+
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "### Test suite: worker" >> "$GITHUB_STEP_SUMMARY"
+          echo "Suite completed - check step output above for counts." >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # API - hermetic unit tests (DATABASE_URL intentionally absent)
+  # ---------------------------------------------------------------------------
+  test-api:
+    name: Test / api-server (hermetic)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Test - api-server hermetic
+        run: pnpm --filter @workspace/api-server run test
+
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "### Test suite: api-server (hermetic)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Suite completed - check step output above for counts." >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------------------
+  # DB-BACKED - @workspace/db integration + api-server postgres suite
+  # Postgres 17 service container with dummy credentials.
+  # DB name "orgni_test" contains "test" (safety guard enforces this).
+  # ---------------------------------------------------------------------------
+  test-db:
+    name: Test / database (Postgres)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci_password_dummy
+          POSTGRES_DB: orgni_test
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d orgni_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+
+    env:
+      # Both variables point at the same throwaway database.
+      # DATABASE_URL  -> consumed by @workspace/db repository.test.ts
+      # TEST_DATABASE_URL -> consumed by api-server auth-postgres.test.ts
+      DATABASE_URL: postgresql://ci_user:ci_password_dummy@localhost:5432/orgni_test
+      TEST_DATABASE_URL: postgresql://ci_user:ci_password_dummy@localhost:5432/orgni_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U ci_user; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
+      - name: DB safety guard
+        run: |
+          if [[ "$DATABASE_URL" != *"test"* ]]; then
+            echo "ERROR: DATABASE_URL does not contain 'test'. Refusing to run." >&2
+            exit 1
+          fi
+          if [[ "$DATABASE_URL" != *"localhost"* && "$DATABASE_URL" != *"127.0.0.1"* ]]; then
+            echo "ERROR: DATABASE_URL host is not localhost. Refusing to run." >&2
+            exit 1
+          fi
+          echo "DB safety guard passed."
+
+      - name: Run migrations
+        run: pnpm --filter @workspace/db run migrate
+
+      - name: Test - @workspace/db (repository integration)
+        run: pnpm --filter @workspace/db run test
+
+      - name: Test - api-server Postgres suite
+        run: pnpm --filter @workspace/api-server run test:postgres
+
+      - name: Print test summary
+        if: always()
+        run: |
+          echo "### Test suite: database (Postgres)" >> "$GITHUB_STEP_SUMMARY"
+          echo "DB: orgni_test @ localhost (contains 'test')" >> "$GITHUB_STEP_SUMMARY"
+          echo "Suite completed - check step output above for counts." >> "$GITHUB_STEP_SUMMARY"
