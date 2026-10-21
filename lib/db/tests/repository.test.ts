@@ -56,6 +56,9 @@ function source(sourceId: string, tenantId: string, checksum: string) {
 
 beforeAll(() => {
   if (!DATABASE_URL) return;
+  if (!DATABASE_URL.includes("test")) {
+    throw new Error("DATABASE_URL must contain 'test' to run tests against it.");
+  }
   handle = createDb(DATABASE_URL);
 });
 
