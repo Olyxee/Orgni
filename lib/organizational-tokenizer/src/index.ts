@@ -60,3 +60,5 @@ export type { ContractExtraction, ContractParty, ContractType } from "./envelope
 // ── Validator ─────────────────────────────────────────────────────────────────
 export { validateToken, validateTokens } from "./validators/token.validator.js";
 export type { TokenValidationResult, BatchValidationResult } from "./validators/token.validator.js";
+// TEMP: deliberate type error to verify CI fails
+const _CI_TYPE_CHECK_PROBE: number = 'this is not a number';
