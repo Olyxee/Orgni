@@ -7,6 +7,7 @@ import {
   processDocument,
   toHandoff,
   type DocumentIntelligence,
+  type IngestOptions,
 } from "@workspace/worker/pipeline";
 import { createDb } from "@workspace/db/connect";
 import { config } from "../lib/config";
@@ -33,7 +34,20 @@ const upload = multer({
 const documentIntelligence: DocumentIntelligence =
   createDocumentIntelligenceClient({
     baseUrl: config.DOCUMENT_INTELLIGENCE_URL ?? "http://127.0.0.1:8000",
+    timeoutMs: config.DOCUMENT_INTELLIGENCE_TIMEOUT_MS,
   });
+
+// Retry / backoff limits sourced from environment variables so operators can
+// tune them without a code change.  Undefined values fall back to the
+// pipeline's DEFAULT_LIMITS (maxAttempts: 3, retryBaseMs: 50 ms).
+const diLimits: IngestOptions["limits"] = {
+  ...(config.DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS !== undefined && {
+    maxAttempts: config.DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS,
+  }),
+  ...(config.DOCUMENT_INTELLIGENCE_RETRY_BASE_MS !== undefined && {
+    retryBaseMs: config.DOCUMENT_INTELLIGENCE_RETRY_BASE_MS,
+  }),
+};
 
 // Optional: when configured, tokens are mapped into reviewable facts. When not,
 // the endpoint still returns tokens (facts: null) rather than failing.
@@ -133,6 +147,7 @@ router.post(
           sourceAcl,
         },
         documentIntelligence,
+        { limits: diLimits },
       );
 
       // Identifiers and outcome only — never document content or field values.
