@@ -127,6 +127,17 @@ jobs:
   # ---------------------------------------------------------------------------
   # WORKER - hermetic + e2e (Python Document Intelligence invoked via spawnSync)
   # Python 3.13 matches .replit (python-base-3.13). No pip packages needed.
+  #
+  # Worker e2e test assessment (A2 named confirmation):
+  #   The e2e tests call the real Python DI via spawnSync with text= input,
+  #   which short-circuits OCR and uses only the local rule-based classifier
+  #   and regex extractor (stdlib: re, json, sys, pathlib). No Azure, no
+  #   Anthropic API, no network calls, no credentials of any kind required.
+  #   intelligence/document-intelligence is a stub that delegates to
+  #   .migration-backup/intelligence/document-intelligence, which IS tracked
+  #   in git and is present on the runner after checkout.
+  #   → No exclusion needed. No secrets provided. Fails loudly if Python
+  #     is absent (by design: silent skip would be worse than a red run).
   # ---------------------------------------------------------------------------
   test-worker:
     name: Test / worker
