@@ -30,6 +30,7 @@ if (!url) {
   // config.ts validates DATABASE_URL at import, so a skipped run must not boot it.
   process.env.DATABASE_URL ??= "postgresql://unused:unused@127.0.0.1:1/unused";
 }
+process.env.APP_BASE_URL ??= "http://localhost:3000";
 
 const mail: { to: string; resetUrl: string }[] = [];
 const verificationMail: { to: string; verifyUrl: string }[] = [];
@@ -46,6 +47,8 @@ vi.mock("../src/lib/email", () => ({
     return true;
   }),
 }));
+
+import { assertTestDatabaseUrl } from "@workspace/db/test-guard";
 
 const { default: router } = await import("../src/routes/auth");
 
@@ -85,7 +88,8 @@ async function clear() {
 
 describeLive("credential auth against Postgres", () => {
   beforeAll(async () => {
-    db = createDb(url!);
+    assertTestDatabaseUrl(url!);
+    db = createDb(url);
     await clear();
     const app = express();
     app.set("trust proxy", true);
