@@ -9,6 +9,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createDb, type DbHandle } from "../src/connect";
+import { assertTestDatabaseUrl } from "../src/test-guard";
 import { sources } from "../src/schema/documents";
 
 const DATABASE_URL = process.env["DATABASE_URL"];
@@ -56,9 +57,7 @@ function source(sourceId: string, tenantId: string, checksum: string) {
 
 beforeAll(() => {
   if (!DATABASE_URL) return;
-  if (!DATABASE_URL.includes("test")) {
-    throw new Error("DATABASE_URL must contain 'test' to run tests against it.");
-  }
+  assertTestDatabaseUrl(DATABASE_URL);
   handle = createDb(DATABASE_URL);
 });
 

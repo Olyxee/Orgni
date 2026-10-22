@@ -48,6 +48,8 @@ vi.mock("../src/lib/email", () => ({
   }),
 }));
 
+import { assertTestDatabaseUrl } from "@workspace/db/test-guard";
+
 const { default: router } = await import("../src/routes/auth");
 
 let server: Server;
@@ -86,9 +88,7 @@ async function clear() {
 
 describeLive("credential auth against Postgres", () => {
   beforeAll(async () => {
-    if (!url || !url.includes("test")) {
-      throw new Error("TEST_DATABASE_URL must contain 'test' to run tests against it.");
-    }
+    assertTestDatabaseUrl(url!);
     db = createDb(url);
     await clear();
     const app = express();

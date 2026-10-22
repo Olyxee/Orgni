@@ -305,14 +305,37 @@ jobs:
 
       - name: DB safety guard
         run: |
-          if [[ "$DATABASE_URL" != *"test"* ]]; then
-            echo "ERROR: DATABASE_URL does not contain 'test'. Refusing to run." >&2
+          # Parse the URL the same way the TypeScript assertTestDatabaseUrl does:
+          #   1. Database name (path component) must contain "test".
+          #   2. Hostname must be localhost, 127.0.0.1, ::1, or "postgres"
+          #      (the CI service container hostname).
+          # The URL is never printed so credentials cannot leak.
+
+          # Extract DB name: everything after the last "/" in the URL.
+          DB_NAME="${DATABASE_URL##*/}"
+          # Strip any query string / fragment.
+          DB_NAME="${DB_NAME%%\?*}"
+          DB_NAME="${DB_NAME%%#*}"
+
+          if [[ "$DB_NAME" != *"test"* ]]; then
+            echo "ERROR: database name does not contain 'test'. Refusing to run." >&2
             exit 1
           fi
-          if [[ "$DATABASE_URL" != *"localhost"* && "$DATABASE_URL" != *"127.0.0.1"* ]]; then
-            echo "ERROR: DATABASE_URL host is not localhost. Refusing to run." >&2
-            exit 1
-          fi
+
+          # Extract host: strip scheme + credentials, then strip port + path.
+          HOST_PORT="${DATABASE_URL#*@}"
+          HOST_PORT="${HOST_PORT%%/*}"
+          HOST="${HOST_PORT%%:*}"
+
+          case "$HOST" in
+            localhost|127.0.0.1|"[::1]"|"::1"|postgres)
+              ;;
+            *)
+              echo "ERROR: database host is not localhost / 127.0.0.1 / ::1 / postgres. Refusing to run." >&2
+              exit 1
+              ;;
+          esac
+
           echo "DB safety guard passed."
 
       - name: Run migrations
