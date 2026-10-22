@@ -29,10 +29,8 @@ async function withState(
     return;
   }
   const store = getProductStore();
-  const state = await store.getState(tid);
-  const next = await fn(state, tid);
-  if (next) await store.putState(tid, next);
-  res.json(await store.getState(tid));
+  const next = await store.updateState(tid, (state) => fn(state, tid));
+  res.json(next);
 }
 
 /** GET /api/product/state — the whole control-centre state for this tenant. */
@@ -354,8 +352,8 @@ router.post("/product/reset", async (req, res) => {
     return;
   }
   const store = getProductStore();
-  await store.putState(tid, emptyState());
-  res.json(await store.getState(tid));
+  const resetState = await store.updateState(tid, () => emptyState());
+  res.json(resetState);
 });
 
 export default router;

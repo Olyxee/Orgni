@@ -9,7 +9,7 @@
  * Route handlers do read-modify-write on the whole `OrgniState` for a tenant,
  * so the interface is intentionally just get/put.
  */
-import { and, eq } from "drizzle-orm";
+import { and, eq, notInArray, sql } from "drizzle-orm";
 import { createDb, type DbHandle } from "@workspace/db/connect";
 import {
   organisations,
@@ -36,6 +36,15 @@ export interface ProductStore {
   getState(tenantId: string): Promise<OrgniState>;
   /** Replace the tenant's state. */
   putState(tenantId: string, state: OrgniState): Promise<void>;
+  /**
+   * Execute an atomic read-modify-write update for a tenant.
+   * Ensures concurrent mutations for the same tenant are serialized
+   * and do not overwrite each other.
+   */
+  updateState(
+    tenantId: string,
+    fn: (state: OrgniState) => Promise<OrgniState | void> | OrgniState | void,
+  ): Promise<OrgniState>;
   /** Every tenant id that has product state — used for Teams routing lookups. */
   listTenantIds(): Promise<string[]>;
   readonly durable: boolean;
@@ -67,9 +76,13 @@ export function mergeCapabilities(stored: { key: string; enabled: boolean }[]): 
 /* In-memory                                                          */
 /* ------------------------------------------------------------------ */
 
+type DbClient = DbHandle["db"] | Parameters<Parameters<DbHandle["db"]["transaction"]>[0]>[0];
+type DbTransaction = Parameters<Parameters<DbHandle["db"]["transaction"]>[0]>[0];
+
 class InMemoryProductStore implements ProductStore {
   readonly durable = false;
   private readonly map = new Map<string, OrgniState>();
+  private readonly queues = new Map<string, Promise<unknown>>();
 
   async getState(tenantId: string): Promise<OrgniState> {
     const existing = this.map.get(tenantId);
@@ -81,6 +94,32 @@ class InMemoryProductStore implements ProductStore {
 
   async putState(tenantId: string, state: OrgniState): Promise<void> {
     this.map.set(tenantId, structuredClone(state));
+  }
+
+  async updateState(
+    tenantId: string,
+    fn: (state: OrgniState) => Promise<OrgniState | void> | OrgniState | void,
+  ): Promise<OrgniState> {
+    const currentQueue = this.queues.get(tenantId) ?? Promise.resolve();
+    let releaseQueue: () => void;
+    const taskPromise = new Promise<void>((resolve) => {
+      releaseQueue = resolve;
+    });
+    this.queues.set(
+      tenantId,
+      currentQueue.then(() => taskPromise).catch(() => taskPromise),
+    );
+
+    try {
+      await currentQueue;
+      const state = await this.getState(tenantId);
+      const next = await fn(state);
+      const toSave = next ?? state;
+      await this.putState(tenantId, toSave);
+      return await this.getState(tenantId);
+    } finally {
+      releaseQueue!();
+    }
   }
 
   async listTenantIds(): Promise<string[]> {
@@ -96,17 +135,16 @@ class DrizzleProductStore implements ProductStore {
   readonly durable = true;
   constructor(private readonly handle: DbHandle) {}
 
-  async getState(tenantId: string): Promise<OrgniState> {
-    const db = this.handle.db;
+  private async readState(client: DbClient, tenantId: string): Promise<OrgniState> {
     const [org, conns, caps, apps, perms, teams, acts, mems] = await Promise.all([
-      db.select().from(organisations).where(eq(organisations.tenantId, tenantId)).limit(1),
-      db.select().from(connectionsTable).where(eq(connectionsTable.tenantId, tenantId)),
-      db.select().from(capabilitiesTable).where(eq(capabilitiesTable.tenantId, tenantId)),
-      db.select().from(approvalsTable).where(eq(approvalsTable.tenantId, tenantId)),
-      db.select().from(permissionsTable).where(eq(permissionsTable.tenantId, tenantId)).limit(1),
-      db.select().from(teamsTable).where(eq(teamsTable.tenantId, tenantId)).limit(1),
-      db.select().from(actionsTable).where(eq(actionsTable.tenantId, tenantId)),
-      db.select().from(membersTable).where(eq(membersTable.tenantId, tenantId)),
+      client.select().from(organisations).where(eq(organisations.tenantId, tenantId)).limit(1),
+      client.select().from(connectionsTable).where(eq(connectionsTable.tenantId, tenantId)),
+      client.select().from(capabilitiesTable).where(eq(capabilitiesTable.tenantId, tenantId)),
+      client.select().from(approvalsTable).where(eq(approvalsTable.tenantId, tenantId)),
+      client.select().from(permissionsTable).where(eq(permissionsTable.tenantId, tenantId)).limit(1),
+      client.select().from(teamsTable).where(eq(teamsTable.tenantId, tenantId)).limit(1),
+      client.select().from(actionsTable).where(eq(actionsTable.tenantId, tenantId)),
+      client.select().from(membersTable).where(eq(membersTable.tenantId, tenantId)),
     ]);
 
     const base = emptyState();
@@ -189,95 +227,107 @@ class DrizzleProductStore implements ProductStore {
     };
   }
 
-  async putState(tenantId: string, state: OrgniState): Promise<void> {
-    const db = this.handle.db;
-    await db.transaction(async (tx) => {
-      if (state.organisation) {
-        const o = state.organisation;
-        await tx
-          .insert(organisations)
-          .values({
-            tenantId,
+  private async writeState(tx: DbTransaction, tenantId: string, state: OrgniState): Promise<void> {
+    if (state.organisation) {
+      const o = state.organisation;
+      await tx
+        .insert(organisations)
+        .values({
+          tenantId,
+          name: o.name,
+          workEmail: o.workEmail,
+          website: o.website,
+          onboardingStep: o.onboardingStep,
+          onboardingComplete: o.onboardingComplete,
+        })
+        .onConflictDoUpdate({
+          target: organisations.tenantId,
+          set: {
             name: o.name,
             workEmail: o.workEmail,
             website: o.website,
             onboardingStep: o.onboardingStep,
             onboardingComplete: o.onboardingComplete,
-          })
-          .onConflictDoUpdate({
-            target: organisations.tenantId,
-            set: {
-              name: o.name,
-              workEmail: o.workEmail,
-              website: o.website,
-              onboardingStep: o.onboardingStep,
-              onboardingComplete: o.onboardingComplete,
-              updatedAt: new Date(),
-            },
-          });
-      }
+            updatedAt: new Date(),
+          },
+        });
+    }
 
-      await tx.delete(connectionsTable).where(eq(connectionsTable.tenantId, tenantId));
-      if (state.connections.length) {
-        await tx.insert(connectionsTable).values(
-          state.connections.map((c) => ({
-            id: c.id,
-            tenantId,
-            key: c.key,
-            name: c.name,
-            description: c.description,
-            status: c.status,
-            mode: c.mode,
-            connectedAt: c.connectedAt ? new Date(c.connectedAt) : null,
-            services: c.services,
-            permissions: c.permissions,
-          })),
-        );
-      }
+    await tx.delete(connectionsTable).where(eq(connectionsTable.tenantId, tenantId));
+    if (state.connections.length) {
+      await tx.insert(connectionsTable).values(
+        state.connections.map((c) => ({
+          id: c.id,
+          tenantId,
+          key: c.key,
+          name: c.name,
+          description: c.description,
+          status: c.status,
+          mode: c.mode,
+          connectedAt: c.connectedAt ? new Date(c.connectedAt) : null,
+          services: c.services,
+          permissions: c.permissions,
+        })),
+      );
+    }
 
-      await tx.delete(capabilitiesTable).where(eq(capabilitiesTable.tenantId, tenantId));
+    await tx.delete(capabilitiesTable).where(eq(capabilitiesTable.tenantId, tenantId));
+    if (state.capabilities.length) {
       await tx.insert(capabilitiesTable).values(
         state.capabilities.map((c) => ({ tenantId, key: c.key, enabled: c.enabled })),
       );
+    }
 
-      await tx.delete(approvalsTable).where(eq(approvalsTable.tenantId, tenantId));
+    await tx.delete(approvalsTable).where(eq(approvalsTable.tenantId, tenantId));
+    if (state.approvals.length) {
       await tx.insert(approvalsTable).values(
         state.approvals.map((a) => ({ tenantId, key: a.key, level: a.level })),
       );
+    }
 
-      await tx
-        .insert(permissionsTable)
-        .values({
-          tenantId,
-          access: state.permissions.access,
-          audience: state.permissions.audience,
-        })
-        .onConflictDoUpdate({
-          target: permissionsTable.tenantId,
-          set: { access: state.permissions.access, audience: state.permissions.audience },
-        });
+    await tx
+      .insert(permissionsTable)
+      .values({
+        tenantId,
+        access: state.permissions.access,
+        audience: state.permissions.audience,
+      })
+      .onConflictDoUpdate({
+        target: permissionsTable.tenantId,
+        set: { access: state.permissions.access, audience: state.permissions.audience },
+      });
 
-      await tx
-        .insert(teamsTable)
-        .values({
-          tenantId,
+    await tx
+      .insert(teamsTable)
+      .values({
+        tenantId,
+        state: state.teams.state,
+        mode: state.teams.mode,
+        installedAt: state.teams.installedAt ? new Date(state.teams.installedAt) : null,
+      })
+      .onConflictDoUpdate({
+        target: teamsTable.tenantId,
+        set: {
           state: state.teams.state,
           mode: state.teams.mode,
           installedAt: state.teams.installedAt ? new Date(state.teams.installedAt) : null,
-        })
-        .onConflictDoUpdate({
-          target: teamsTable.tenantId,
-          set: {
-            state: state.teams.state,
-            mode: state.teams.mode,
-            installedAt: state.teams.installedAt ? new Date(state.teams.installedAt) : null,
-          },
-        });
+        },
+      });
 
+    if (state.activity.length === 0) {
       await tx.delete(actionsTable).where(eq(actionsTable.tenantId, tenantId));
-      if (state.activity.length) {
-        await tx.insert(actionsTable).values(
-          state.activity.map((a) => ({
+    } else {
+      const actionIds = state.activity.map((a) => a.id);
+      await tx.delete(actionsTable).where(
+        and(
+          eq(actionsTable.tenantId, tenantId),
+          notInArray(actionsTable.id, actionIds),
+        ),
+      );
+      for (const a of state.activity) {
+        await tx
+          .insert(actionsTable)
+          .values({
             id: a.id,
             tenantId,
             title: a.title,
@@ -293,14 +343,41 @@ class DrizzleProductStore implements ProductStore {
             approval: a.approval ?? null,
             source: a.source ?? "web",
             conversationRef: a.conversationRef ?? null,
-          })),
-        );
+          })
+          .onConflictDoUpdate({
+            target: [actionsTable.tenantId, actionsTable.id],
+            set: {
+              title: a.title,
+              status: a.status,
+              requestedBy: a.requestedBy,
+              capability: a.capability,
+              understood: a.understood,
+              sourcesUsed: a.sourcesUsed,
+              actionsPerformed: a.actionsPerformed,
+              reason: a.reason,
+              result: a.result,
+              approval: a.approval ?? null,
+              source: a.source ?? "web",
+              conversationRef: a.conversationRef ?? null,
+            },
+          });
       }
+    }
 
+    if (state.members.length === 0) {
       await tx.delete(membersTable).where(eq(membersTable.tenantId, tenantId));
-      if (state.members.length) {
-        await tx.insert(membersTable).values(
-          state.members.map((m) => ({
+    } else {
+      const emails = state.members.map((m) => m.email);
+      await tx.delete(membersTable).where(
+        and(
+          eq(membersTable.tenantId, tenantId),
+          notInArray(membersTable.email, emails),
+        ),
+      );
+      for (const m of state.members) {
+        await tx
+          .insert(membersTable)
+          .values({
             tenantId,
             email: m.email,
             name: m.name,
@@ -308,9 +385,48 @@ class DrizzleProductStore implements ProductStore {
             status: m.status,
             avatar: m.avatar ?? null,
             addedAt: new Date(m.addedAt),
-          })),
-        );
+          })
+          .onConflictDoUpdate({
+            target: [membersTable.tenantId, membersTable.email],
+            set: {
+              name: m.name,
+              role: m.role,
+              status: m.status,
+              avatar: m.avatar ?? null,
+            },
+          });
       }
+    }
+  }
+
+  async getState(tenantId: string): Promise<OrgniState> {
+    return this.readState(this.handle.db, tenantId);
+  }
+
+  async putState(tenantId: string, state: OrgniState): Promise<void> {
+    const db = this.handle.db;
+    await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(('x' || substr(md5(${tenantId}), 1, 16))::bit(64)::bigint)`,
+      );
+      await this.writeState(tx, tenantId, state);
+    });
+  }
+
+  async updateState(
+    tenantId: string,
+    fn: (state: OrgniState) => Promise<OrgniState | void> | OrgniState | void,
+  ): Promise<OrgniState> {
+    const db = this.handle.db;
+    return await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(('x' || substr(md5(${tenantId}), 1, 16))::bit(64)::bigint)`,
+      );
+      const state = await this.readState(tx, tenantId);
+      const next = await fn(state);
+      const toSave = next ?? state;
+      await this.writeState(tx, tenantId, toSave);
+      return await this.readState(tx, tenantId);
     });
   }
 

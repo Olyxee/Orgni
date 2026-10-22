@@ -247,40 +247,48 @@ export class OrgniBot extends TeamsActivityHandler {
     }
 
     const productStore = getProductStore();
-    const state = await productStore.getState(tenantId);
-    const audience = state.permissions.audience;
-    const existingMember = email
-      ? state.members.find((m) => m.email === email)
-      : undefined;
+    let denied = false;
+    let resolvedEmail = email;
+    await productStore.updateState(tenantId, (state) => {
+      const audience = state.permissions.audience;
+      const existingMember = email
+        ? state.members.find((m) => m.email === email)
+        : undefined;
 
-    if (!canAutoProvision(audience, Boolean(existingMember))) {
-      // Restricted audience and this person hasn't been added — deny.
+      if (!canAutoProvision(audience, Boolean(existingMember))) {
+        // Restricted audience and this person hasn't been added — deny.
+        denied = true;
+        return;
+      }
+
+      if (!existingMember) {
+        state.members = [
+          ...state.members,
+          {
+            email: email ?? `${entraObjectId}@teams.local`,
+            name: displayName ?? "",
+            role: "member",
+            status: "active",
+            avatar: null,
+            addedAt: new Date().toISOString(),
+          },
+        ];
+      } else if (existingMember.status === "invited") {
+        existingMember.status = "active";
+      }
+      resolvedEmail = email ?? existingMember?.email ?? null;
+      return state;
+    });
+
+    if (denied) {
       return null;
-    }
-
-    if (!existingMember) {
-      state.members = [
-        ...state.members,
-        {
-          email: email ?? `${entraObjectId}@teams.local`,
-          name: displayName ?? "",
-          role: "member",
-          status: "active",
-          avatar: null,
-          addedAt: new Date().toISOString(),
-        },
-      ];
-      await productStore.putState(tenantId, state);
-    } else if (existingMember.status === "invited") {
-      existingMember.status = "active";
-      await productStore.putState(tenantId, state);
     }
 
     const identity = {
       tenantId,
       microsoftTenantId,
       entraObjectId,
-      email: email ?? existingMember?.email ?? null,
+      email: resolvedEmail,
       displayName,
     };
     await identityStore.upsertIdentity(identity);
@@ -314,9 +322,10 @@ export class OrgniBot extends TeamsActivityHandler {
   ) {
     try {
       const store = getProductStore();
-      const state = await store.getState(tenantId);
-      state.teams = { ...state.teams, mode: "live" };
-      await store.putState(tenantId, state);
+      await store.updateState(tenantId, (state) => {
+        state.teams = { ...state.teams, mode: "live" };
+        return state;
+      });
 
       const activity = context.activity;
       await getMicrosoftIdentityStore().recordConversation({
