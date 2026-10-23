@@ -66,7 +66,10 @@ const INTENT_RULES: { match: RegExp; intent: Intent }[] = [
     intent: { capability: "update_systems", approvalCategory: "change_records", verb: "update a business record", actionKind: "record_update" },
   },
   {
-    match: /\b(pay|invoice|refund|transfer|payment|reconcile)\b/i,
+    // Match financial operation requests (fail-closed), not read-only questions or lookups.
+    // Excludes how-to/process inquiries ("How do we pay suppliers?") and policy questions ("What is our refund policy?").
+    match:
+      /^(?!.*\bhow\s+(?:do|can|should|would|to)\b)(?!.*\brefunds?\s+policy\b).*(?:\bpay\b|\b(?:make|send|process|approve|release|schedule)\b.*?\bpayment\b|\btransfer\b.*?\b(?:funds|money)\b|\bwire\b|\brefund\b|\breconcile\b|\b(?:raise|issue|create|submit|void|cancel)\b.*?\binvoice\b)/i,
     intent: { capability: "financial_actions", approvalCategory: "financial_actions", verb: "perform a financial action", actionKind: "financial" },
   },
   {
