@@ -14,6 +14,8 @@
  *
  * Without DATABASE_URL all tests in this file are skipped cleanly.
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { createDb, type DbHandle } from "../src/connect";
@@ -22,6 +24,7 @@ import {
   searchTenantEvidence,
   type EvidenceResult,
 } from "../../../artifacts/api-server/src/lib/evidence";
+import { processRequest } from "../../../artifacts/api-server/src/product/engine";
 
 const DATABASE_URL = process.env["DATABASE_URL"];
 
@@ -166,6 +169,69 @@ describe.skipIf(!DATABASE_URL)(
       expect(result.contextLines[0]).toContain(
         "[acme-invoice-CI-2026-01052.pdf]",
       );
+    });
+
+    it("processes invoice question through processRequest using Meridian fixtures and Postgres", async () => {
+      const envelopesPath = resolve(
+        __dirname,
+        "../../worker/tests/fixtures/meridian/normalized-envelopes.json",
+      );
+      const envelopes = JSON.parse(readFileSync(envelopesPath, "utf8"));
+      const meridianInvoice = envelopes.find(
+        (e: Record<string, any>) =>
+          e.metadata?.filename === "06_customer_invoice_CI-2026-01052.pdf",
+      );
+      expect(meridianInvoice).toBeDefined();
+
+      await handle.repository.persistDocument({
+        source: sourceRecord({
+          sourceId: "src_meridian_ci_01052",
+          tenantId: TENANT_A,
+          filename: meridianInvoice.metadata.filename,
+          checksum: meridianInvoice.metadata.checksum,
+        }),
+        tokens: [
+          invoiceToken({
+            tokenId: "tok_ci_01052_meridian",
+            tenantId: TENANT_A,
+            invoiceNumber: "CI-2026-01052",
+            supplier: "Apex Retail Holdings Ltd",
+            totalAmount: 136275,
+            currency: "ZAR",
+          }),
+        ],
+        facts: null,
+      });
+
+      // Complete request flow through processRequest
+      const res = await processRequest({
+        tenantId: TENANT_A,
+        text: "What is the total on invoice CI-2026-01052?",
+      });
+
+      // Intent routing must reach answer_questions, not financial_actions
+      expect(res.action.capability).toBe("answer_questions");
+
+      // No approval card created or returned
+      expect(res.needsApproval).toBe(false);
+      expect(res.action.approval).toBeUndefined();
+
+      // Reply body contains the retrieved total and identifies the correct Meridian source
+      expect(res.reply).toContain("136275 ZAR");
+      expect(res.reply).toContain("06_customer_invoice_CI-2026-01052.pdf");
+
+      // The action records only cited sources and is completed
+      expect(res.action.status).toBe("completed");
+      expect(res.action.sourcesUsed).toEqual(["06_customer_invoice_CI-2026-01052.pdf"]);
+
+      // Tenant isolation: a second tenant asking the same question gets no evidence
+      const tenantBRes = await processRequest({
+        tenantId: TENANT_B,
+        text: "What is the total on invoice CI-2026-01052?",
+      });
+      expect(tenantBRes.reply).not.toContain("136275");
+      expect(tenantBRes.reply).not.toContain("06_customer_invoice_CI-2026-01052.pdf");
+      expect(tenantBRes.action.sourcesUsed).toEqual([]);
     });
 
     it("finds invoice by supplier keyword match", async () => {

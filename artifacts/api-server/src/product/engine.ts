@@ -326,9 +326,15 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
     };
   }
 
-  // 4. Completed. Record source filenames actually used.
-  const sourcesUsed =
-    evidenceResult?.sourcesUsed.map((s) => s.filename) ?? contextLines;
+  // 4. Completed. Record only source filenames actually cited by the reply.
+  const candidateSources = evidenceResult?.sourcesUsed ?? [];
+  const sourcesUsed = Array.from(
+    new Set(
+      candidateSources
+        .map((s) => s.filename)
+        .filter((name) => Boolean(name) && name !== "unknown" && body.includes(name)),
+    ),
+  );
 
   const action: OrgniAction = {
     ...baseAction,
