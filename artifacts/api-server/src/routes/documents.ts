@@ -39,13 +39,19 @@ const documentIntelligence: DocumentIntelligence =
 
 // Retry / backoff limits sourced from environment variables so operators can
 // tune them without a code change.  Undefined values fall back to the
-// pipeline's DEFAULT_LIMITS (maxAttempts: 3, retryBaseMs: 50 ms).
+// pipeline's DEFAULT_LIMITS (maxAttempts: 3, retryBaseMs: 1000 ms, maxRetryAfterMs: 10000 ms, totalTimeoutMs: 60000 ms).
 const diLimits: IngestOptions["limits"] = {
   ...(config.DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS !== undefined && {
     maxAttempts: config.DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS,
   }),
   ...(config.DOCUMENT_INTELLIGENCE_RETRY_BASE_MS !== undefined && {
     retryBaseMs: config.DOCUMENT_INTELLIGENCE_RETRY_BASE_MS,
+  }),
+  ...(config.DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS !== undefined && {
+    maxRetryAfterMs: config.DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS,
+  }),
+  ...(config.DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS !== undefined && {
+    totalTimeoutMs: config.DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS,
   }),
 };
 

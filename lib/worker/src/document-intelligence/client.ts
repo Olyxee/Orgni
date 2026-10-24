@@ -38,16 +38,17 @@ export interface DocumentIntelligenceConfig {
  * would otherwise be silently discarded.
  *
  * `retryAfterMs` is populated from the `Retry-After` response header when the
- * service returns HTTP 429.  The pipeline uses this value as the delay before
- * the next attempt instead of computing it from the exponential backoff
- * formula, capped by the maximum configured delay so it can never exceed
- * operator-controlled limits.
+ * service returns HTTP 429 or 503.  The pipeline uses this value as the delay
+ * before the next attempt instead of computing it from the exponential backoff
+ * formula, capped by the operator-configured maximum wait.
  */
 export class DocumentIntelligenceError extends Error {
   /** HTTP status code returned by the service, if a response was received. */
   readonly status?: number;
   /** Whether the failure was caused by the per-request timeout. */
   readonly isTimeout: boolean;
+  /** Whether the failure was caused by a network/transport connection failure. */
+  readonly isConnectionFailure: boolean;
   /** Excerpt of the response body (≤ 500 chars), when available. */
   readonly responseBody?: string;
   /**
@@ -63,17 +64,45 @@ export class DocumentIntelligenceError extends Error {
     options: {
       status?: number;
       isTimeout?: boolean;
+      isConnectionFailure?: boolean;
       responseBody?: string;
       retryAfterMs?: number;
+      cause?: unknown;
     } = {},
   ) {
-    super(message);
+    super(message, options.cause !== undefined ? { cause: options.cause } : undefined);
     this.name = "DocumentIntelligenceError";
     this.status = options.status;
     this.isTimeout = options.isTimeout ?? false;
+    this.isConnectionFailure = options.isConnectionFailure ?? false;
     this.responseBody = options.responseBody;
     this.retryAfterMs = options.retryAfterMs;
   }
+}
+
+/**
+ * Parses the HTTP `Retry-After` header value into a delay in milliseconds.
+ * Supports both integer/decimal seconds and RFC 7231 / RFC 9110 HTTP-date formats.
+ */
+export function parseRetryAfter(header: string | null): number | undefined {
+  if (header === null) return undefined;
+  const trimmed = header.trim();
+  if (trimmed === "") return undefined;
+
+  // 1. Numeric seconds: e.g. "30" or "2.5"
+  const seconds = Number(trimmed);
+  if (Number.isFinite(seconds) && seconds >= 0) {
+    return Math.round(seconds * 1000);
+  }
+
+  // 2. HTTP-date: IMF-fixdate (e.g. "Wed, 21 Oct 2026 07:28:00 GMT")
+  const dateMs = Date.parse(trimmed);
+  if (!Number.isNaN(dateMs)) {
+    const diff = dateMs - Date.now();
+    return Math.max(0, diff);
+  }
+
+  return undefined;
 }
 
 export function createDocumentIntelligenceClient(
@@ -114,9 +143,9 @@ export function createDocumentIntelligenceClient(
         });
       } catch (cause) {
         // fetch() rejects on network-level failures (ECONNREFUSED, ECONNRESET,
-        // DNS failure) and when the AbortController fires.  Re-raise as a
-        // DocumentIntelligenceError so isRecoverable has a consistent type to
-        // inspect, and set isTimeout when the abort is ours.
+        // DNS failure) and when the AbortController fires. Re-raise as a
+        // DocumentIntelligenceError with typed flags so isRecoverable does not
+        // rely on message string parsing.
         const aborted =
           controller.signal.aborted ||
           (cause instanceof Error &&
@@ -127,7 +156,11 @@ export function createDocumentIntelligenceClient(
           aborted
             ? `document intelligence timed out after ${timeoutMs}ms`
             : `document intelligence connection failed: ${cause instanceof Error ? cause.message : String(cause)}`,
-          { isTimeout: aborted },
+          {
+            isTimeout: aborted,
+            isConnectionFailure: !aborted,
+            cause,
+          },
         );
       }
 
@@ -141,19 +174,11 @@ export function createDocumentIntelligenceClient(
           // non-fatal — status + statusText are still recorded
         }
 
-        // Parse Retry-After for rate-limiting responses so the pipeline can
-        // honour the server's requested delay instead of using fixed backoff.
-        // The header value may be a number of seconds or an HTTP-date; only the
-        // seconds form is supported here (HTTP-date is uncommon for APIs).
+        // Parse Retry-After for rate-limiting and temporary unavailability responses.
+        // Supports both numeric seconds and HTTP-date strings.
         let retryAfterMs: number | undefined;
-        if (response.status === 429) {
-          const retryAfter = response.headers.get("retry-after");
-          if (retryAfter !== null) {
-            const seconds = Number(retryAfter);
-            if (Number.isFinite(seconds) && seconds >= 0) {
-              retryAfterMs = Math.round(seconds * 1000);
-            }
-          }
+        if (response.status === 429 || response.status === 503) {
+          retryAfterMs = parseRetryAfter(response.headers.get("retry-after"));
         }
 
         throw new DocumentIntelligenceError(

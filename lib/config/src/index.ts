@@ -66,14 +66,32 @@ export const apiEnvSchema = baseEnvSchema.extend({
   DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS: z.coerce
     .number()
     .int()
-    .min(1)
+    .positive()
     .optional(),
   /**
    * Base delay in milliseconds for the exponential backoff between Document
-   * Intelligence retry attempts.  Defaults to 50 ms when unset.  The actual
-   * delay for attempt N is retryBaseMs × 2^(N−1) ± 10 % jitter.
+   * Intelligence retry attempts.  Defaults to 1000 ms (1 s) when unset.  The
+   * actual delay for attempt N is retryBaseMs × 2^(N−1) ± 10 % jitter.
    */
   DOCUMENT_INTELLIGENCE_RETRY_BASE_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Maximum wait time in milliseconds honored from a server-sent Retry-After
+   * header (numeric seconds or HTTP-date). Defaults to 10 000 ms (10 s) when unset.
+   */
+  DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Maximum total time budget in milliseconds for document ingestion across all
+   * retry attempts and backoff waits. Defaults to 60 000 ms (60 s) when unset.
+   */
+  DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS: z.coerce
     .number()
     .int()
     .positive()

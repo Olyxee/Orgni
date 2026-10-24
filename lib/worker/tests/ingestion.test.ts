@@ -321,7 +321,14 @@ describe("ingestion — security and access metadata", () => {
     expect(serialised).toContain("sourceId");
   });
 });
-import { DocumentIntelligenceError } from "../src/document-intelligence/client.js";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo, Socket } from "node:net";
+import { apiEnvSchema } from "@workspace/config";
+import {
+  DocumentIntelligenceError,
+  createDocumentIntelligenceClient,
+  parseRetryAfter,
+} from "../src/document-intelligence/client.js";
 
 // ---------------------------------------------------------------------------
 // isRecoverable — structured DocumentIntelligenceError classification
@@ -401,19 +408,44 @@ describe("isRecoverable — DocumentIntelligenceError typed checks", () => {
     expect(isRecoverable(err)).toBe(false);
   });
 
-  it("treats a connection-refused DocumentIntelligenceError (no status) as recoverable", () => {
-    // Network failure before a response — no status set, message carries ECONNREFUSED.
+  it("treats a connection-refused DocumentIntelligenceError (isConnectionFailure: true) as recoverable", () => {
     const err = new DocumentIntelligenceError(
       "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+      { isConnectionFailure: true },
     );
     expect(isRecoverable(err)).toBe(true);
   });
 
-  it("treats a connection-reset DocumentIntelligenceError (no status) as recoverable", () => {
+  it("treats a connection-reset DocumentIntelligenceError (isConnectionFailure: true) as recoverable", () => {
     const err = new DocumentIntelligenceError(
       "document intelligence connection failed: read ECONNRESET",
+      { isConnectionFailure: true },
     );
     expect(isRecoverable(err)).toBe(true);
+  });
+
+  it("treats HTTP 408 as recoverable", () => {
+    const err = new DocumentIntelligenceError(
+      "document intelligence returned 408 Request Timeout",
+      { status: 408 },
+    );
+    expect(isRecoverable(err)).toBe(true);
+  });
+
+  it("treats HTTP 504 as recoverable", () => {
+    const err = new DocumentIntelligenceError(
+      "document intelligence returned 504 Gateway Timeout",
+      { status: 504 },
+    );
+    expect(isRecoverable(err)).toBe(true);
+  });
+
+  it("does NOT treat a DocumentIntelligenceError without typed flag as recoverable even if message mentions ECONNREFUSED", () => {
+    const err = new DocumentIntelligenceError(
+      "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+      // isConnectionFailure defaults to false
+    );
+    expect(isRecoverable(err)).toBe(false);
   });
 
   // Plain Error instances (e.g. from test mocks) still work via the fallback path.
@@ -536,7 +568,7 @@ describe("ingestion — retry classification with DocumentIntelligenceError", ()
     expect(calls).toBe(3);
   });
 
-  it("retries a connection-refused error (no status) up to maxAttempts", async () => {
+  it("retries a connection-refused error (isConnectionFailure: true) up to maxAttempts", async () => {
     let calls = 0;
     const record = await ingestDocument(
       input(),
@@ -544,6 +576,7 @@ describe("ingestion — retry classification with DocumentIntelligenceError", ()
         calls += 1;
         throw new DocumentIntelligenceError(
           "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+          { isConnectionFailure: true },
         );
       },
       { limits: { maxAttempts: 3, retryBaseMs: 1 } },
@@ -613,7 +646,7 @@ describe("computeRetryDelay", () => {
   });
 
   it("caps at maxDelay regardless of attempt number", () => {
-    const limits = { maxBytes: 0, maxAttempts: 3, retryBaseMs: 100 };
+    const limits = { ...DEFAULT_LIMITS, maxAttempts: 3, retryBaseMs: 100 };
     // maxDelay = 100 * 2^2 = 400; attempt 10 would be 100 * 2^9 = 51200
     const capped = computeRetryDelay(10, limits, null, MID);
     expect(capped).toBe(400);
@@ -621,7 +654,7 @@ describe("computeRetryDelay", () => {
 
   it("applies jitter: randomFraction 0 gives 90% of base, 1 gives 110%", () => {
     const base = 100;
-    const limits = { maxBytes: 0, maxAttempts: 10, retryBaseMs: base };
+    const limits = { ...DEFAULT_LIMITS, maxAttempts: 10, retryBaseMs: base };
     const low = computeRetryDelay(1, limits, null, 0); // 0.9 + 0*0.2 = 0.9
     const high = computeRetryDelay(1, limits, null, 1); // 0.9 + 1*0.2 = 1.1
     expect(low).toBe(Math.round(base * 0.9));
@@ -633,25 +666,24 @@ describe("computeRetryDelay", () => {
       "document intelligence returned 429 Too Many Requests",
       { status: 429, retryAfterMs: 80 },
     );
-    const limits = { maxBytes: 0, maxAttempts: 3, retryBaseMs: 50 };
-    // maxDelay = 50 * 2^2 = 200; retryAfterMs 80 is within the cap.
+    const limits = { ...DEFAULT_LIMITS, retryBaseMs: 50 };
+    // retryAfterMs 80 is within the default maxRetryAfterMs (10 000 ms).
     expect(computeRetryDelay(1, limits, err, MID)).toBe(80);
   });
 
-  it("caps Retry-After at maxDelay so it cannot exceed configured limits", () => {
+  it("caps Retry-After at maxRetryAfterMs so it cannot exceed configured limits", () => {
     const err = new DocumentIntelligenceError(
       "document intelligence returned 429 Too Many Requests",
       { status: 429, retryAfterMs: 999_999 },
     );
-    const limits = { maxBytes: 0, maxAttempts: 3, retryBaseMs: 50 };
-    const maxDelay = 50 * 2 ** 2; // 200 ms
-    expect(computeRetryDelay(1, limits, err, MID)).toBe(maxDelay);
+    const limits = { ...DEFAULT_LIMITS, maxRetryAfterMs: 5000 };
+    expect(computeRetryDelay(1, limits, err, MID)).toBe(5000);
   });
 
   it("ignores retryAfterMs on non-DocumentIntelligenceError and uses backoff", () => {
     // Plain Error has no retryAfterMs — should fall back to formula
     const plain = new Error("ECONNREFUSED");
-    const limits = { maxBytes: 0, maxAttempts: 3, retryBaseMs: 100 };
+    const limits = { ...DEFAULT_LIMITS, maxAttempts: 3, retryBaseMs: 100 };
     expect(computeRetryDelay(1, limits, plain, MID)).toBe(100);
   });
 });
@@ -672,6 +704,7 @@ describe("ingestion — connection refusal and eventual success", () => {
         if (calls < 3) {
           throw new DocumentIntelligenceError(
             "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+            { isConnectionFailure: true },
           );
         }
         return envelopeFor(rec.sourceId, rec.tenantId);
@@ -696,6 +729,7 @@ describe("ingestion — connection refusal and eventual success", () => {
         calls += 1;
         throw new DocumentIntelligenceError(
           "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+          { isConnectionFailure: true },
         );
       },
       { limits: { maxAttempts: 3, retryBaseMs: 1 }, _delayfn: async () => {} },
@@ -793,6 +827,7 @@ describe("ingestion — backoff sequence and maximum attempts", () => {
       async () => {
         throw new DocumentIntelligenceError(
           "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+          { isConnectionFailure: true },
         );
       },
       {
@@ -877,6 +912,7 @@ describe("ingestion — final failure details and failure kind", () => {
       async () => {
         throw new DocumentIntelligenceError(
           "document intelligence connection failed: connect ECONNREFUSED 127.0.0.1:8000",
+          { isConnectionFailure: true },
         );
       },
       { limits: { maxAttempts: 1, retryBaseMs: 1 }, _delayfn: async () => {} },
@@ -963,6 +999,7 @@ describe("ingestion — final failure details and failure kind", () => {
       async () => {
         throw new DocumentIntelligenceError(
           "document intelligence connection failed: connect ECONNREFUSED",
+          { isConnectionFailure: true },
         );
       },
       {
@@ -976,5 +1013,424 @@ describe("ingestion — final failure details and failure kind", () => {
     expect(serialised).not.toContain("Global Trade");
     expect(serialised).not.toContain("42750.00");
     expect(serialised).toContain("sourceId");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// parseRetryAfter unit tests
+// ---------------------------------------------------------------------------
+
+describe("parseRetryAfter", () => {
+  it("returns undefined for null or empty header", () => {
+    expect(parseRetryAfter(null)).toBeUndefined();
+    expect(parseRetryAfter("")).toBeUndefined();
+    expect(parseRetryAfter("   ")).toBeUndefined();
+  });
+
+  it("parses numeric integer seconds into milliseconds", () => {
+    expect(parseRetryAfter("30")).toBe(30_000);
+    expect(parseRetryAfter("0")).toBe(0);
+    expect(parseRetryAfter(" 5 ")).toBe(5000);
+  });
+
+  it("parses decimal seconds", () => {
+    expect(parseRetryAfter("2.5")).toBe(2500);
+  });
+
+  it("parses HTTP-date in the future", () => {
+    const futureDate = new Date(Date.now() + 5000);
+    const parsed = parseRetryAfter(futureDate.toUTCString());
+    expect(parsed).toBeDefined();
+    expect(parsed!).toBeGreaterThanOrEqual(3000);
+    expect(parsed!).toBeLessThanOrEqual(7000);
+  });
+
+  it("clamps past HTTP-date to 0ms", () => {
+    const pastDate = new Date(Date.now() - 10_000);
+    const parsed = parseRetryAfter(pastDate.toUTCString());
+    expect(parsed).toBe(0);
+  });
+
+  it("returns undefined for unparseable strings", () => {
+    expect(parseRetryAfter("not-a-number-or-date")).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Ingestion configuration validation tests
+// ---------------------------------------------------------------------------
+
+describe("ingestion — configuration validation", () => {
+  it("rejects non-positive maxAttempts", async () => {
+    await expect(
+      ingestDocument(input(), ok, { limits: { maxAttempts: 0 } }),
+    ).rejects.toThrow(RangeError);
+    await expect(
+      ingestDocument(input(), ok, { limits: { maxAttempts: -1 } }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  it("rejects non-positive retryBaseMs", async () => {
+    await expect(
+      ingestDocument(input(), ok, { limits: { retryBaseMs: 0 } }),
+    ).rejects.toThrow(RangeError);
+    await expect(
+      ingestDocument(input(), ok, { limits: { retryBaseMs: -50 } }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  it("rejects non-positive maxRetryAfterMs", async () => {
+    await expect(
+      ingestDocument(input(), ok, { limits: { maxRetryAfterMs: 0 } }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  it("rejects non-positive totalTimeoutMs", async () => {
+    await expect(
+      ingestDocument(input(), ok, { limits: { totalTimeoutMs: 0 } }),
+    ).rejects.toThrow(RangeError);
+    await expect(
+      ingestDocument(input(), ok, { limits: { totalTimeoutMs: -100 } }),
+    ).rejects.toThrow(RangeError);
+  });
+
+  it("rejects non-positive env values in apiEnvSchema", () => {
+    expect(() =>
+      apiEnvSchema.parse({
+        NODE_ENV: "test",
+        DOCUMENT_INTELLIGENCE_TIMEOUT_MS: 0,
+      }),
+    ).toThrow();
+
+    expect(() =>
+      apiEnvSchema.parse({
+        NODE_ENV: "test",
+        DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS: 0,
+      }),
+    ).toThrow();
+
+    expect(() =>
+      apiEnvSchema.parse({
+        NODE_ENV: "test",
+        DOCUMENT_INTELLIGENCE_RETRY_BASE_MS: -10,
+      }),
+    ).toThrow();
+
+    expect(() =>
+      apiEnvSchema.parse({
+        NODE_ENV: "test",
+        DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS: 0,
+      }),
+    ).toThrow();
+
+    expect(() =>
+      apiEnvSchema.parse({
+        NODE_ENV: "test",
+        DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS: -5,
+      }),
+    ).toThrow();
+  });
+
+  it("accepts valid positive env values in apiEnvSchema", () => {
+    const parsed = apiEnvSchema.parse({
+      NODE_ENV: "test",
+      DOCUMENT_INTELLIGENCE_TIMEOUT_MS: 15000,
+      DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS: 4,
+      DOCUMENT_INTELLIGENCE_RETRY_BASE_MS: 500,
+      DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS: 15000,
+      DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS: 90000,
+    });
+    expect(parsed.DOCUMENT_INTELLIGENCE_TIMEOUT_MS).toBe(15000);
+    expect(parsed.DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS).toBe(4);
+    expect(parsed.DOCUMENT_INTELLIGENCE_RETRY_BASE_MS).toBe(500);
+    expect(parsed.DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS).toBe(15000);
+    expect(parsed.DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS).toBe(90000);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Real HTTP integration tests with createDocumentIntelligenceClient (no mock fetch)
+// ---------------------------------------------------------------------------
+
+function startTestServer(
+  handler: (
+    req: import("node:http").IncomingMessage,
+    res: import("node:http").ServerResponse,
+  ) => void,
+): Promise<{ server: Server; url: string; port: number; close: () => Promise<void> }> {
+  return new Promise((resolve) => {
+    const server = createServer(handler);
+    const sockets = new Set<Socket>();
+    server.on("connection", (socket) => {
+      sockets.add(socket);
+      socket.on("close", () => sockets.delete(socket));
+    });
+    server.listen(0, "127.0.0.1", () => {
+      const { port } = server.address() as AddressInfo;
+      const url = `http://127.0.0.1:${port}`;
+      const close = () =>
+        new Promise<void>((done) => {
+          for (const s of sockets) {
+            s.destroy();
+          }
+          server.close(() => done());
+        });
+      resolve({ server, url, port, close });
+    });
+  });
+}
+
+describe("ingestion — real HTTP integration with createDocumentIntelligenceClient", () => {
+  it("real HTTP — retries connection refusal on a closed port and fails when attempts exhausted", async () => {
+    const { port, close } = await startTestServer((_req, res) => res.end());
+    await close(); // Port is now closed
+
+    const client = createDocumentIntelligenceClient({
+      baseUrl: `http://127.0.0.1:${port}`,
+      timeoutMs: 1000,
+    });
+
+    const record = await ingestDocument(input(), client, {
+      limits: { maxAttempts: 2, retryBaseMs: 10, totalTimeoutMs: 5000 },
+    });
+
+    expect(record.state).toBe("FAILED");
+    expect(record.attempts).toBe(2);
+    expect(record.errors[0]).toContain("transient_exhausted");
+    expect(record.errors[0]).toContain("connection failed");
+  });
+
+  it("real HTTP — retries on request timeout when endpoint hangs", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, _res) => {
+      requestCount += 1;
+      // Intentionally never respond to trigger client timeout
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 80, // abort after 80ms
+      });
+
+      const record = await ingestDocument(input(), client, {
+        limits: { maxAttempts: 2, retryBaseMs: 10, totalTimeoutMs: 5000 },
+      });
+
+      expect(record.state).toBe("FAILED");
+      expect(record.attempts).toBe(2);
+      expect(requestCount).toBe(2);
+      expect(record.errors[0]).toContain("transient_exhausted");
+      expect(record.errors[0]).toContain("timed out");
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — fails immediately on HTTP 400 without retry and preserves response excerpt", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ detail: "source_id is invalid" }));
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const record = await ingestDocument(input(), client, {
+        limits: { maxAttempts: 3, retryBaseMs: 10, totalTimeoutMs: 5000 },
+      });
+
+      expect(record.state).toBe("FAILED");
+      expect(record.attempts).toBe(1); // exactly one attempt
+      expect(requestCount).toBe(1);
+      expect(record.errors[0]).toContain("permanent");
+      expect(record.errors[0]).toContain("400");
+      expect(record.errors[0]).toContain("source_id is invalid");
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — retries HTTP 503 and succeeds when server returns 200 on next attempt", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        res.writeHead(503, { "Content-Type": "text/plain" });
+        res.end("Service Temporarily Unavailable");
+      } else {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(envelopeFor("src_real_http", "tenant_olyxee")));
+      }
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const record = await ingestDocument(input({ sourceId: "src_real_http" }), client, {
+        limits: { maxAttempts: 3, retryBaseMs: 10, totalTimeoutMs: 5000 },
+      });
+
+      expect(record.state).toBe("COMPLETED");
+      expect(record.attempts).toBe(2);
+      expect(requestCount).toBe(2);
+      expect(record.envelope).toBeDefined();
+      expect(record.envelope?.source_id).toBe("src_real_http");
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — classifies HTTP 504 Gateway Timeout as recoverable and retries", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      res.writeHead(504, { "Content-Type": "text/plain" });
+      res.end("Gateway Timeout");
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const record = await ingestDocument(input(), client, {
+        limits: { maxAttempts: 2, retryBaseMs: 10, totalTimeoutMs: 5000 },
+      });
+
+      expect(record.state).toBe("FAILED");
+      expect(record.attempts).toBe(2);
+      expect(requestCount).toBe(2);
+      expect(record.errors[0]).toContain("transient_exhausted");
+      expect(record.errors[0]).toContain("504");
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — parses and honors HTTP-date Retry-After header on 503 response", async () => {
+    let requestCount = 0;
+    const targetDate = new Date(Date.now() + 5000); // 5s in future
+    const delays: number[] = [];
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        res.writeHead(503, {
+          "Content-Type": "text/plain",
+          "Retry-After": targetDate.toUTCString(),
+        });
+        res.end("Service Unavailable");
+      } else {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(envelopeFor("src_date_test", "tenant_olyxee")));
+      }
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const record = await ingestDocument(input({ sourceId: "src_date_test" }), client, {
+        limits: { maxAttempts: 3, retryBaseMs: 10, maxRetryAfterMs: 10000, totalTimeoutMs: 20000 },
+        _delayfn: async (ms) => { delays.push(ms); },
+      });
+
+      expect(record.state).toBe("COMPLETED");
+      expect(record.attempts).toBe(2);
+      expect(requestCount).toBe(2);
+      expect(delays).toHaveLength(1);
+      // Date.parse on the HTTP-date header produces ~4000-6000ms delay
+      expect(delays[0]).toBeGreaterThanOrEqual(3000);
+      expect(delays[0]).toBeLessThanOrEqual(7000);
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — caps server Retry-After delay to maxRetryAfterMs", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        res.writeHead(429, {
+          "Content-Type": "text/plain",
+          "Retry-After": "3600", // Server requested 1 hour delay
+        });
+        res.end("Rate limit exceeded");
+      } else {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(envelopeFor("src_cap_test", "tenant_olyxee")));
+      }
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const start = Date.now();
+      const record = await ingestDocument(input({ sourceId: "src_cap_test" }), client, {
+        limits: {
+          maxAttempts: 2,
+          retryBaseMs: 10,
+          maxRetryAfterMs: 60, // Cap at 60ms instead of waiting 3600 seconds!
+          totalTimeoutMs: 5000,
+        },
+      });
+      const elapsed = Date.now() - start;
+
+      expect(record.state).toBe("COMPLETED");
+      expect(record.attempts).toBe(2);
+      expect(requestCount).toBe(2);
+      expect(elapsed).toBeLessThan(1500); // Finished quickly, did not wait 3600s
+    } finally {
+      await close();
+    }
+  });
+
+  it("real HTTP — halts retries when overall time budget is exceeded", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, res) => {
+      requestCount += 1;
+      res.writeHead(503, { "Content-Type": "text/plain" });
+      res.end("Unavailable");
+    });
+
+    try {
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 1000,
+      });
+
+      const start = Date.now();
+      const record = await ingestDocument(input(), client, {
+        limits: {
+          maxAttempts: 10,
+          retryBaseMs: 120,
+          totalTimeoutMs: 200, // Strict overall budget of 200ms
+        },
+      });
+      const elapsed = Date.now() - start;
+
+      expect(record.state).toBe("FAILED");
+      // Aborts before exhausting all 10 attempts
+      expect(record.attempts).toBeLessThan(5);
+      expect(record.errors[0]).toContain("time budget");
+      expect(elapsed).toBeLessThan(1500);
+    } finally {
+      await close();
+    }
   });
 });

@@ -46,14 +46,20 @@ export interface IngestionLimits {
   maxBytes: number;
   /** Attempts per document for recoverable failures. Default 3. */
   maxAttempts: number;
-  /** Base delay for retry backoff, in milliseconds. Default 50. */
+  /** Base delay for retry backoff, in milliseconds. Default 1000 ms (1 s). */
   retryBaseMs: number;
+  /** Maximum wait time in milliseconds honored from a Retry-After header. Default 10 000 ms (10 s). */
+  maxRetryAfterMs: number;
+  /** Overall time budget in milliseconds across all attempts and delays. Default 60 000 ms (60 s). */
+  totalTimeoutMs: number;
 }
 
 export const DEFAULT_LIMITS: IngestionLimits = {
   maxBytes: 20 * 1024 * 1024,
   maxAttempts: 3,
-  retryBaseMs: 50,
+  retryBaseMs: 1000,
+  maxRetryAfterMs: 10_000,
+  totalTimeoutMs: 60_000,
 };
 
 export interface IngestionInput {
@@ -145,24 +151,30 @@ export function isRecoverable(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
 
   // Structured errors from the Document Intelligence client are checked first
-  // so retry classification is based on typed fields, not string parsing.
+  // so retry classification is based strictly on typed fields, not string parsing.
   if (error instanceof DocumentIntelligenceError) {
-    // Client-side timeout: always recoverable — the service may just be slow.
-    if (error.isTimeout) return true;
+    // Client-side timeout or connection failure: always recoverable.
+    if (error.isTimeout || error.isConnectionFailure) return true;
 
-    // HTTP response received: retry only on transient server/gateway errors and
-    // rate-limiting.  4xx (except 429) are permanent client errors; do not retry.
+    // HTTP response received: retry on transient server/gateway errors and
+    // rate-limiting (408, 429, 502, 503, 504). Other 4xx responses, including
+    // 400, are permanent client errors and must not be retried.
     if (error.status !== undefined) {
-      return error.status === 429 || error.status === 502 || error.status === 503;
+      return (
+        error.status === 408 ||
+        error.status === 429 ||
+        error.status === 502 ||
+        error.status === 503 ||
+        error.status === 504
+      );
     }
 
-    // No status means the request never got a response (network-level failure).
-    // Fall through to the message-based checks below.
+    // Do NOT fall back to parsing error-message strings for DocumentIntelligenceError.
+    return false;
   }
 
   // Fallback: plain Error instances thrown by test mocks or future transports
-  // that don't use DocumentIntelligenceError.  Keep the existing keywords so
-  // existing behaviour is preserved.
+  // that don't use DocumentIntelligenceError. Kept separate and clearly tested.
   const msg = error.message.toLowerCase();
   return (
     msg.includes("econnrefused") ||
@@ -171,9 +183,11 @@ export function isRecoverable(error: unknown): boolean {
     msg.includes("socket hang up") ||
     msg.includes("network") ||
     msg.includes("timeout") ||
+    msg.includes("504") ||
     msg.includes("503") ||
     msg.includes("502") ||
-    msg.includes("429")
+    msg.includes("429") ||
+    msg.includes("408")
   );
 }
 
@@ -182,8 +196,7 @@ export function isRecoverable(error: unknown): boolean {
  *
  * Uses exponential backoff with ±10 % uniform jitter.  When the error carries
  * a `Retry-After` header value the server's requested delay is used instead,
- * but it is capped at the maximum delay computed from `retryBaseMs` and
- * `maxAttempts` so operator-configured limits are always respected.
+ * capped at the configured `maxRetryAfterMs` so operator limits are respected.
  *
  * Exported for direct unit testing.
  *
@@ -199,12 +212,12 @@ export function computeRetryDelay(
   error: unknown,
   randomFraction = Math.random(),
 ): number {
-  // Maximum delay any attempt may wait (caps Retry-After values too).
+  // Maximum delay any attempt may wait.
   const maxDelay = limits.retryBaseMs * 2 ** (limits.maxAttempts - 1);
 
-  // Honour a server-supplied Retry-After, capped at maxDelay.
+  // Honour a server-supplied Retry-After, capped at maxRetryAfterMs.
   if (error instanceof DocumentIntelligenceError && error.retryAfterMs !== undefined) {
-    return Math.min(error.retryAfterMs, maxDelay);
+    return Math.min(error.retryAfterMs, limits.maxRetryAfterMs);
   }
 
   // Exponential base for this attempt index (attempt is 1-based; the delay
@@ -239,7 +252,22 @@ export async function ingestDocument(
   documentIntelligence: DocumentIntelligence,
   options: IngestOptions = {},
 ): Promise<IngestionRecord> {
-  const limits = { ...DEFAULT_LIMITS, ...options.limits };
+  const limits: IngestionLimits = {
+    ...DEFAULT_LIMITS,
+    ...options.limits,
+  };
+
+  // Reject invalid, non-positive limit configurations
+  if (
+    limits.maxAttempts <= 0 ||
+    limits.retryBaseMs <= 0 ||
+    limits.maxBytes <= 0 ||
+    limits.maxRetryAfterMs <= 0 ||
+    limits.totalTimeoutMs <= 0
+  ) {
+    throw new RangeError("Ingestion limits must have positive values");
+  }
+
   const log = options.logger ?? noopLogger;
   const seen = options.seen;
   const sleep = options._delayfn ?? defaultDelay;
@@ -314,11 +342,29 @@ export async function ingestDocument(
     return record;
   }
 
-  // ── Document Intelligence, with bounded retries ─────────────────────────
+  // ── Document Intelligence, with bounded retries & deadline budget ───────
   record.state = "PROCESSING";
 
+  const startTime = Date.now();
   let lastError: unknown;
+  let deadlineExceeded = false;
+
   for (let attempt = 1; attempt <= limits.maxAttempts; attempt += 1) {
+    const elapsedBefore = Date.now() - startTime;
+    if (elapsedBefore >= limits.totalTimeoutMs) {
+      deadlineExceeded = true;
+      log.warn(
+        {
+          sourceId: record.sourceId,
+          attempt,
+          elapsedBefore,
+          totalTimeoutMs: limits.totalTimeoutMs,
+        },
+        "retry aborted: total time budget exhausted before attempt",
+      );
+      break;
+    }
+
     record.attempts = attempt;
     try {
       const envelope = await documentIntelligence(record, input.content);
@@ -350,7 +396,26 @@ export async function ingestDocument(
         "document intelligence attempt failed",
       );
       if (!recoverable || attempt === limits.maxAttempts) break;
+
       const delayMs = computeRetryDelay(attempt, limits, error);
+      const elapsedAfter = Date.now() - startTime;
+      const remainingBudget = limits.totalTimeoutMs - elapsedAfter;
+
+      if (delayMs > remainingBudget) {
+        deadlineExceeded = true;
+        log.warn(
+          {
+            sourceId: record.sourceId,
+            attempt,
+            delayMs,
+            remainingBudget,
+            totalTimeoutMs: limits.totalTimeoutMs,
+          },
+          "retry aborted: delay exceeds remaining timeout budget",
+        );
+        break;
+      }
+
       log.info(
         { sourceId: record.sourceId, attempt, delayMs },
         "retrying after delay",
@@ -363,19 +428,29 @@ export async function ingestDocument(
 
   // Classify the failure so callers can distinguish between a permanent client
   // error (e.g. HTTP 400 — no point retrying) and a transient failure that
-  // exhausted all configured attempts.  The distinction is recorded both in the
-  // human-readable error string and in the structured log payload.
-  const failureKind =
+  // exhausted all configured attempts or time budget.
+  const isPermanent =
     lastError instanceof DocumentIntelligenceError &&
     lastError.status !== undefined &&
-    !isRecoverable(lastError)
-      ? "permanent"
-      : "transient_exhausted";
+    !isRecoverable(lastError);
 
-  // Build a diagnostic message that preserves the HTTP status and any response
-  // body excerpt when the failure came from the Document Intelligence client.
+  const failureKind = isPermanent
+    ? "permanent"
+    : "transient_exhausted";
+
+  // Build a diagnostic message that preserves the HTTP status, response body
+  // excerpt, and deadline budget exhaustion details.
   let failureDetail: string;
-  if (lastError instanceof DocumentIntelligenceError) {
+  if (deadlineExceeded) {
+    const elapsed = Date.now() - startTime;
+    const causeMsg =
+      lastError instanceof DocumentIntelligenceError && lastError.message
+        ? lastError.message
+        : lastError instanceof Error
+          ? lastError.message
+          : String(lastError ?? "no response");
+    failureDetail = `time budget of ${limits.totalTimeoutMs}ms exceeded after ${elapsed}ms (last error: ${causeMsg})`;
+  } else if (lastError instanceof DocumentIntelligenceError) {
     const parts = [lastError.message];
     if (lastError.responseBody) {
       parts.push(`response: ${lastError.responseBody}`);
@@ -392,14 +467,13 @@ export async function ingestDocument(
       sourceId: record.sourceId,
       attempts: record.attempts,
       failureKind,
+      deadlineExceeded,
       status:
         lastError instanceof DocumentIntelligenceError
           ? lastError.status
           : undefined,
       // Include the original error name and message so structured log sinks
-      // (e.g. pino + transport) can surface the root cause without parsing the
-      // string above.  We do not log the full stack because it would expose
-      // file system paths and could be noisy in production.
+      // can surface the root cause without parsing the string above.
       cause:
         lastError instanceof Error
           ? { name: lastError.name, message: lastError.message }
