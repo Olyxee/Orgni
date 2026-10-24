@@ -12,6 +12,11 @@ import { createDb } from "@workspace/db/connect";
 import { config } from "../lib/config";
 import { logger } from "../lib/logger";
 import { getProductStore } from "./store";
+import {
+  assessEvidence,
+  composeAttributedReply,
+  noKnowledgeReply,
+} from "./attribution";
 import type {
   ApprovalCategoryKey,
   CapabilityKey,
@@ -39,7 +44,6 @@ export interface EngineResult {
 }
 
 /* ---- intent detection ------------------------------------------------ */
-
 interface Intent {
   capability: CapabilityKey;
   approvalCategory: ApprovalCategoryKey;
@@ -50,7 +54,7 @@ interface Intent {
 
 const INTENT_RULES: { match: RegExp; intent: Intent }[] = [
   {
-    match: /\b(send|email|reply to|respond to)\b.*\b(client|customer|supplier|them|外部)\b|\bsend (an )?email\b/i,
+    match: /\b(send|email|reply to|respond to)\b.*\b(client|customer|supplier|them)\b|\bsend (an )?email\b/i,
     intent: { capability: "send_emails", approvalCategory: "send_external_email", verb: "send an email", actionKind: "email" },
   },
   {
@@ -66,7 +70,11 @@ const INTENT_RULES: { match: RegExp; intent: Intent }[] = [
     intent: { capability: "update_systems", approvalCategory: "change_records", verb: "update a business record", actionKind: "record_update" },
   },
   {
-    match: /\b(pay|invoice|refund|transfer|payment|reconcile)\b/i,
+    // Only match when the user is requesting a financial *action* (pay, process,
+    // approve, raise, issue, reconcile).  Questions about invoice values such as
+    // "What is the total on invoice CI-2026-01052?" must fall through to
+    // answer_questions so evidence retrieval runs first.
+    match: /\b(pay|process payment|approve payment|raise invoice|issue invoice|refund|wire transfer|reconcile)\b/i,
     intent: { capability: "financial_actions", approvalCategory: "financial_actions", verb: "perform a financial action", actionKind: "financial" },
   },
   {
@@ -94,13 +102,14 @@ function detectIntent(text: string): Intent {
 }
 
 /* ---- intelligence provider (LLM seam) ------------------------------- */
-
 export interface IntelligenceContext {
   request: EngineRequest;
   intent: Intent;
   organisationName: string;
   /** Short context lines the engine gathered (documents, entities, …). */
   contextLines: string[];
+  /** Structured evidence result from the retrieval layer, if any. */
+  evidence?: NonNullable<Awaited<ReturnType<typeof import("../lib/evidence").searchTenantEvidence>>> | null;
 }
 
 export interface IntelligenceProvider {
@@ -110,41 +119,70 @@ export interface IntelligenceProvider {
 }
 
 /**
- * Deterministic default. Uses the intent + gathered context to compose a
- * grounded, non-hallucinated response. No external calls.
+ * Deterministic default provider — no external calls.
+ *
+ * Uses assessEvidence + composeAttributedReply for answer_questions and
+ * find_documents. For action-oriented capabilities it gives a confirmatory
+ * reply and appends the evidence block only if present and sufficient.
  */
 class TemplateIntelligenceProvider implements IntelligenceProvider {
   readonly name = "template";
 
   async generateReply(ctx: IntelligenceContext): Promise<string> {
-    const { intent, contextLines } = ctx;
-    const evidence =
-      contextLines.length > 0
-        ? `\n\nWhat I used:\n${contextLines.map((l) => `• ${l}`).join("\n")}`
-        : "";
+    const { intent, evidence } = ctx;
+    const assessment = assessEvidence(evidence ?? null);
+    const opts = { capability: intent.capability, organisationName: ctx.organisationName };
 
     switch (intent.capability) {
-      case "prepare_work":
-        return `I've pulled together what I can for that: the relevant account context, recent conversations, open issues and documents.${evidence}`;
-      case "find_documents":
-        return `Here's what I found that matches.${evidence || "\n\nNothing is connected yet, so I'm working from what's been uploaded."}`;
-      case "schedule_meetings":
-        return `I can set that up. I'll find a time that works for everyone and send the invite.${evidence}`;
-      case "draft_emails":
-        return `I've drafted a reply for you to review before it goes out.${evidence}`;
-      case "send_emails":
-        return `I've prepared the email and I'm ready to send it.${evidence}`;
-      case "update_systems":
-        return `I've prepared the change to the connected system.${evidence}`;
-      case "financial_actions":
-        return `I've prepared this financial action for review.${evidence}`;
+      // For question-answering and document-finding, attribution is the primary
+      // output — defer entirely to the grounded helper.
       case "answer_questions":
+      case "find_documents":
+        return composeAttributedReply(assessment, opts);
+
+      // For action-oriented capabilities, give the confirmatory verb and append
+      // evidence only when it is actually relevant.
+      case "prepare_work": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I've pulled together what I can for that: the relevant account context, recent conversations, open issues and documents.${evidenceAppendix}`;
+      }
+      case "schedule_meetings": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I can set that up. I'll find a time that works for everyone and send the invite.${evidenceAppendix}`;
+      }
+      case "draft_emails": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I've drafted a reply for you to review before it goes out.${evidenceAppendix}`;
+      }
+      case "send_emails": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I've prepared the email and I'm ready to send it.${evidenceAppendix}`;
+      }
+      case "update_systems": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I've prepared the change to the connected system.${evidenceAppendix}`;
+      }
+      case "financial_actions": {
+        const evidenceAppendix = appendEvidence(assessment);
+        return `I've prepared this financial action for review.${evidenceAppendix}`;
+      }
       default:
-        return contextLines.length > 0
-          ? `Based on what your organisation knows:${evidence}`
-          : `I don't have enough connected yet to answer that confidently. Once Microsoft 365 and your files are connected I'll be able to.`;
+        return composeAttributedReply(assessment, opts);
     }
   }
+}
+
+/**
+ * Format an evidence appendix for action-oriented replies.
+ * Returns an empty string when evidence is absent, insufficient, or contradictory
+ * so the confirmatory verb is not polluted with unreliable data.
+ */
+function appendEvidence(assessment: ReturnType<typeof assessEvidence>): string {
+  if (assessment.kind !== "sufficient") return "";
+  const lines = assessment.lines.map((l) => `  • ${l}`).join("\n");
+  const sources = assessment.sources.filter((s) => s && s !== "unknown");
+  const sourceBlock = sources.length > 0 ? `\n\nSources:\n${sources.map((s) => `  • ${s}`).join("\n")}` : "";
+  return `\n\nEvidence used:\n${lines}${sourceBlock}`;
 }
 
 let provider: IntelligenceProvider = new TemplateIntelligenceProvider();
@@ -160,11 +198,18 @@ export function getIntelligenceProvider(): IntelligenceProvider {
 }
 
 /* ---- context gathering -------------------------------------------- */
-
 const modelStore = config.DATABASE_URL ? createDb(config.DATABASE_URL) : null;
 
-async function gatherContext(tenantId: string): Promise<string[]> {
-  if (!modelStore) return [];
+async function gatherContext(
+  tenantId: string,
+  question: string,
+): Promise<{
+  lines: string[];
+  evidenceResult: Awaited<ReturnType<typeof import("../lib/evidence").searchTenantEvidence>> | null;
+}> {
+  if (!modelStore) {
+    return { lines: [], evidenceResult: null };
+  }
   try {
     const model = await modelStore.repository.loadTenantModel(tenantId);
     const lines: string[] = [];
@@ -176,15 +221,20 @@ async function gatherContext(tenantId: string): Promise<string[]> {
     if (model.facts.length) {
       lines.push(`${model.facts.length} extracted fact set${model.facts.length === 1 ? "" : "s"}`);
     }
-    return lines;
+    const { searchTenantEvidence } = await import("../lib/evidence");
+    const evidenceResult = await searchTenantEvidence(
+      modelStore.repository,
+      tenantId,
+      question,
+    );
+    return { lines: [...lines, ...evidenceResult.contextLines], evidenceResult };
   } catch (err) {
     logger.warn({ err }, "engine: context gather failed");
-    return [];
+    return { lines: [], evidenceResult: null };
   }
 }
 
 /* ---- the engine -------------------------------------------------- */
-
 function capabilityEnabled(state: OrgniState, key: CapabilityKey): boolean {
   return state.capabilities.find((c) => c.key === key)?.enabled ?? false;
 }
@@ -236,19 +286,23 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
     };
   }
 
-  // 2. Gather context + generate the reply body.
-  const contextLines = await gatherContext(req.tenantId);
+  // 2. Gather context + evidence + generate the reply body.
+  const { lines: contextLines, evidenceResult } = await gatherContext(
+    req.tenantId,
+    req.text,
+  );
+
   const body = await provider.generateReply({
     request: req,
     intent,
     organisationName,
     contextLines,
+    evidence: evidenceResult,
   });
 
   // 3. Approval gate for actions that change the outside world.
   const level = approvalLevel(state, intent.approvalCategory);
   const isExternalAction = intent.actionKind !== "none";
-
   if (isExternalAction && level !== "none") {
     const action: OrgniAction = {
       ...baseAction,
@@ -272,11 +326,20 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
     };
   }
 
-  // 4. Completed.
+  // 4. Completed. Record only source filenames actually cited by the reply.
+  const candidateSources = evidenceResult?.sourcesUsed ?? [];
+  const sourcesUsed = Array.from(
+    new Set(
+      candidateSources
+        .map((s) => s.filename)
+        .filter((name) => Boolean(name) && name !== "unknown" && body.includes(name)),
+    ),
+  );
+
   const action: OrgniAction = {
     ...baseAction,
     status: "completed",
-    sourcesUsed: contextLines,
+    sourcesUsed,
     actionsPerformed: [completedVerb(intent)],
     reason: "Within the current capability and approval settings.",
     result: "Done.",
@@ -285,7 +348,7 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
   return { reply: body, action, needsApproval: false };
 }
 
-/** Resolve an awaiting_approval action (approve → completed, reject → rejected). */
+/** Resolve an awaiting_approval action (approve ⇒ completed, reject ⇒ rejected). */
 export async function resolveAction(
   tenantId: string,
   actionId: string,
@@ -323,18 +386,20 @@ async function persist(
 }
 
 /* ---- small helpers ---------------------------------------------- */
-
 function summarise(text: string): string {
   const t = text.trim().replace(/\s+/g, " ");
   if (t.length <= 60) return capitalise(t);
   return capitalise(t.slice(0, 57)) + "…";
 }
+
 function capitalise(s: string) {
   return s ? s[0]!.toUpperCase() + s.slice(1) : s;
 }
+
 function truncate(s: string, n: number) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
+
 function completedVerb(intent: Intent): string {
   switch (intent.capability) {
     case "prepare_work": return "Prepared the brief";
@@ -344,6 +409,7 @@ function completedVerb(intent: Intent): string {
     default: return "Answered the question";
   }
 }
+
 function approvalFields(intent: Intent, text: string): { label: string; value: string }[] {
   if (intent.actionKind === "email") {
     return [
@@ -365,3 +431,6 @@ function approvalFields(intent: Intent, text: string): { label: string; value: s
     { label: "Action", value: intent.verb },
   ];
 }
+
+// Re-export for tests
+export { noKnowledgeReply, assessEvidence, composeAttributedReply } from "./attribution";
