@@ -19,15 +19,24 @@ export {
 
 export {
   createDocumentIntelligenceClient,
+  DocumentIntelligenceError,
+  parseRetryAfter,
   type DocumentIntelligenceConfig,
 } from "./document-intelligence/client.js";
 
 export type {
   DocumentIntelligence,
   IngestionInput,
+  IngestionLimits,
   IngestionRecord,
   IngestionState,
   IngestOptions,
 } from "./ingestion/pipeline.js";
 
-export { SUPPORTED_MIME_TYPES, checksumOf, computeRetryDelay } from "./ingestion/pipeline.js";
+export {
+  DEFAULT_LIMITS,
+  SUPPORTED_MIME_TYPES,
+  checksumOf,
+  computeRetryDelay,
+  isRecoverable,
+} from "./ingestion/pipeline.js";
