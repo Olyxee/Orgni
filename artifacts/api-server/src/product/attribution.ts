@@ -44,6 +44,52 @@ const MIN_ATTRIBUTION_SCORE = 2;
  *   for the same subject         → kind: "contradictory"
  * - Otherwise                    → kind: "sufficient"
  */
+/**
+ * Extract a comparable field value from a token.
+ *
+ * Rules:
+ * - Only compare factual value tokens (STATE/EVENT) for the same field/subject.
+ * - Ignore non-value tokens: policy, relation, entity, transaction links.
+ * - Ignore exception tokens (EXCEPTION_EVIDENCE, scenarioKey/observation payloads).
+ * - Primitive scalars (numbers, strings) or structured amounts ({ value, currency? })
+ *   are extracted as comparable representations.
+ */
+export function extractComparableValue(token: Record<string, unknown>): unknown | undefined {
+  const tokenKind = typeof token["tokenKind"] === "string" ? token["tokenKind"].toUpperCase() : "";
+  if (tokenKind === "POLICY" || tokenKind === "RELATION" || tokenKind === "ENTITY") {
+    return undefined;
+  }
+
+  const eventType = typeof token["eventType"] === "string" ? token["eventType"] : "";
+  if (
+    !eventType ||
+    eventType.toUpperCase().includes("EXCEPTION") ||
+    eventType === "TRANSACTION_LINK" ||
+    eventType === "ORGANIZATIONAL_POLICY"
+  ) {
+    return undefined;
+  }
+
+  const scalar = token["scalarValue"];
+  if (scalar === undefined || scalar === null) {
+    return undefined;
+  }
+
+  if (typeof scalar === "object") {
+    const sv = scalar as Record<string, unknown>;
+    // Exception observation payloads have scenarioKey or observation without a value field
+    if ("scenarioKey" in sv || "observation" in sv) {
+      return undefined;
+    }
+    if ("value" in sv) {
+      return sv["currency"] !== undefined ? `${sv["value"]} ${sv["currency"]}` : sv["value"];
+    }
+    return undefined;
+  }
+
+  return scalar;
+}
+
 export function assessEvidence(evidence: EvidenceResult | null | undefined): EvidenceAssessment {
   if (!evidence || evidence.matches.length === 0) {
     return { kind: "none" };
@@ -55,7 +101,8 @@ export function assessEvidence(evidence: EvidenceResult | null | undefined): Evi
   }
 
   // Contradiction check: same (eventType, subjectId) appearing in more than
-  // one distinct source with different scalar values.
+  // one distinct source with different scalar values for the same field.
+  // Exception tokens and relational observations are ignored.
   // Only run when there are multiple distinct sources — a single source cannot
   // contradict itself for contradiction-detection purposes.
   const distinctSources = new Set(qualifying.map((m) => m.sourceId));
@@ -69,16 +116,16 @@ export function assessEvidence(evidence: EvidenceResult | null | undefined): Evi
       const subjectId = typeof tok["subjectId"] === "string" ? tok["subjectId"] : null;
       if (!eventType || !subjectId) continue;
 
-      const key = `${eventType}::${subjectId}`;
-      const scalar = tok["scalarValue"];
-      if (scalar === undefined || scalar === null) continue;
+      const fieldValue = extractComparableValue(tok);
+      if (fieldValue === undefined || fieldValue === null) continue;
 
+      const key = `${eventType}::${subjectId}`;
       const existing = valueMap.get(key);
       if (!existing) {
-        valueMap.set(key, { value: scalar, sourceId: m.sourceId });
+        valueMap.set(key, { value: fieldValue, sourceId: m.sourceId });
       } else if (
         existing.sourceId !== m.sourceId &&
-        JSON.stringify(existing.value) !== JSON.stringify(scalar)
+        JSON.stringify(existing.value) !== JSON.stringify(fieldValue)
       ) {
         contradictionDetected = true;
         break;

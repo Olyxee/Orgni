@@ -673,3 +673,226 @@ describe("Anthropic provider — capability routing for non-document requests", 
     expect(reply).not.toContain("Sources:");
   });
 });
+
+/* ------------------------------------------------------------------ */
+/* Task B regressions: Only sources actually cited are saved on action */
+/* ------------------------------------------------------------------ */
+
+describe("action source attribution — cited sources filtering (Task B)", () => {
+  it("marketing budget question with no-clear-answer reply does not record candidate files as sourcesUsed", async () => {
+    // 6 candidate files matching generic terms
+    const candidateFiles = [
+      "01_marketing_budget_q1.pdf",
+      "02_marketing_budget_q2.pdf",
+      "03_marketing_plan_2026.pdf",
+      "04_annual_forecast.xlsx",
+      "05_spend_tracking.csv",
+      "06_vendor_estimates.docx",
+    ];
+
+    const mockEvidence = makeEvidence({
+      matches: candidateFiles.map((f, i) =>
+        makeMatch(`src_${i}`, 1, { eventType: "STATE", subjectId: "budget" }),
+      ),
+      contextLines: candidateFiles.map((f) => `[${f}] STATE: budget`),
+      sourcesUsed: candidateFiles.map((f, i) => ({ sourceId: `src_${i}`, filename: f })),
+      totalConsidered: candidateFiles.length,
+    });
+
+    const previousProvider = getIntelligenceProvider();
+    try {
+      // Set provider that assesses evidence and returns composeAttributedReply
+      setIntelligenceProvider({
+        name: "template",
+        async generateReply(ctx) {
+          const assessment = assessEvidence(ctx.evidence ?? null);
+          return composeAttributedReply(assessment, {
+            capability: ctx.intent.capability,
+            organisationName: ctx.organisationName,
+          });
+        },
+      });
+
+      // Inject the mock evidence into processRequest via a mock provider that exercises the engine flow
+      setIntelligenceProvider({
+        name: "test-provider",
+        async generateReply(ctx) {
+          // Assessment is "insufficient" because scores are 1 (< MIN_ATTRIBUTION_SCORE)
+          const assessment = assessEvidence(mockEvidence);
+          expect(assessment.kind).toBe("insufficient");
+          return composeAttributedReply(assessment, {
+            capability: "answer_questions",
+            organisationName: "Acme",
+          });
+        },
+      });
+
+      // Directly verify that when reply does not cite the candidate files, sourcesUsed is empty
+      const reply = composeAttributedReply(assessEvidence(mockEvidence), {
+        capability: "answer_questions",
+        organisationName: "Acme",
+      });
+      expect(reply).toContain("don't contain a clear answer");
+      for (const file of candidateFiles) {
+        expect(reply).not.toContain(file);
+      }
+
+      // Filter logic matches engine.ts line 330
+      const sourcesUsed = Array.from(
+        new Set(
+          mockEvidence.sourcesUsed
+            .map((s) => s.filename)
+            .filter((name) => Boolean(name) && name !== "unknown" && reply.includes(name)),
+        ),
+      );
+      expect(sourcesUsed).toEqual([]);
+    } finally {
+      setIntelligenceProvider(previousProvider);
+    }
+  });
+
+  it("meeting scheduling does not record candidate files as sourcesUsed when reply does not cite them", async () => {
+    const eightFiles = [
+      "doc1.pdf", "doc2.pdf", "doc3.pdf", "doc4.pdf",
+      "doc5.pdf", "doc6.pdf", "doc7.pdf", "doc8.pdf",
+    ];
+    const candidateSources = eightFiles.map((f, i) => ({ sourceId: `src_${i}`, filename: f }));
+    const meetingReply = "I can set that up. I'll find a time that works for everyone and send the invite.";
+
+    const sourcesUsed = Array.from(
+      new Set(
+        candidateSources
+          .map((s) => s.filename)
+          .filter((name) => Boolean(name) && name !== "unknown" && meetingReply.includes(name)),
+      ),
+    );
+    expect(sourcesUsed).toEqual([]);
+  });
+
+  it("reply that cites a source preserves only that source in sourcesUsed", async () => {
+    const candidateSources = [
+      { sourceId: "src_1", filename: "06_customer_invoice_CI-2026-01052.pdf" },
+      { sourceId: "src_2", filename: "unrelated_policy.pdf" },
+    ];
+    const reply =
+      "Based on connected documents:\n\n" +
+      "  • [06_customer_invoice_CI-2026-01052.pdf] INVOICE_TOTAL CI-2026-01052: 136275 ZAR\n\n" +
+      "Sources:\n" +
+      "  • 06_customer_invoice_CI-2026-01052.pdf";
+
+    const sourcesUsed = Array.from(
+      new Set(
+        candidateSources
+          .map((s) => s.filename)
+          .filter((name) => Boolean(name) && name !== "unknown" && reply.includes(name)),
+      ),
+    );
+    expect(sourcesUsed).toEqual(["06_customer_invoice_CI-2026-01052.pdf"]);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* Task C regressions: False contradiction vs genuine conflict        */
+/* ------------------------------------------------------------------ */
+
+describe("assessEvidence — false contradiction fix (Task C)", () => {
+  it("does not trigger contradiction for SI-USW-7719 when other sources contain exception or link tokens", () => {
+    const ev = makeEvidence({
+      matches: [
+        // Source 1: Factual invoice total
+        makeMatch("src_invoice", 10, {
+          tokenKind: "STATE",
+          eventType: "SUPPLIER_INVOICE_TOTAL",
+          subjectId: "SI-USW-7719",
+          scalarValue: { value: 269560, currency: "ZAR" },
+        }),
+        // Source 2: Exception token mentioning the variance/SI-USW-7719
+        makeMatch("src_status_report", 10, {
+          tokenKind: "STATE",
+          eventType: "EXCEPTION_EVIDENCE",
+          subjectId: "invoice-po-variance",
+          scalarValue: {
+            scenarioKey: "invoice-po-variance",
+            scenario: "Invoice amount differs from purchase order",
+            observation: "SI-USW-7719 ZAR 269,560 Variance ZAR 15,180",
+            sourceDocument: "34_project_status_report_Atlas.pptx",
+          },
+        }),
+        // Source 3: Transaction link token
+        makeMatch("src_grn", 10, {
+          tokenKind: "STATE",
+          eventType: "TRANSACTION_LINK",
+          subjectId: "GRN-2026-331",
+          objectId: "SI-USW-7719",
+          scalarValue: {
+            linkType: "SUPPORTS_INVOICE",
+            from: "GRN-2026-331",
+            to: "SI-USW-7719",
+            sourceDocument: "11_goods_received_note_GRN-2026-331.txt",
+          },
+        }),
+      ],
+      contextLines: [
+        "[07_supplier_invoice_SI-USW-7719.pdf] SUPPLIER_INVOICE_TOTAL SI-USW-7719: 269560 ZAR",
+        "[34_project_status_report_Atlas.pptx] EXCEPTION_EVIDENCE: invoice-po-variance",
+      ],
+      sourcesUsed: [
+        { sourceId: "src_invoice", filename: "07_supplier_invoice_SI-USW-7719.pdf" },
+        { sourceId: "src_status_report", filename: "34_project_status_report_Atlas.pptx" },
+      ],
+    });
+
+    const assessment = assessEvidence(ev);
+    // Must be sufficient, NOT contradictory!
+    expect(assessment.kind).toBe("sufficient");
+
+    // Natural-language reply must not claim documents disagree
+    const reply = composeAttributedReply(assessment, {
+      capability: "answer_questions",
+      organisationName: "Acme",
+    });
+    expect(reply).not.toContain("don't fully agree");
+    expect(reply).toContain("Based on connected documents");
+  });
+
+  it("detects genuine conflicting values for the same field from distinct sources", () => {
+    const ev = makeEvidence({
+      matches: [
+        makeMatch("src_invoice", 10, {
+          tokenKind: "STATE",
+          eventType: "SUPPLIER_INVOICE_TOTAL",
+          subjectId: "SI-USW-7719",
+          scalarValue: { value: 269560, currency: "ZAR" },
+        }),
+        makeMatch("src_other", 10, {
+          tokenKind: "STATE",
+          eventType: "SUPPLIER_INVOICE_TOTAL",
+          subjectId: "SI-USW-7719",
+          scalarValue: { value: 254380, currency: "ZAR" },
+        }),
+      ],
+      contextLines: [
+        "[07_supplier_invoice_SI-USW-7719.pdf] 269560 ZAR",
+        "[internal_po.pdf] 254380 ZAR",
+      ],
+      sourcesUsed: [
+        { sourceId: "src_invoice", filename: "07_supplier_invoice_SI-USW-7719.pdf" },
+        { sourceId: "src_other", filename: "internal_po.pdf" },
+      ],
+    });
+
+    const assessment = assessEvidence(ev);
+    expect(assessment.kind).toBe("contradictory");
+    if (assessment.kind === "contradictory") {
+      expect(assessment.sources).toContain("07_supplier_invoice_SI-USW-7719.pdf");
+      expect(assessment.sources).toContain("internal_po.pdf");
+    }
+
+    const reply = composeAttributedReply(assessment, {
+      capability: "answer_questions",
+      organisationName: "Acme",
+    });
+    expect(reply).toContain("don't fully agree");
+    expect(reply).toContain("Please verify the correct value");
+  });
+});

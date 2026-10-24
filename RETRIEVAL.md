@@ -216,39 +216,26 @@ pnpm --filter @workspace/db run migrate
 ### Unit tests (no database required)
 
 ```sh
-# Evidence retrieval service
+# Full api-server hermetic test suite (167 passed, 10 skipped)
+pnpm --filter @workspace/api-server run test
+
+# Or targeted evidence retrieval and attribution suites:
 pnpm exec vitest run artifacts/api-server/tests/attribution.test.ts
-# Engine routing + evidence integration
 pnpm exec vitest run artifacts/api-server/tests/product-engine.test.ts
-# Step 5 acceptance criteria
 pnpm exec vitest run artifacts/api-server/tests/step5-verification.test.ts
-# Worker ingestion + retry
-pnpm exec vitest run lib/worker/tests/ingestion.test.ts
 ```
 
-Run all at once:
-
-```sh
-pnpm exec vitest run \
-  artifacts/api-server/tests/attribution.test.ts \
-  artifacts/api-server/tests/product-engine.test.ts \
-  artifacts/api-server/tests/step5-verification.test.ts \
-  lib/worker/tests/ingestion.test.ts
-```
-
-**Expected**: 75 + 64 = 139 passed, 0 failed (no DATABASE_URL).
+**Expected**: 41 (attribution) + 15 (product-engine) + 24 (step5) = 80 passed. Full api-server suite: 167 passed, 10 skipped.
 
 ### PostgreSQL integration tests
 
 ```sh
 DATABASE_URL=postgres://... pnpm --filter @workspace/db run migrate
-DATABASE_URL=postgres://... pnpm exec vitest run \
-  lib/db/tests/evidence-retrieval.test.ts \
-  lib/db/tests/repository.test.ts
+DATABASE_URL=postgres://... pnpm --filter @workspace/db run test
 ```
 
-**Expected without DATABASE_URL**: 14 skipped, 0 failed.
-**Expected with DATABASE_URL**: 14 passed, 0 skipped.
+**Expected without DATABASE_URL**: 15 skipped, 0 failed.
+**Expected with DATABASE_URL**: 15 passed (8 evidence-retrieval including e2e Meridian test + 7 repository), 0 skipped.
 
 ---
 
@@ -280,18 +267,12 @@ The retrieval layer itself only requires PostgreSQL at query time.
 | File | Change |
 |---|---|
 | `artifacts/api-server/src/lib/evidence.ts` | Authoritative retrieval: `searchTenantEvidence`, `extractKeywords`, scoring, context formatting |
-| `artifacts/api-server/src/product/attribution.ts` | `assessEvidence` (floor=2, single-source contradiction guard), `composeAttributedReply`, `buildSourceBlock`, `noKnowledgeReply` |
-| `artifacts/api-server/src/product/engine.ts` | `gatherContext` calls retrieval; `IntelligenceContext.evidence`; narrowed `financial_actions` intent rule |
+| `artifacts/api-server/src/product/attribution.ts` | `assessEvidence` (floor=2, same-field contradiction check, exception token guard), `composeAttributedReply`, `buildSourceBlock`, `noKnowledgeReply` |
+| `artifacts/api-server/src/product/engine.ts` | `gatherContext` calls retrieval; `IntelligenceContext.evidence`; `sourcesUsed` records only actually cited sources |
 | `artifacts/api-server/src/product/intelligence-anthropic.ts` | No-knowledge short-circuit scoped to evidence-dependent capabilities only |
-| `artifacts/api-server/tests/attribution.test.ts` | 36 unit tests (26 original + 10 Phase 5 regressions) |
-| `artifacts/api-server/tests/product-engine.test.ts` | +5 intent routing tests |
+| `artifacts/api-server/tests/attribution.test.ts` | 41 unit tests (including Task B cited sources and Task C false contradiction regressions) |
+| `artifacts/api-server/tests/product-engine.test.ts` | Evidence integration tests |
 | `artifacts/api-server/tests/step5-verification.test.ts` | 24 acceptance tests |
-| `lib/db/src/repository.ts` | Removed `findEvidence()` and unused exported types |
-| `lib/db/tests/repository.test.ts` | Removed obsolete `findEvidence` describe block |
-| `lib/db/tests/evidence-retrieval.test.ts` | 7 PostgreSQL integration tests (skip cleanly without DATABASE_URL) |
-| `lib/worker/src/document-intelligence/client.ts` | `DocumentIntelligenceError` with structured fields |
-| `lib/worker/src/ingestion/pipeline.ts` | `isRecoverable` uses typed fields; `computeRetryDelay` with jitter + Retry-After cap |
-| `lib/worker/tests/ingestion.test.ts` | 64 tests covering retry classification and backoff |
-| `lib/evidence/` | **Deleted** — unused duplicate implementation |
+| `lib/db/tests/evidence-retrieval.test.ts` | 8 PostgreSQL integration tests (including e2e Meridian request test; skip cleanly without DATABASE_URL) |
 | `RETRIEVAL.md` | This file |
-| `.gitignore` | Added `.venv/`, `__pycache__/`, `*.pyc` |
+| `.gitignore` | Added `.venv/`, `venv/` |
