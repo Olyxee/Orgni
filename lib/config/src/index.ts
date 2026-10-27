@@ -103,7 +103,34 @@ export const apiEnvSchema = baseEnvSchema.extend({
   EMAIL_FROM: z.string().optional(),
   /** Base URL of the web app, for links in emails (falls back to PUBLIC_BASE_URL). */
   APP_BASE_URL: z.string().url().optional(),
-});
+
+  /* ---- OIDC / SSO -------------------------------------------------- */
+  /** OIDC issuer URL, e.g. "https://login.microsoftonline.com/{tenant}/v2.0". */
+  OIDC_ISSUER: z.string().url().optional(),
+  /** OIDC client id from the provider app registration. */
+  OIDC_CLIENT_ID: z.string().optional(),
+  /** OIDC client secret (used for token exchange at the callback). */
+  OIDC_CLIENT_SECRET: z.string().optional(),
+  /** Space-separated scopes requested from the provider (default "openid email profile"). */
+  OIDC_SCOPES: z.string().optional(),
+
+    /* ---- Microsoft 365 sync ------------------------------------------- */
+    /**
+     * Microsoft tenant id the sync runs against (the admin-consent target).
+     * Distinct from MICROSOFT_APP_TENANT_ID, which is the bot's home tenant.
+     */
+    MICROSOFT_TENANT_ID: z.string().optional(),
+    /** Microsoft app registration client id for the sync (Graph delegated flow). */
+    MICROSOFT_CLIENT_ID: z.string().optional(),
+    /** Client secret for the sync app registration. */
+    MICROSOFT_CLIENT_SECRET: z.string().optional(),
+    /** AES-256 key (base64, 32 bytes) used to vault refresh tokens at rest. */
+    MICROSOFT_SYNC_ENCRYPTION_KEY: z.string().optional(),
+    /** Drive id to sync (defaults to the tenant's default drive). */
+    MICROSOFT_DRIVE_ID: z.string().optional(),
+    /** Path within the drive to sync (defaults to root). */
+    MICROSOFT_SYNC_PATH: z.string().optional(),
+  });
 
 /** Worker service configuration. */
 export const workerEnvSchema = baseEnvSchema.extend({
@@ -112,7 +139,15 @@ export const workerEnvSchema = baseEnvSchema.extend({
   /** Polling interval for the job loop, in milliseconds. */
   WORKER_POLL_INTERVAL_MS: z.coerce.number().int().positive().default(5000),
   GIT_SHA: z.string().optional(),
-});
+
+    /* ---- Microsoft 365 sync (optional) -------------------------------- */
+    MICROSOFT_TENANT_ID: z.string().optional(),
+    MICROSOFT_CLIENT_ID: z.string().optional(),
+    MICROSOFT_CLIENT_SECRET: z.string().optional(),
+    MICROSOFT_SYNC_ENCRYPTION_KEY: z.string().optional(),
+    MICROSOFT_DRIVE_ID: z.string().optional(),
+    MICROSOFT_SYNC_PATH: z.string().optional(),
+  });
 
 export type ApiEnv = z.infer<typeof apiEnvSchema>;
 export type WorkerEnv = z.infer<typeof workerEnvSchema>;
