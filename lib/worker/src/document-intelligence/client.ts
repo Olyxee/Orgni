@@ -21,6 +21,17 @@ export interface DocumentIntelligenceConfig {
 }
 
 /**
+ * Options passed to a single Document Intelligence invocation.
+ */
+export interface DocumentIntelligenceOptions {
+  /**
+   * Timeout in milliseconds for this specific request attempt, typically
+   * clamped to the remaining overall ingestion time budget.
+   */
+  timeoutMs?: number;
+}
+
+/**
  * Structured error thrown by the Document Intelligence HTTP client.
  *
  * Carrying the HTTP status as a numeric field lets the pipeline's
@@ -49,13 +60,16 @@ export class DocumentIntelligenceError extends Error {
   readonly isTimeout: boolean;
   /** Whether the failure was caused by a network/transport connection failure. */
   readonly isConnectionFailure: boolean;
+  /** Underlying system error code (e.g. "ECONNREFUSED", "ETIMEDOUT") when available. */
+  readonly code?: string;
   /** Excerpt of the response body (≤ 500 chars), when available. */
   readonly responseBody?: string;
   /**
    * Milliseconds to wait before the next attempt, sourced from the
-   * `Retry-After` response header.  Present only when the service sent that
-   * header.  The pipeline caps this value against its configured maximum delay
-   * before using it.
+   * `Retry-After` response header when the service returns HTTP 429 or 503.
+   * The pipeline uses this value as the delay before the next attempt instead
+   * of computing it from the exponential backoff formula, capped by the
+   * operator-configured maximum wait.
    */
   readonly retryAfterMs?: number;
 
@@ -65,6 +79,7 @@ export class DocumentIntelligenceError extends Error {
       status?: number;
       isTimeout?: boolean;
       isConnectionFailure?: boolean;
+      code?: string;
       responseBody?: string;
       retryAfterMs?: number;
       cause?: unknown;
@@ -75,9 +90,78 @@ export class DocumentIntelligenceError extends Error {
     this.status = options.status;
     this.isTimeout = options.isTimeout ?? false;
     this.isConnectionFailure = options.isConnectionFailure ?? false;
+    this.code = options.code;
     this.responseBody = options.responseBody;
     this.retryAfterMs = options.retryAfterMs;
   }
+}
+
+export interface ConnectionErrorDetails {
+  message: string;
+  code?: string;
+  address?: string;
+  port?: number;
+}
+
+/**
+ * Extracts low-level socket and connection failure details from caught fetch errors.
+ * Node's native fetch (undici) wraps socket errors in a TypeError("fetch failed")
+ * with the underlying socket error attached as `cause`.
+ */
+export function extractConnectionDetails(cause: unknown): ConnectionErrorDetails {
+  if (!cause) {
+    return { message: "unknown connection failure" };
+  }
+
+  const inner =
+    typeof cause === "object" && cause !== null && "cause" in cause && (cause as { cause?: unknown }).cause
+      ? (cause as { cause?: unknown }).cause
+      : cause;
+
+  const code =
+    typeof inner === "object" && inner !== null && "code" in inner && typeof (inner as { code?: unknown }).code === "string"
+      ? (inner as { code: string }).code
+      : typeof cause === "object" && cause !== null && "code" in cause && typeof (cause as { code?: unknown }).code === "string"
+        ? (cause as { code: string }).code
+        : undefined;
+
+  const address =
+    typeof inner === "object" && inner !== null && "address" in inner && typeof (inner as { address?: unknown }).address === "string"
+      ? (inner as { address: string }).address
+      : undefined;
+
+  const port =
+    typeof inner === "object" && inner !== null && "port" in inner && typeof (inner as { port?: unknown }).port === "number"
+      ? (inner as { port: number }).port
+      : undefined;
+
+  let detailMessage: string;
+  if (inner instanceof Error && inner.message && inner.message !== "fetch failed") {
+    detailMessage = inner.message;
+  } else if (cause instanceof Error && cause.message && cause.message !== "fetch failed") {
+    detailMessage = cause.message;
+  } else if (typeof inner === "string") {
+    detailMessage = inner;
+  } else if (typeof cause === "string") {
+    detailMessage = cause;
+  } else {
+    detailMessage = "fetch failed";
+  }
+
+  // Augment detail message if it lacks the code or destination address/port
+  if (code && !detailMessage.includes(code)) {
+    detailMessage = `${detailMessage} (${code})`;
+  }
+  if (address && port && !detailMessage.includes(address)) {
+    detailMessage = `${detailMessage} [${address}:${port}]`;
+  }
+
+  return {
+    message: detailMessage,
+    code,
+    address,
+    port,
+  };
 }
 
 /**
@@ -109,11 +193,12 @@ export function createDocumentIntelligenceClient(
   config: DocumentIntelligenceConfig,
 ): DocumentIntelligence {
   const baseUrl = config.baseUrl.replace(/\/+$/, "");
-  const timeoutMs = config.timeoutMs ?? 30_000;
+  const defaultTimeoutMs = config.timeoutMs ?? 30_000;
 
   return async function callDocumentIntelligence(
     record: IngestionRecord,
     content: Uint8Array | string,
+    options?: DocumentIntelligenceOptions,
   ): Promise<NormalizedEnvelope> {
     const body = new FormData();
     // Copy into a plain ArrayBuffer: a Uint8Array may be backed by a
@@ -129,6 +214,12 @@ export function createDocumentIntelligenceClient(
     );
     body.append("source_id", record.sourceId);
     body.append("tenant_id", record.tenantId);
+
+    // Respect remaining overall time budget if specified by the pipeline
+    const timeoutMs =
+      options?.timeoutMs !== undefined
+        ? Math.max(1, Math.min(options.timeoutMs, defaultTimeoutMs))
+        : defaultTimeoutMs;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -152,13 +243,25 @@ export function createDocumentIntelligenceClient(
             (cause.name === "AbortError" ||
               cause.name === "TimeoutError" ||
               cause.message.toLowerCase().includes("abort")));
+
+        if (aborted) {
+          throw new DocumentIntelligenceError(
+            `document intelligence timed out after ${timeoutMs}ms`,
+            {
+              isTimeout: true,
+              isConnectionFailure: false,
+              cause,
+            },
+          );
+        }
+
+        const details = extractConnectionDetails(cause);
         throw new DocumentIntelligenceError(
-          aborted
-            ? `document intelligence timed out after ${timeoutMs}ms`
-            : `document intelligence connection failed: ${cause instanceof Error ? cause.message : String(cause)}`,
+          `document intelligence connection failed: ${details.message}`,
           {
-            isTimeout: aborted,
-            isConnectionFailure: !aborted,
+            isTimeout: false,
+            isConnectionFailure: true,
+            code: details.code,
             cause,
           },
         );

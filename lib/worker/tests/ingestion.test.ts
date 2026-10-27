@@ -322,11 +322,12 @@ describe("ingestion — security and access metadata", () => {
   });
 });
 import { createServer, type Server } from "node:http";
-import type { AddressInfo, Socket } from "node:net";
+import net, { type AddressInfo, type Socket } from "node:net";
 import { apiEnvSchema } from "@workspace/config";
 import {
   DocumentIntelligenceError,
   createDocumentIntelligenceClient,
+  extractConnectionDetails,
   parseRetryAfter,
 } from "../src/document-intelligence/client.js";
 
@@ -465,6 +466,36 @@ describe("isRecoverable — DocumentIntelligenceError typed checks", () => {
     expect(isRecoverable("some string")).toBe(false);
     expect(isRecoverable(null)).toBe(false);
     expect(isRecoverable(42)).toBe(false);
+  });
+
+  it("extractConnectionDetails preserves inner error code and message", () => {
+    const inner = Object.assign(new Error("connect ECONNREFUSED 127.0.0.1:54321"), {
+      code: "ECONNREFUSED",
+      address: "127.0.0.1",
+      port: 54321,
+    });
+    const fetchErr = new TypeError("fetch failed", { cause: inner });
+
+    const details = extractConnectionDetails(fetchErr);
+    expect(details.code).toBe("ECONNREFUSED");
+    expect(details.message).toContain("ECONNREFUSED");
+    expect(details.message).toContain("127.0.0.1:54321");
+  });
+
+  it("DocumentIntelligenceError exposes code property", () => {
+    const err = new DocumentIntelligenceError("test connection failure", {
+      isConnectionFailure: true,
+      code: "ECONNREFUSED",
+    });
+    expect(err.isConnectionFailure).toBe(true);
+    expect(err.code).toBe("ECONNREFUSED");
+  });
+
+  it("DEFAULT_LIMITS specifies 5 maxAttempts with 1000ms retryBaseMs and 60000ms totalTimeoutMs", () => {
+    expect(DEFAULT_LIMITS.maxAttempts).toBe(5);
+    expect(DEFAULT_LIMITS.retryBaseMs).toBe(1000);
+    expect(DEFAULT_LIMITS.totalTimeoutMs).toBe(60_000);
+    expect(DEFAULT_LIMITS.maxRetryAfterMs).toBe(10_000);
   });
 });
 
@@ -1181,6 +1212,73 @@ function startTestServer(
 }
 
 describe("ingestion — real HTTP integration with createDocumentIntelligenceClient", () => {
+  it("real socket — connection refusal on a closed port retains underlying cause (ECONNREFUSED) and stops within limits", async () => {
+    // Obtain a genuinely free, closed local port using Node's net module
+    const closedPort = await new Promise<number>((resolve, reject) => {
+      const srv = net.createServer();
+      srv.listen(0, "127.0.0.1", () => {
+        const address = srv.address() as AddressInfo;
+        const port = address.port;
+        srv.close((err) => {
+          if (err) reject(err);
+          else resolve(port);
+        });
+      });
+    });
+
+    const client = createDocumentIntelligenceClient({
+      baseUrl: `http://127.0.0.1:${closedPort}`,
+      timeoutMs: 1000,
+    });
+
+    const record = await ingestDocument(input(), client, {
+      limits: { maxAttempts: 2, retryBaseMs: 10, totalTimeoutMs: 5000 },
+    });
+
+    expect(record.state).toBe("FAILED");
+    expect(record.attempts).toBe(2);
+    // Transient failure exhausted, not permanent
+    expect(record.errors[0]).toContain("transient_exhausted");
+    // Actionable error retaining ECONNREFUSED and destination port rather than only "fetch failed"
+    expect(record.errors[0]).toContain("ECONNREFUSED");
+    expect(record.errors[0]).toContain(String(closedPort));
+    expect(record.errors[0]).not.toContain("connection failed: fetch failed");
+  });
+
+  it("real HTTP — clamps per-request timeout to remaining overall time budget", async () => {
+    let requestCount = 0;
+    const { url, close } = await startTestServer((_req, _res) => {
+      requestCount += 1;
+      // Intentionally never respond, forcing request timeout
+    });
+
+    try {
+      // Client has 15s default per-request timeout
+      const client = createDocumentIntelligenceClient({
+        baseUrl: url,
+        timeoutMs: 15_000,
+      });
+
+      const start = Date.now();
+      // Total budget is strictly 150ms
+      const record = await ingestDocument(input(), client, {
+        limits: {
+          maxAttempts: 2,
+          retryBaseMs: 10,
+          totalTimeoutMs: 150,
+        },
+      });
+      const elapsed = Date.now() - start;
+
+      expect(record.state).toBe("FAILED");
+      // Clamping ensures it does not wait 15,000ms
+      expect(elapsed).toBeLessThan(1500);
+      expect(record.errors[0]).toContain("timed out");
+    } finally {
+      await close();
+    }
+  });
+
   it("real HTTP — retries connection refusal on a closed port and fails when attempts exhausted", async () => {
     const { port, close } = await startTestServer((_req, res) => res.end());
     await close(); // Port is now closed

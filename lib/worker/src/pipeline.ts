@@ -22,6 +22,7 @@ export {
   DocumentIntelligenceError,
   parseRetryAfter,
   type DocumentIntelligenceConfig,
+  type DocumentIntelligenceOptions,
 } from "./document-intelligence/client.js";
 
 export type {

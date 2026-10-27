@@ -15,7 +15,12 @@ import { createHash, randomUUID } from "node:crypto";
 import type { PrincipalRule } from "@workspace/contracts";
 
 import type { NormalizedEnvelope } from "../envelope/types.js";
-import { DocumentIntelligenceError } from "../document-intelligence/client.js";
+import {
+  DocumentIntelligenceError,
+  type DocumentIntelligenceOptions,
+} from "../document-intelligence/client.js";
+
+export type { DocumentIntelligenceOptions } from "../document-intelligence/client.js";
 
 export type IngestionState = "RECEIVED" | "PROCESSING" | "COMPLETED" | "FAILED";
 
@@ -44,7 +49,7 @@ export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number];
 export interface IngestionLimits {
   /** Maximum accepted document size. Default 20 MB. */
   maxBytes: number;
-  /** Attempts per document for recoverable failures. Default 3. */
+  /** Attempts per document for recoverable failures. Default 5. */
   maxAttempts: number;
   /** Base delay for retry backoff, in milliseconds. Default 1000 ms (1 s). */
   retryBaseMs: number;
@@ -56,7 +61,7 @@ export interface IngestionLimits {
 
 export const DEFAULT_LIMITS: IngestionLimits = {
   maxBytes: 20 * 1024 * 1024,
-  maxAttempts: 3,
+  maxAttempts: 5,
   retryBaseMs: 1000,
   maxRetryAfterMs: 10_000,
   totalTimeoutMs: 60_000,
@@ -109,6 +114,7 @@ const noopLogger: PipelineLogger = {
 export type DocumentIntelligence = (
   record: IngestionRecord,
   content: Uint8Array | string,
+  options?: DocumentIntelligenceOptions,
 ) => Promise<NormalizedEnvelope>;
 
 /**
@@ -351,7 +357,8 @@ export async function ingestDocument(
 
   for (let attempt = 1; attempt <= limits.maxAttempts; attempt += 1) {
     const elapsedBefore = Date.now() - startTime;
-    if (elapsedBefore >= limits.totalTimeoutMs) {
+    const remainingTimeBudget = limits.totalTimeoutMs - elapsedBefore;
+    if (remainingTimeBudget <= 0) {
       deadlineExceeded = true;
       log.warn(
         {
@@ -367,7 +374,9 @@ export async function ingestDocument(
 
     record.attempts = attempt;
     try {
-      const envelope = await documentIntelligence(record, input.content);
+      const envelope = await documentIntelligence(record, input.content, {
+        timeoutMs: remainingTimeBudget,
+      });
       record.envelope = envelope;
       record.warnings.push(...envelope.warnings);
       record.state = "COMPLETED";
