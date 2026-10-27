@@ -60,8 +60,8 @@ export const apiEnvSchema = baseEnvSchema.extend({
     .optional(),
   /**
    * Maximum number of attempts per document when the Document Intelligence
-   * service returns a transient error.  Defaults to 3 when unset (1 initial
-   * attempt + 2 retries).  Set to 1 to disable retries entirely.
+   * service returns a transient error.  Defaults to 5 when unset (1 initial
+   * attempt + 4 retries).  Set to 1 to disable retries entirely.
    */
   DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS: z.coerce
     .number()
