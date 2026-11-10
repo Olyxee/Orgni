@@ -2,10 +2,12 @@
  * Knowledge — "What Orgni understands", as an interactive map built from the
  * model API. Empty until Orgni has processed real information.
  */
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "wouter";
-import { Network, List as ListIcon } from "lucide-react";
+import { Loader2, Network, List as ListIcon, Upload } from "lucide-react";
 import { useOrgni } from "@/lib/orgni/service";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/app/primitives";
 import { PageSkeleton, EmptyState } from "@/components/app/states";
 import { KnowledgeGraph, CATEGORY_LABEL } from "@/components/app/knowledge-graph";
@@ -23,9 +25,36 @@ const ORDER: KnowledgeCategory[] = [
 ];
 
 export default function Knowledge() {
-  const { state, loading } = useOrgni();
+  const { state, loading, addFiles } = useOrgni();
   const [view, setView] = useState<"graph" | "list">("graph");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const kn = state.knowledge;
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      const { added, failed } = await addFiles(files);
+      toast({
+        title:
+          added > 0
+            ? `${added} file${added === 1 ? "" : "s"} added`
+            : "Nothing was added",
+        description:
+          added === 0
+            ? "Orgni could not process those files. Check that the local document service is running."
+            : failed > 0
+              ? `${failed} could not be read.`
+              : "Orgni is processing them now.",
+      });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
 
   if (loading && !state.organisation) return <PageSkeleton />;
 
@@ -36,6 +65,14 @@ export default function Knowledge() {
 
   return (
     <div className="flex h-full flex-col gap-4 animate-in fade-in duration-300">
+      <input
+        ref={fileRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={onPick}
+        accept=".pdf,.docx,.xlsx,.pptx,.rtf,.txt,.md,.csv,.tsv,.json,.xml,.html,.htm,.png,.jpg,.jpeg"
+      />
       <PageHeader
         title="What Orgni understands"
         description={
@@ -44,8 +81,17 @@ export default function Knowledge() {
             : "Orgni builds this from the information your organisation already uses."
         }
         action={
-          kn.graph.nodes.length > 0 ? (
-            <div className="inline-flex overflow-hidden rounded-lg border border-border">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={() => fileRef.current?.click()} disabled={uploading}>
+              {uploading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Upload className="size-4" />
+              )}
+              Upload files
+            </Button>
+            {kn.graph.nodes.length > 0 ? (
+              <div className="inline-flex overflow-hidden rounded-lg border border-border">
               {(
                 [
                   ["graph", Network, "Map"],
@@ -66,8 +112,9 @@ export default function Knowledge() {
                   {label}
                 </button>
               ))}
-            </div>
-          ) : undefined
+              </div>
+            ) : null}
+          </div>
         }
       />
 
@@ -81,13 +128,13 @@ export default function Knowledge() {
         kn.state === "learning" ? null : (
           <EmptyState
             title="Nothing yet"
-            description="Connect Microsoft 365 or add files, and Orgni will start building context automatically."
+            description="Upload files directly, or connect a system later. Orgni will start building context automatically."
             action={
               <Link
                 href="/app/settings/connections"
                 className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background"
               >
-                Add knowledge
+                Browse integrations
               </Link>
             }
           />

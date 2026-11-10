@@ -142,10 +142,13 @@ class TemplateIntelligenceProvider implements IntelligenceProvider {
       case "financial_actions":
         return `I've prepared this financial action for review.${evidence}`;
       case "answer_questions":
+        return contextLines.length > 0
+          ? `Here's what I found in your uploaded information:\n\n${contextLines.map((line) => `• ${line}`).join("\n")}`
+          : "I couldn't find uploaded information that matches that question. Try a product name, category, or another term from your files.";
       default:
         return contextLines.length > 0
           ? `Based on what your organisation knows:${evidence}`
-          : `I don't have enough connected yet to answer that confidently. Once Microsoft 365 and your files are connected I'll be able to.`;
+          : `I don't have enough information yet to answer that confidently.`;
     }
   }
 }
@@ -166,20 +169,124 @@ export function getIntelligenceProvider(): IntelligenceProvider {
 
 const modelStore = config.DATABASE_URL ? createDb(config.DATABASE_URL) : null;
 
-async function gatherContext(tenantId: string): Promise<string[]> {
+async function gatherContext(
+  tenantId: string,
+  question: string,
+): Promise<string[]> {
   if (!modelStore) return [];
   try {
     const model = await modelStore.repository.loadTenantModel(tenantId);
-    const lines: string[] = [];
-    if (model.sources.length) {
-      lines.push(`${model.sources.length} document${model.sources.length === 1 ? "" : "s"} in your workspace`);
-      const latest = model.sources[0];
-      if (latest) lines.push(`Most recent: ${latest.filename}`);
+    const sourceNames = new Map(model.sources.map((source) => [source.sourceId, source.filename]));
+    const storedTokens = await modelStore.repository.listTenantTokens(tenantId);
+    const stopWords = new Set([
+      "what", "when", "where", "which", "who", "why", "how", "does", "did",
+      "has", "have", "had", "is", "are", "do", "from", "your", "our", "the", "and", "for", "with",
+      "this", "that", "about", "tell", "show", "me", "can", "you", "all",
+      "files", "file", "documents", "document", "uploaded", "orgni", "learned",
+      "know", "summarize", "summary", "fact", "facts", "key", "information",
+      "data", "of", "on", "in", "at", "by",
+    ]);
+    const terms = [
+      ...new Set(
+        (question.toLowerCase().match(/[a-z0-9][a-z0-9_-]*/g) ?? []).filter(
+          (term) => term.length > 2 && !stopWords.has(term),
+        ).map((term) => term.replace(/s$/, "")),
+      ),
+    ];
+    const synonyms: Record<string, string[]> = {
+      cost: ["cost", "price", "amount", "expense"],
+      truck: ["truck", "lorry"],
+    };
+    const candidates: Array<{ line: string; score: number }> = [];
+    const addCandidate = (sourceName: string, fields: [string, unknown][]) => {
+      const summary = fields
+        .flatMap(([key, value]) => {
+          if (value === null || value === undefined) return [];
+          const text =
+            typeof value === "object"
+              ? JSON.stringify(value)
+              : String(value);
+          return [`${key}: ${text.slice(0, 180)}`];
+        })
+        .join("; ");
+      if (!summary) return;
+      const line = `${sourceName}: ${summary}`;
+      const lowerLine = line.toLowerCase();
+      const score = terms.reduce(
+        (total, term) =>
+          total +
+          ((synonyms[term] ?? [term]).some((word) => lowerLine.includes(word))
+            ? 1
+            : 0),
+        0,
+      );
+      candidates.push({ line, score });
+    };
+
+    for (const factSet of model.facts) {
+      const sourceName = sourceNames.get(factSet.sourceId);
+      const result = factSet.result as { facts?: unknown };
+      if (!sourceName || !Array.isArray(result.facts)) continue;
+      for (const fact of result.facts) {
+        if (typeof fact !== "object" || fact === null || Array.isArray(fact)) continue;
+        addCandidate(
+          sourceName,
+          Object.entries(fact).filter((entry) =>
+            ["string", "number", "boolean"].includes(typeof entry[1]),
+          ),
+        );
+      }
     }
-    if (model.facts.length) {
-      lines.push(`${model.facts.length} extracted fact set${model.facts.length === 1 ? "" : "s"}`);
+
+    for (const row of storedTokens) {
+      const sourceName = sourceNames.get(row.sourceId);
+      if (!sourceName) continue;
+      const token = row.token;
+      if (token.tokenKind === "ENTITY") continue;
+      if (
+        token.eventType === "SPREADSHEET_ROW" &&
+        typeof token.scalarValue === "object" &&
+        token.scalarValue !== null &&
+        "row" in token.scalarValue &&
+        typeof token.scalarValue.row === "string"
+      ) {
+        addCandidate(sourceName, [["row", token.scalarValue.row]]);
+        continue;
+      }
+      const fields = [
+        "tokenKind",
+        "eventType",
+        "subjectId",
+        "predicate",
+        "objectId",
+        "scalarValue",
+        "epistemicStatus",
+        "confidence",
+      ].flatMap((key) =>
+        token[key] === undefined ? [] : [[key, token[key]] as [string, unknown]],
+      );
+      const excerpts = Array.isArray(token.sourceRefs)
+        ? token.sourceRefs.flatMap((reference) => {
+            if (
+              typeof reference === "object" &&
+              reference !== null &&
+              "excerpt" in reference &&
+              typeof reference.excerpt === "string"
+            ) {
+              return [["excerpt", reference.excerpt] as [string, unknown]];
+            }
+            return [];
+          })
+        : [];
+      addCandidate(sourceName, [...fields, ...excerpts]);
     }
-    return lines;
+
+    const matching =
+      terms.length > 0
+        ? candidates.filter((fact) => fact.score === terms.length)
+        : candidates;
+    const selected = matching.sort((a, b) => b.score - a.score).slice(0, 8);
+    return selected.map((fact) => fact.line);
   } catch (err) {
     logger.warn({ err }, "engine: context gather failed");
     return [];
@@ -240,7 +347,7 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
   }
 
   // 2. Gather context + generate the reply body.
-  const contextLines = await gatherContext(req.tenantId);
+  const contextLines = await gatherContext(req.tenantId, req.text);
   const body = await provider.generateReply({
     request: req,
     intent,

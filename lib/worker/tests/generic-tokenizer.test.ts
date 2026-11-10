@@ -59,4 +59,35 @@ describe("generic evidence tokenization", () => {
     const result = tokenizeEnvelope(envelope("A short general note."));
     expect(result.tokens).toEqual([]);
   });
+
+  it("preserves spreadsheet rows as source-attributed evidence", () => {
+    const workbook = envelope(
+      [
+        "SKU\tProduct\tUnit price",
+        "SKU-104\tSteel pump housing\t11060.00",
+      ].join("\n"),
+    );
+    workbook.metadata.filename = "Sales Price List.xlsx";
+
+    const result = tokenizeEnvelope(workbook);
+    expect(result.tokens).toContainEqual(
+      expect.objectContaining({
+        tokenKind: "STATE",
+        eventType: "SPREADSHEET_ROW",
+        scalarValue: expect.objectContaining({
+          row: "SKU-104 Steel pump housing 11060.00",
+          rowNumber: 2,
+          sourceDocument: "Sales Price List.xlsx",
+          rowFormatVersion: 2,
+        }),
+      }),
+    );
+  });
+
+  it("does not treat a standalone legal suffix as an entity", () => {
+    const result = tokenizeEnvelope(envelope("Pty) Limited"));
+    expect(result.tokens.filter((token) => token.tokenKind === "ENTITY")).toEqual(
+      [],
+    );
+  });
 });

@@ -95,8 +95,22 @@ router.post(
         ontology !== null &&
         (doc?.tokens.length ?? 0) > 0 &&
         doc?.facts === null;
+      const hasCurrentSpreadsheetRows = doc?.tokens.some((token) => {
+        const value = token.token["scalarValue"];
+        return (
+          token.token["eventType"] === "SPREADSHEET_ROW" &&
+          typeof value === "object" &&
+          value !== null &&
+          !Array.isArray(value) &&
+          "rowFormatVersion" in value &&
+          value.rowFormatVersion === 2
+        );
+      });
+      const needsSpreadsheetRetokenization =
+        /\.(?:xlsx|csv|tsv)$/i.test(file.originalname) &&
+        !hasCurrentSpreadsheetRows;
 
-      if (!needsOntologyRetry) {
+      if (!needsOntologyRetry && !needsSpreadsheetRetokenization) {
         res.status(200).json({
           sourceId: existing.sourceId,
           schemaVersion: "0.1.0",
