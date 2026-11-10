@@ -245,12 +245,12 @@ function StepConnect({
   return (
     <StepShell
       title="Connect your workplace"
-      copy="Let Orgni work with the tools your team already uses."
+      copy="Connect a workplace system, or continue with files you upload yourself. You can connect systems later."
       footer={
         <>
           <BackButton onClick={onBack} />
-          <Button onClick={onNext} disabled={!connected}>
-            Continue
+          <Button onClick={onNext}>
+            {connected ? "Continue" : "Continue without connecting"}
             <ArrowRight className="size-4" />
           </Button>
         </>

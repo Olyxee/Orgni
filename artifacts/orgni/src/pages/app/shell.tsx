@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from "react";
 import { Link, Redirect, Route, Switch, useLocation } from "wouter";
-import { BookOpen, LayoutGrid, Menu, X } from "lucide-react";
+import { BookOpen, LayoutGrid, MessageCircle, Menu, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/hooks/use-seo";
 import { OrgniProvider, useOrgni } from "@/lib/orgni/service";
@@ -17,11 +17,13 @@ import { SettingsModal, settingsTabFromPath } from "@/components/app/settings-mo
 
 import Onboarding from "./onboarding";
 import Overview from "./screens/overview";
+import Ask from "./screens/ask";
 import Knowledge from "./screens/knowledge";
 import KnowledgeDetail from "./screens/knowledge-detail";
 
 const NAV = [
   { name: "Overview", href: "/app", icon: LayoutGrid, exact: true },
+  { name: "Ask Orgni", href: "/app/ask", icon: MessageCircle },
   { name: "Knowledge", href: "/app/knowledge", icon: BookOpen },
 ];
 
@@ -100,6 +102,7 @@ function Chrome() {
         <main className="min-w-0 flex-1 pb-16">
           <Switch>
             <Route path="/app" component={Overview} />
+            <Route path="/app/ask" component={Ask} />
             <Route path="/app/knowledge" component={Knowledge} />
             <Route path="/app/knowledge/:id" component={KnowledgeDetail} />
             <Route path="/app/onboarding">

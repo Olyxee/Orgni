@@ -51,17 +51,44 @@ def test_extracts_excel_shared_strings_and_values():
         {
             "xl/sharedStrings.xml": (
                 '<sst xmlns="urn:x"><si><t>Vendor</t></si>'
-                "<si><t>Acme Logistics</t></si></sst>"
+                "<si><t>Amount</t></si><si><t>Acme Logistics</t></si></sst>"
             ),
             "xl/worksheets/sheet1.xml": (
                 '<worksheet xmlns="urn:x"><sheetData><row>'
-                '<c t="s"><v>0</v></c><c t="s"><v>1</v></c><c><v>18450</v></c>'
+                '<c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c></row>'
+                '<row><c r="A2" t="s"><v>2</v></c><c r="B2"><v>18450</v></c>'
                 "</row></sheetData></worksheet>"
             ),
         }
     )
     assert extract_document_text(workbook, ".xlsx") == (
-        "Vendor\tAcme Logistics\t18450"
+        "Vendor: Acme Logistics; Amount: 18450"
+    )
+
+
+def test_extracts_section_and_item_columns_from_price_list():
+    workbook = make_archive(
+        {
+            "xl/sharedStrings.xml": (
+                '<sst xmlns="urn:x"><si><t>Heavy-duty truck parts</t></si>'
+                "<si><t>Price</t></si><si><t>Order Code</t></si>"
+                "<si><t>Unit</t></si><si><t>Heavy-Duty Transmission</t></si>"
+                "<si><t>HDTP00002</t></si><si><t>Each</t></si></sst>"
+            ),
+            "xl/worksheets/sheet1.xml": (
+                '<worksheet xmlns="urn:x"><sheetData>'
+                '<row><c r="A1" t="s"><v>0</v></c></row>'
+                '<row><c r="B2" t="s"><v>1</v></c><c r="C2" t="s"><v>2</v></c>'
+                '<c r="D2" t="s"><v>3</v></c></row>'
+                '<row><c r="A3" t="s"><v>4</v></c><c r="B3"><v>17800</v></c>'
+                '<c r="C3" t="s"><v>5</v></c><c r="D3" t="s"><v>6</v></c></row>'
+                "</sheetData></worksheet>"
+            ),
+        }
+    )
+    assert extract_document_text(workbook, ".xlsx") == (
+        "Heavy-duty truck parts: Item: Heavy-Duty Transmission; Price: 17800; "
+        "Order Code: HDTP00002; Unit: Each"
     )
 
 

@@ -15,7 +15,14 @@ if (process.env.ANTHROPIC_API_KEY) {
 }
 
 function startDocumentIntelligence(): ChildProcess | null {
-  if (config.DOCUMENT_INTELLIGENCE_URL) return null;
+  if (
+    config.DOCUMENT_INTELLIGENCE_URL &&
+    !["localhost", "127.0.0.1", "::1", "[::1]"].includes(
+      new URL(config.DOCUMENT_INTELLIGENCE_URL).hostname,
+    )
+  ) {
+    return null;
+  }
   const candidates = [
     path.resolve(process.cwd(), "intelligence/document-intelligence"),
     path.resolve(process.cwd(), "../../intelligence/document-intelligence"),
@@ -27,8 +34,20 @@ function startDocumentIntelligence(): ChildProcess | null {
     logger.warn("Bundled Document Intelligence service is missing; continuing without it.");
     return null;
   }
+  const projectRoot = path.resolve(serviceDir, "../..");
+  const venvPython = path.resolve(
+    projectRoot,
+    ".venv",
+    process.platform === "win32" ? "Scripts" : "bin",
+    process.platform === "win32" ? "python.exe" : "python",
+  );
+  const python = existsSync(venvPython)
+    ? venvPython
+    : process.platform === "win32"
+      ? "python"
+      : "python3";
   const child = spawn(
-    "python3",
+    python,
     ["-m", "uvicorn", "main:app", "--host", "127.0.0.1", "--port", "8000"],
     { cwd: serviceDir, stdio: ["ignore", "inherit", "inherit"] },
   );

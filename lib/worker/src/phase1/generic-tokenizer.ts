@@ -113,7 +113,13 @@ function addEntity(
   entity: EntityCandidate,
 ): void {
   const name = clean(entity.name);
-  if (!name || name.length < 2 || /^pty\)?\s+ltd$/i.test(name)) return;
+  if (
+    !name ||
+    name.length < 2 ||
+    /^pty\)?\s+(?:ltd|limited)$/i.test(name)
+  ) {
+    return;
+  }
   const key = entity.id ?? `${entity.type}:${canonicalAliasKey(name)}`;
   const previous = target.get(key);
   if (!previous) {
@@ -289,6 +295,34 @@ function entityTokens(
     actionScope: ["context-model", "identity-resolution"],
     retentionClass: "organizational-evidence",
   })) as OrganizationalToken[];
+}
+
+function spreadsheetRowTokens(
+  envelope: NormalizedEnvelope,
+  text: string,
+): OrganizationalToken[] {
+  if (!/\.(?:xlsx|csv|tsv)$/i.test(envelope.metadata.filename)) return [];
+  return text
+    .split(/\r?\n/)
+    .map(clean)
+    .filter(Boolean)
+    .slice(0, 300)
+    .map((row, index) => ({
+      ...baseToken(envelope, `spreadsheet_row_${index + 1}`, row),
+      tokenKind: "STATE",
+      eventType: "SPREADSHEET_ROW",
+      subjectId: `${envelope.metadata.filename} row ${index + 1}`,
+      scalarValue: {
+        row,
+        rowNumber: index + 1,
+        sourceDocument: envelope.metadata.filename,
+        rowFormatVersion: 2,
+      },
+      confidence: 0.72,
+      epistemicStatus: "OBSERVED",
+      actionScope: ["context-model"],
+      retentionClass: "organizational-evidence",
+    })) as OrganizationalToken[];
 }
 
 function directoryRelationships(
@@ -1132,6 +1166,7 @@ export function tokenizeGenericEnvelope(
 
   return [
     ...entityTokens(envelope, entities),
+    ...spreadsheetRowTokens(envelope, text),
     ...directoryRelationships(envelope, text, entities),
     ...businessRelationships(envelope, text),
     ...explicitRelationshipTokens(envelope, lines),

@@ -22,6 +22,7 @@ import { authenticate, SESSION_COOKIE } from "../lib/authenticate";
 import { hashPassword, verifyPassword } from "../lib/passwords";
 import { emailConfigured, sendPasswordReset, sendVerificationEmail } from "../lib/email";
 import { logger } from "../lib/logger";
+import { logAuthAudit } from "../lib/auth-audit";
 import {
   credentialPolicy,
   enforce,
@@ -197,6 +198,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     if (mustVerify) await issueVerification(email);
   } catch (error) {
     if (isUniqueViolation(error)) {
+      logAuthAudit(req, "register", "failure", { email, reason: "account_exists" });
       res.status(409).json({ error: "account_exists" });
       return;
     }
@@ -205,6 +207,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
   }
   recordOutcome(signupPolicy, "signup", req, "success");
   if (mustVerify) {
+    logAuthAudit(req, "register", "accepted", { email, tenantId, reason: "email_verification_required" });
     res.status(202).json({ pendingVerification: true, email });
     return;
   }
@@ -214,6 +217,7 @@ router.post("/auth/register", async (req: Request, res: Response) => {
     "Set-Cookie",
     `${SESSION_COOKIE}=${encodeURIComponent(result.token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=28800${secure}`,
   );
+  logAuthAudit(req, "register", "success", { email, tenantId });
   res.status(201).json({ principal: result.principal });
 });
 
@@ -246,6 +250,7 @@ router.post("/auth/verify-email", async (req: Request, res: Response) => {
     const name = account ? await organizationName(account.tenantId) : null;
     if (!account || !name) {
       recordOutcome(credentialPolicy, "credentials", req, "failure");
+      logAuthAudit(req, "email_verify", "failure", { reason: "invalid_or_expired_token" });
       return invalid(res, "invalid_token");
     }
 
@@ -257,6 +262,7 @@ router.post("/auth/verify-email", async (req: Request, res: Response) => {
       await tx.delete(emailVerifications).where(eq(emailVerifications.email, account.email));
     });
     recordOutcome(credentialPolicy, "credentials", req, "success");
+    logAuthAudit(req, "email_verify", "success", { email: account.email, tenantId: account.tenantId });
     sendSession(res, account.email, account.tenantId, name);
   } catch (error) {
     logger.error({ err: error }, "email verification failed");
@@ -282,6 +288,11 @@ router.post("/auth/verify-email/resend", async (req: Request, res: Response) => 
         .from(accounts)
         .where(eq(accounts.email, email));
       if (account && !account.emailVerifiedAt) await issueVerification(email);
+      logAuthAudit(req, "email_verify", "accepted", {
+        email,
+        ...(account ? { tenantId: account.tenantId } : {}),
+        reason: account && !account.emailVerifiedAt ? "verification_resent" : "no_action",
+      });
     } catch (error) {
       logger.error({ err: error }, "verification resend failed");
     }
@@ -292,13 +303,25 @@ router.post("/auth/verify-email/resend", async (req: Request, res: Response) => 
 /** POST /api/auth/login — exchange credentials for a session. */
 router.post("/auth/login", async (req: Request, res: Response) => {
   res.setHeader("Cache-Control", "no-store");
-  if (!enforce(credentialPolicy, "credentials", req, res)) return;
-  if (!store) return unavailable(res);
+  if (!enforce(credentialPolicy, "credentials", req, res)) {
+    logAuthAudit(req, "login", "failure", { reason: "rate_limited" });
+    return;
+  }
+  if (!store) {
+    logAuthAudit(req, "login", "failure", { reason: "persistence_unavailable" });
+    return unavailable(res);
+  }
 
   const email = readText(req.body?.email).toLowerCase();
   const password = readPassword(req.body?.password);
-  if (!validEmail(email)) return invalid(res, "invalid_email");
-  if (!password || password.length > MAX_PASSWORD) return invalid(res, "invalid_password");
+  if (!validEmail(email)) {
+    logAuthAudit(req, "login", "failure", { reason: "invalid_email_format" });
+    return invalid(res, "invalid_email");
+  }
+  if (!password || password.length > MAX_PASSWORD) {
+    logAuthAudit(req, "login", "failure", { email, reason: "invalid_password_format" });
+    return invalid(res, "invalid_password");
+  }
 
   try {
     const [account] = await store.db
@@ -310,18 +333,22 @@ router.post("/auth/login", async (req: Request, res: Response) => {
     const name = account ? await organizationName(account.tenantId) : null;
     if (!account || !valid || !name) {
       recordOutcome(credentialPolicy, "credentials", req, "failure");
+      logAuthAudit(req, "login", "failure", { email, reason: "invalid_credentials" });
       res.status(401).json({ error: "invalid_credentials" });
       return;
     }
     // The password is correct but the address was never proven. Refuse rather
     // than issue a session, so there is no half-access state to work around.
     if (verificationRequired() && !account.emailVerifiedAt) {
+      logAuthAudit(req, "login", "failure", { email, tenantId: account.tenantId, reason: "email_unverified" });
       res.status(403).json({ error: "email_unverified" });
       return;
     }
     recordOutcome(credentialPolicy, "credentials", req, "success");
+    logAuthAudit(req, "login", "success", { email, tenantId: account.tenantId });
     sendSession(res, email, account.tenantId, name);
   } catch (error) {
+    logAuthAudit(req, "login", "failure", { email, reason: "service_error" });
     logger.error({ err: error }, "login failed");
     return unavailable(res);
   }
@@ -367,9 +394,20 @@ router.post("/auth/password-reset/request", async (req: Request, res: Response) 
           logger.warn({}, "password reset requested without APP_BASE_URL — no link sent");
         }
       }
+      logAuthAudit(req, "password_reset_request", "accepted", {
+        email,
+        ...(account ? { tenantId: account.tenantId } : {}),
+        reason: account ? "reset_instructions_queued" : "no_matching_account",
+      });
     } catch (error) {
+      logAuthAudit(req, "password_reset_request", "failure", { email, reason: "service_error" });
       logger.error({ err: error }, "password reset request failed");
     }
+  } else {
+    logAuthAudit(req, "password_reset_request", "accepted", {
+      ...(validEmail(email) ? { email } : {}),
+      reason: store ? "invalid_email" : "persistence_unavailable",
+    });
   }
   res.status(202).json({ accepted: true });
 });
@@ -404,6 +442,7 @@ router.post("/auth/password-reset/confirm", async (req: Request, res: Response) 
     const name = account ? await organizationName(account.tenantId) : null;
     if (!account || !name) {
       recordOutcome(credentialPolicy, "credentials", req, "failure");
+      logAuthAudit(req, "password_reset_confirm", "failure", { reason: "invalid_or_expired_token" });
       return invalid(res, "invalid_token");
     }
 
@@ -417,8 +456,10 @@ router.post("/auth/password-reset/confirm", async (req: Request, res: Response) 
       await tx.delete(passwordResets).where(eq(passwordResets.email, account.email));
     });
     recordOutcome(credentialPolicy, "credentials", req, "success");
+    logAuthAudit(req, "password_reset_confirm", "success", { email: account.email, tenantId: account.tenantId });
     sendSession(res, account.email, account.tenantId, name);
   } catch (error) {
+    logAuthAudit(req, "password_reset_confirm", "failure", { reason: "service_error" });
     logger.error({ err: error }, "password reset confirmation failed");
     return unavailable(res);
   }
@@ -432,11 +473,12 @@ router.get("/auth/me", authenticate, (req: Request, res: Response) => {
 });
 
 /** POST /api/auth/logout — expire the browser session cookie. */
-router.post("/auth/logout", (_req: Request, res: Response) => {
+router.post("/auth/logout", (req: Request, res: Response) => {
   res.setHeader(
     "Set-Cookie",
     `${SESSION_COOKIE}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`,
   );
+  logAuthAudit(req, "logout", "accepted", { reason: "session_cookie_cleared" });
   res.status(204).end();
 });
 
