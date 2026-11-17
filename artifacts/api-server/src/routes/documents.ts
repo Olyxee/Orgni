@@ -246,6 +246,26 @@ router.post(
                 }
               : null,
           });
+
+          // Stage 2: persist SPREADSHEET_FACT tokens as structured knowledge facts.
+          // Uses replaceKnowledgeFactsFromTokens so a reprocess atomically removes
+          // stale facts before inserting new ones. Non-fatal: a failure here must
+          // not block the upload response.
+          try {
+            await store.repository.replaceKnowledgeFactsFromTokens(
+              tenantId,
+              result.sourceId,
+              handoff.tokens as unknown as Array<Record<string, unknown>>,
+            );
+          } catch (kfErr) {
+            handoff.warnings.push(
+              `knowledge_facts_unavailable: ${kfErr instanceof Error ? kfErr.message : "error"}`,
+            );
+            logger.warn(
+              { sourceId: result.sourceId, tenantId },
+              "knowledge fact persistence failed; tokens still stored",
+            );
+          }
         } catch (persistErr) {
           handoff.warnings.push(
             `persistence_unavailable: ${persistErr instanceof Error ? persistErr.message : "error"}`,

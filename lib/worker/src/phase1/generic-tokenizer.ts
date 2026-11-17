@@ -297,6 +297,99 @@ function entityTokens(
   })) as OrganizationalToken[];
 }
 
+/**
+ * Row-number prefix written by the Python _extract_xlsx function.
+ * Format: "[<worksheet_name> | row <N>] <rest of line>"
+ * Both parts are optional — the tokenizer handles rows that lack them.
+ */
+const XLSX_ROW_PREFIX =
+  /^\[(?<worksheet>[^\]|]+?)\s*\|\s*row\s*(?<rowNum>\d+)\]\s*/i;
+
+/**
+ * Key-value pair within a spreadsheet row produced by the Python extractor.
+ * Matches "Label: value" segments separated by "; ".
+ * The label may contain letters, digits, spaces, and common punctuation.
+ * The value runs to the next "; Label:" boundary or end of string.
+ *
+ * We use a global regex over the full detail string rather than a simple
+ * split-on-semicolon, because values may themselves contain semicolons
+ * (e.g. percentage strings or free-text descriptions).
+ */
+const KV_PAIR = /(?:^|;\s*)([A-Za-z0-9 _\-/()#%&.]+?):\s*([^;]*?)(?=(?:;\s*[A-Za-z0-9 _\-/()#%&.]+?:)|$)/g;
+
+/**
+ * Column names that identify entity columns — columns whose values name
+ * the subject of the other columns on the same row.
+ * Extend this set as new document types are encountered.
+ */
+const ENTITY_COLUMN_NAMES = new Set([
+  "product", "item", "name", "description", "customer", "supplier",
+  "vendor", "account", "code", "order code",
+  // truck categories from the vocabulary
+  "heavy duty trucks", "light duty trucks", "medium duty trucks",
+]);
+
+/**
+ * Attribute columns that carry numerical or categorical values about the entity.
+ * Any column not in ENTITY_COLUMN_NAMES is treated as a potential attribute.
+ */
+const VALUE_COLUMN_NAMES = new Set([
+  "revenue", "amount", "cost", "cost of sales", "price", "unit price",
+  "quantity", "qty", "total", "currency", "status", "unit", "date",
+]);
+
+/**
+ * Returns true when a string looks like it could be a numeric value.
+ * Accepts integers, decimals, and numbers with thousands separators.
+ */
+function looksNumeric(value: string): boolean {
+  return /^[-+]?\d[\d,\s]*(?:\.\d+)?$/.test(value.trim());
+}
+
+/**
+ * Parse a structured XLSX row line from the Python extractor.
+ *
+ * Returns:
+ *   - worksheetName: display name of the worksheet (from the "[name | row N]" prefix)
+ *   - rowNumber: 1-based spreadsheet row number (from the same prefix, or 0 if absent)
+ *   - kvPairs: array of { label, value, cellRef } where cellRef may be undefined
+ *
+ * The Python extractor does not emit cell references in the text; cell refs
+ * are encoded in the SPREADSHEET_FACT token scalarValue by looking up the
+ * column letter from the header position (see spreadsheetFactTokens).
+ */
+function parseXlsxRowLine(line: string): {
+  worksheetName: string;
+  rowNumber: number;
+  detail: string;
+} {
+  const prefixMatch = XLSX_ROW_PREFIX.exec(line);
+  const worksheetName = prefixMatch?.groups?.["worksheet"]?.trim() ?? "";
+  const rowNumber = prefixMatch ? Number(prefixMatch.groups?.["rowNum"] ?? 0) : 0;
+  const detail = prefixMatch ? line.slice(prefixMatch[0].length) : line;
+  return { worksheetName, rowNumber, detail };
+}
+
+/**
+ * Identify which label in a set of kv-pairs is the entity (subject) column
+ * and which are value (attribute) columns.
+ *
+ * Rules (in priority order):
+ *  1. A label matching ENTITY_COLUMN_NAMES is the entity column.
+ *  2. If multiple labels match, the first one wins.
+ *  3. If no label matches, we do not emit SPREADSHEET_FACT tokens — we cannot
+ *     determine what entity the values belong to, so we emit nothing rather
+ *     than inventing a subject.
+ */
+function identifyEntityColumn(
+  labels: string[],
+): string | undefined {
+  for (const label of labels) {
+    if (ENTITY_COLUMN_NAMES.has(label.trim().toLowerCase())) return label;
+  }
+  return undefined;
+}
+
 function spreadsheetRowTokens(
   envelope: NormalizedEnvelope,
   text: string,
@@ -307,22 +400,320 @@ function spreadsheetRowTokens(
     .map(clean)
     .filter(Boolean)
     .slice(0, 300)
-    .map((row, index) => ({
-      ...baseToken(envelope, `spreadsheet_row_${index + 1}`, row),
-      tokenKind: "STATE",
-      eventType: "SPREADSHEET_ROW",
-      subjectId: `${envelope.metadata.filename} row ${index + 1}`,
-      scalarValue: {
-        row,
-        rowNumber: index + 1,
-        sourceDocument: envelope.metadata.filename,
-        rowFormatVersion: 2,
-      },
-      confidence: 0.72,
-      epistemicStatus: "OBSERVED",
-      actionScope: ["context-model"],
-      retentionClass: "organizational-evidence",
-    })) as OrganizationalToken[];
+    .map((row, index) => {
+      // Extract the actual spreadsheet row number from the prefix when present.
+      const { rowNumber: parsedRowNumber } = parseXlsxRowLine(row);
+      const effectiveRowNumber = parsedRowNumber > 0 ? parsedRowNumber : index + 1;
+      return {
+        ...baseToken(envelope, `spreadsheet_row_${effectiveRowNumber}`, row),
+        tokenKind: "STATE",
+        eventType: "SPREADSHEET_ROW",
+        subjectId: `${envelope.metadata.filename} row ${effectiveRowNumber}`,
+        scalarValue: {
+          row,
+          rowNumber: effectiveRowNumber,
+          sourceDocument: envelope.metadata.filename,
+          rowFormatVersion: 2,
+        },
+        confidence: 0.72,
+        epistemicStatus: "OBSERVED",
+        actionScope: ["context-model"],
+        retentionClass: "organizational-evidence",
+      };
+    }) as OrganizationalToken[];
+}
+
+/**
+ * Emit one SPREADSHEET_FACT token per (entity, attribute, value) triple
+ * found in a structured XLSX row.
+ *
+ * SOURCE PRIORITY — cell references are resolved in this order:
+ *
+ *  1. `envelope.spreadsheet_rows` (authoritative): populated by the Python DI
+ *     service directly from the XLSX OOXML cell r attributes and workbook.xml
+ *     display names.  When present, every cell reference is exact even for
+ *     sparse rows, skipped columns, and non-contiguous layouts.
+ *
+ *  2. Text-parsed fallback: when `spreadsheet_rows` is absent (older DI
+ *     producers, test fixtures constructed without it), the function falls back
+ *     to parsing the `[worksheet | row N] Label: value` lines from
+ *     `content.text` and estimating cell references from sequential column
+ *     position within the parsed pairs.  This is accurate for dense,
+ *     contiguous tables and may be off by one column for sparse rows.
+ *
+ * Token fields:
+ *  tokenKind:   "STATE"
+ *  eventType:   "SPREADSHEET_FACT"
+ *  subjectId:   entity name (e.g. "Medium Duty Truck")
+ *  scalarValue: {
+ *    attribute:      column label (e.g. "Revenue")
+ *    rawValue:       cell value string (e.g. "4850000")
+ *    numericValue:   parsed number, present only when value looks numeric
+ *    worksheetName:  display name of the worksheet tab
+ *    rowNumber:      1-based spreadsheet row number
+ *    cellRef:        Excel cell reference (e.g. "D2")
+ *    columnName:     same as attribute
+ *    entityColumn:   the column label used as the entity identifier
+ *    entityValue:    same as subjectId
+ *    entityCellRef:  cell reference for the entity column (e.g. "A2")
+ *    sourceDocument: filename
+ *  }
+ *
+ * The token cap per document is 500 total tokens (enforced in
+ * tokenizeGenericEnvelope). This function itself caps at 200 SPREADSHEET_FACT
+ * tokens to leave room for other token types.
+ */
+function spreadsheetFactTokens(
+  envelope: NormalizedEnvelope,
+  text: string,
+): OrganizationalToken[] {
+  if (!/\.xlsx$/i.test(envelope.metadata.filename)) return [];
+
+  // ── Path 1: authoritative structured rows from the DI service ────────────
+  if (
+    Array.isArray(envelope.spreadsheet_rows) &&
+    envelope.spreadsheet_rows.length > 0
+  ) {
+    return spreadsheetFactTokensFromStructured(envelope);
+  }
+
+  // ── Path 2: text-parsed fallback ─────────────────────────────────────────
+  return spreadsheetFactTokensFromText(envelope, text);
+}
+
+/**
+ * Build SPREADSHEET_FACT tokens from `envelope.spreadsheet_rows`.
+ * Every cell reference comes directly from the Python extractor's
+ * columnRefs map, which reflects the actual cell r attributes in the XML.
+ */
+function spreadsheetFactTokensFromStructured(
+  envelope: NormalizedEnvelope,
+): OrganizationalToken[] {
+  const tokens: OrganizationalToken[] = [];
+  const rows = envelope.spreadsheet_rows!;
+
+  for (const row of rows) {
+    if (tokens.length >= 200) break;
+
+    const { worksheetName, rowNumber, cells, columnRefs } = row;
+    if (!cells || Object.keys(cells).length === 0) continue;
+
+    const labels = Object.keys(cells);
+    const entityColumnLabel = identifyEntityColumn(labels);
+    if (!entityColumnLabel) continue;
+
+    const entityName = cells[entityColumnLabel];
+    if (!entityName) continue;
+
+    const entityCellRef = columnRefs[entityColumnLabel];
+
+    for (const attributeLabel of labels) {
+      if (tokens.length >= 200) break;
+      if (attributeLabel === entityColumnLabel) continue;
+
+      const rawValue = cells[attributeLabel];
+      if (!rawValue) continue;
+
+      // Authoritative cell reference from the Python extractor.
+      const cellRef = columnRefs[attributeLabel];
+
+      const numericValue = looksNumeric(rawValue)
+        ? Number(rawValue.replace(/[,\s]/g, ""))
+        : undefined;
+
+      const excerpt = `${entityName} ${attributeLabel}: ${rawValue}`;
+
+      const locatorSection = [
+        worksheetName,
+        rowNumber > 0 ? `row ${rowNumber}` : undefined,
+        cellRef,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const cellSourceRef = {
+        evidenceId: `ev_${envelope.source_id}`,
+        sourceSystem: "orgni.document-service",
+        sourceObjectId: envelope.metadata.checksum,
+        checksum: envelope.metadata.checksum,
+        locator: {
+          section: locatorSection || "spreadsheet",
+          ...(cellRef ? { range: cellRef } : {}),
+        },
+        excerpt: excerpt.slice(0, 240),
+      };
+
+      // Token ID encodes worksheet + row + column label so it is stable across
+      // re-processing of the same document.
+      const safeLabel = attributeLabel.replace(/[^a-z0-9]/gi, "_");
+      const safeSheet = worksheetName.replace(/[^a-z0-9]/gi, "_");
+
+      tokens.push({
+        tokenId: `tok_${envelope.source_id}_sf_${safeSheet}_${rowNumber}_${safeLabel}`,
+        tenantId: envelope.metadata.tenant_id,
+        transactionTime: new Date().toISOString(),
+        sourceRefs: [cellSourceRef],
+        visibility: [],
+        payloadRef: envelope.metadata.checksum,
+        tokenKind: "STATE",
+        eventType: "SPREADSHEET_FACT",
+        subjectId: entityName,
+        scalarValue: {
+          attribute: attributeLabel,
+          rawValue,
+          ...(numericValue !== undefined ? { numericValue } : {}),
+          worksheetName,
+          rowNumber,
+          ...(cellRef !== undefined ? { cellRef } : {}),
+          columnName: attributeLabel,
+          entityColumn: entityColumnLabel,
+          entityValue: entityName,
+          ...(entityCellRef !== undefined ? { entityCellRef } : {}),
+          sourceDocument: envelope.metadata.filename,
+        },
+        confidence: 0.82,
+        epistemicStatus: "OBSERVED",
+        actionScope: ["context-model", "knowledge-extraction"],
+        retentionClass: "organizational-evidence",
+      } as OrganizationalToken);
+    }
+  }
+
+  return tokens;
+}
+
+/**
+ * Build SPREADSHEET_FACT tokens by parsing the `[worksheet | row N]` prefix
+ * lines from `content.text`.  Used when `envelope.spreadsheet_rows` is absent.
+ *
+ * Cell references are approximated from sequential column position within the
+ * parsed key-value pairs, which is correct for dense tables but may be off for
+ * sparse rows where cells were omitted from the OOXML.
+ */
+function spreadsheetFactTokensFromText(
+  envelope: NormalizedEnvelope,
+  text: string,
+): OrganizationalToken[] {
+  const tokens: OrganizationalToken[] = [];
+  const lines = text.split(/\r?\n/).map(clean).filter(Boolean).slice(0, 300);
+
+  for (const line of lines) {
+    if (tokens.length >= 200) break;
+
+    const { worksheetName, rowNumber, detail } = parseXlsxRowLine(line);
+    if (!detail) continue;
+
+    // Parse every "Label: value" pair from the row detail.
+    const kvPairs: Array<{ label: string; value: string }> = [];
+    KV_PAIR.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = KV_PAIR.exec(detail)) !== null) {
+      const label = match[1]!.trim();
+      const value = match[2]!.trim();
+      if (label && value) kvPairs.push({ label, value });
+    }
+
+    if (kvPairs.length === 0) continue;
+
+    const labels = kvPairs.map((p) => p.label);
+    const entityColumnLabel = identifyEntityColumn(labels);
+    if (!entityColumnLabel) continue;
+
+    const entityPair = kvPairs.find((p) => p.label === entityColumnLabel);
+    if (!entityPair || !entityPair.value) continue;
+
+    const entityName = entityPair.value;
+    const entityColumnIndex = labels.indexOf(entityColumnLabel);
+
+    for (let i = 0; i < kvPairs.length; i++) {
+      if (tokens.length >= 200) break;
+      const { label: attributeLabel, value: rawValue } = kvPairs[i]!;
+      if (attributeLabel === entityColumnLabel) continue;
+      if (!rawValue) continue;
+
+      // Approximate cell reference from sequential position (may be wrong for
+      // sparse rows — this is the known limitation this path carries).
+      const columnLetter = indexToColumnLetter(i);
+      const cellRef = rowNumber > 0 ? `${columnLetter}${rowNumber}` : undefined;
+
+      const entityColumnLetter = indexToColumnLetter(entityColumnIndex);
+      const entityCellRef =
+        rowNumber > 0 ? `${entityColumnLetter}${rowNumber}` : undefined;
+
+      const numericValue = looksNumeric(rawValue)
+        ? Number(rawValue.replace(/[,\s]/g, ""))
+        : undefined;
+
+      const excerpt = `${entityName} ${attributeLabel}: ${rawValue}`;
+
+      const locatorSection = [
+        worksheetName,
+        rowNumber > 0 ? `row ${rowNumber}` : undefined,
+        cellRef,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const cellSourceRef = {
+        evidenceId: `ev_${envelope.source_id}`,
+        sourceSystem: "orgni.document-service",
+        sourceObjectId: envelope.metadata.checksum,
+        checksum: envelope.metadata.checksum,
+        locator: {
+          section: locatorSection || "spreadsheet",
+          ...(rowNumber > 0 ? { range: cellRef } : {}),
+        },
+        excerpt: excerpt.slice(0, 240),
+      };
+
+      tokens.push({
+        tokenId: `tok_${envelope.source_id}_spreadsheet_fact_${worksheetName}_${rowNumber}_${i}`,
+        tenantId: envelope.metadata.tenant_id,
+        transactionTime: new Date().toISOString(),
+        sourceRefs: [cellSourceRef],
+        visibility: [],
+        payloadRef: envelope.metadata.checksum,
+        tokenKind: "STATE",
+        eventType: "SPREADSHEET_FACT",
+        subjectId: entityName,
+        scalarValue: {
+          attribute: attributeLabel,
+          rawValue,
+          ...(numericValue !== undefined ? { numericValue } : {}),
+          worksheetName,
+          rowNumber,
+          ...(cellRef !== undefined ? { cellRef } : {}),
+          columnName: attributeLabel,
+          entityColumn: entityColumnLabel,
+          entityValue: entityName,
+          ...(entityCellRef !== undefined ? { entityCellRef } : {}),
+          sourceDocument: envelope.metadata.filename,
+        },
+        confidence: 0.82,
+        epistemicStatus: "OBSERVED",
+        actionScope: ["context-model", "knowledge-extraction"],
+        retentionClass: "organizational-evidence",
+      } as OrganizationalToken);
+    }
+  }
+
+  return tokens;
+}
+
+/**
+ * Convert a 0-based column index to an Excel column letter.
+ * 0 → "A", 1 → "B", …, 25 → "Z", 26 → "AA", etc.
+ * Mirrors the Python _column_letter helper in document_text.py.
+ */
+function indexToColumnLetter(zeroBasedIndex: number): string {
+  let result = "";
+  let n = zeroBasedIndex + 1;
+  while (n > 0) {
+    const remainder = (n - 1) % 26;
+    result = String.fromCharCode(65 + remainder) + result;
+    n = Math.floor((n - 1) / 26);
+  }
+  return result || "A";
 }
 
 function directoryRelationships(
@@ -1167,6 +1558,7 @@ export function tokenizeGenericEnvelope(
   return [
     ...entityTokens(envelope, entities),
     ...spreadsheetRowTokens(envelope, text),
+    ...spreadsheetFactTokens(envelope, text),
     ...directoryRelationships(envelope, text, entities),
     ...businessRelationships(envelope, text),
     ...explicitRelationshipTokens(envelope, lines),

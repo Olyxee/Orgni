@@ -147,7 +147,30 @@ async def analyze(
                 "schema_version": SCHEMA_VERSION,
                 "extraction_status": "LOW_CONFIDENCE",
             }
-        return analyze_document(
+
+        # For XLSX files, also extract structured row data with authoritative
+        # worksheet names, row numbers, and cell references.  This is attached
+        # to the envelope as `spreadsheet_rows` so the tokenizer can use exact
+        # cell addresses rather than reconstructing them from text positions.
+        spreadsheet_rows = None
+        if ext == ".xlsx":
+            try:
+                from document_text import _extract_xlsx_rows
+                raw_rows = _extract_xlsx_rows(contents)
+                spreadsheet_rows = [
+                    {
+                        "worksheetName": row.worksheet_name,
+                        "rowNumber": row.row_number,
+                        "cells": row.cells,
+                        "columnRefs": row.column_refs,
+                        "text": row.text,
+                    }
+                    for row in raw_rows
+                ]
+            except Exception:  # noqa: BLE001 — structured data is optional
+                spreadsheet_rows = None
+
+        envelope = analyze_document(
             source_id=source_id,
             file_path=None,
             content_type=content_type,
@@ -156,6 +179,9 @@ async def analyze(
             tenant_id=tenant_id,
             text=text,
         )
+        if spreadsheet_rows is not None:
+            envelope["spreadsheet_rows"] = spreadsheet_rows
+        return envelope
 
     doc_id = f"doc_{uuid.uuid4().hex[:8]}"
     save_path = os.path.join(UPLOAD_DIR, f"{doc_id}{ext or '.bin'}")
