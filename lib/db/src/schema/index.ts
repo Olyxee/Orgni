@@ -21,3 +21,4 @@ export * from "./api-keys";
 export * from "./product";
 export * from "./microsoft";
 export * from "./accounts";
+export * from "./knowledge";

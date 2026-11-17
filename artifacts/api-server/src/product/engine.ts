@@ -12,6 +12,11 @@ import { createDb } from "@workspace/db/connect";
 import { config } from "../lib/config";
 import { logger } from "../lib/logger";
 import { getProductStore } from "./store";
+import {
+  gatherKnowledgeFacts,
+  noEvidenceMessage,
+  type StructuredEvidence,
+} from "./knowledge-retrieval";
 import type {
   ApprovalCategoryKey,
   CapabilityKey,
@@ -104,6 +109,17 @@ export interface IntelligenceContext {
   organisationName: string;
   /** Short context lines the engine gathered (documents, entities, …). */
   contextLines: string[];
+  /**
+   * Structured evidence retrieved from the knowledge_facts table.
+   * Present when at least one matching fact was found.  Absent (undefined)
+   * when no structured evidence exists for this question.
+   *
+   * Providers that understand structured evidence can use this to produce
+   * more precise, citation-rich answers.  Providers that do not understand
+   * it safely ignore it — contextLines already contains the same information
+   * in human-readable form.
+   */
+  structuredEvidence?: StructuredEvidence;
 }
 
 export interface IntelligenceProvider {
@@ -120,7 +136,38 @@ class TemplateIntelligenceProvider implements IntelligenceProvider {
   readonly name = "template";
 
   async generateReply(ctx: IntelligenceContext): Promise<string> {
-    const { intent, contextLines } = ctx;
+    const { intent, contextLines, structuredEvidence } = ctx;
+
+    // For question-answering, use structured evidence when available.
+    if (intent.capability === "answer_questions") {
+      if (structuredEvidence?.hasEvidence) {
+        const lines = structuredEvidence.contextLines;
+
+        if (structuredEvidence.hasConflicts) {
+          const conflictNote =
+            "Note: your documents contain conflicting or potentially outdated figures. " +
+            "Review all sources before relying on a single value.";
+          return (
+            `Here's what I found in your uploaded documents:\n\n` +
+            lines.map((l) => `• ${l}`).join("\n") +
+            `\n\n${conflictNote}`
+          );
+        }
+        return (
+          `Here's what I found in your uploaded documents:\n\n` +
+          lines.map((l) => `• ${l}`).join("\n")
+        );
+      }
+      // No structured evidence — check legacy context lines.
+      if (contextLines.length > 0) {
+        return (
+          `Here's what I found in your uploaded information:\n\n` +
+          contextLines.map((line) => `• ${line}`).join("\n")
+        );
+      }
+      return noEvidenceMessage();
+    }
+
     const evidence =
       contextLines.length > 0
         ? `\n\nWhat I used:\n${contextLines.map((l) => `• ${l}`).join("\n")}`
@@ -141,10 +188,6 @@ class TemplateIntelligenceProvider implements IntelligenceProvider {
         return `I've prepared the change to the connected system.${evidence}`;
       case "financial_actions":
         return `I've prepared this financial action for review.${evidence}`;
-      case "answer_questions":
-        return contextLines.length > 0
-          ? `Here's what I found in your uploaded information:\n\n${contextLines.map((line) => `• ${line}`).join("\n")}`
-          : "I couldn't find uploaded information that matches that question. Try a product name, category, or another term from your files.";
       default:
         return contextLines.length > 0
           ? `Based on what your organisation knows:${evidence}`
@@ -168,6 +211,20 @@ export function getIntelligenceProvider(): IntelligenceProvider {
 /* ---- context gathering -------------------------------------------- */
 
 const modelStore = config.DATABASE_URL ? createDb(config.DATABASE_URL) : null;
+
+/**
+ * Retrieve structured knowledge facts for the question.
+ * Returns empty evidence when the database is unavailable.
+ */
+async function gatherStructuredContext(
+  tenantId: string,
+  question: string,
+): Promise<StructuredEvidence> {
+  if (!modelStore) {
+    return { hasEvidence: false, groups: [], items: [], hasConflicts: false, contextLines: [] };
+  }
+  return gatherKnowledgeFacts(modelStore.repository, tenantId, question);
+}
 
 async function gatherContext(
   tenantId: string,
@@ -348,11 +405,22 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
 
   // 2. Gather context + generate the reply body.
   const contextLines = await gatherContext(req.tenantId, req.text);
+  const structuredEvidence = await gatherStructuredContext(req.tenantId, req.text);
+
+  // Merge structured context lines with legacy token context lines.
+  // Structured lines take priority; legacy lines fill in if structured
+  // evidence found nothing.
+  const mergedContextLines =
+    structuredEvidence.hasEvidence
+      ? structuredEvidence.contextLines
+      : contextLines;
+
   const body = await provider.generateReply({
     request: req,
     intent,
     organisationName,
-    contextLines,
+    contextLines: mergedContextLines,
+    structuredEvidence: structuredEvidence.hasEvidence ? structuredEvidence : undefined,
   });
 
   // 3. Approval gate for actions that change the outside world.
@@ -386,7 +454,7 @@ export async function processRequest(req: EngineRequest): Promise<EngineResult> 
   const action: OrgniAction = {
     ...baseAction,
     status: "completed",
-    sourcesUsed: contextLines,
+    sourcesUsed: mergedContextLines,
     actionsPerformed: [completedVerb(intent)],
     reason: "Within the current capability and approval settings.",
     result: "Done.",
