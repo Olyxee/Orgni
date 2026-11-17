@@ -57,6 +57,20 @@
       "when": 1791016205697,
       "tag": "0007_curious_living_mummy",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791026205697,
+      "tag": "0008_knowledge_facts",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791036205697,
+      "tag": "0009_knowledge_stage3",
+      "breakpoints": true
     }
   ]
 }
