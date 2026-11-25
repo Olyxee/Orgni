@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 
 const areas = [
-  { name: "Claims operations", text: "Connect claims, policies, evidence, and operational state across existing systems." },
-  { name: "Claims exceptions", text: "Reason through complex cases while keeping professional judgment and approvals central." },
-  { name: "Policy and coverage", text: "Evaluate policy context, coverage rules, and supporting evidence consistently." },
-  { name: "Financial reconciliation", text: "Connect financial records and business context to identify discrepancies." },
-  { name: "Transaction exceptions", text: "Surface repayment, allocation, and transaction issues for controlled resolution." },
-  { name: "Approval workflows", text: "Support traceable decisions and authorised actions within defined boundaries." },
+  { name: "Claims context", text: "Link claims, policies, parties, evidence, and timelines." },
+  { name: "Coverage reasoning", text: "Evaluate policy rules against the evidence in a case." },
+  { name: "Claims exceptions", text: "Detect conflicts, missing evidence, and uncertain outcomes." },
+  { name: "Reconciliation", text: "Match transactions, invoices, repayments, and ledger records." },
+  { name: "Financial exceptions", text: "Surface discrepancies with evidence and confidence." },
+  { name: "Controlled actions", text: "Route approvals and execute only permitted system actions." },
 ];
 
 export function UseCasesSection() {
@@ -20,7 +20,7 @@ export function UseCasesSection() {
           transition={{ duration: 0.5 }}
           className="max-w-2xl font-serif text-3xl leading-tight tracking-tight md:text-5xl"
         >
-          Intelligence across insurance and financial operations.
+          Built for the hard parts of insurance and finance.
         </motion.h2>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

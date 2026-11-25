@@ -76,18 +76,18 @@ export function ExperienceSection() {
   const ready = done === steps.length;
 
   return (
-    <section className="bg-muted/40">
+    <section className="bg-black">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[2fr_3fr] lg:gap-16">
         <motion.div initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Operational reasoning, inside your existing systems.
+            See the context behind every result.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Orgni connects evidence, operational state, and business rules to
-            support complex cases within defined controls.
+            Every answer carries its source evidence, confidence, operational
+            state, and approval requirements.
           </p>
         </motion.div>
 

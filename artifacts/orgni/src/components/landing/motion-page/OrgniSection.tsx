@@ -1,15 +1,14 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Check } from "lucide-react";
 import { Link } from "wouter";
-import { ORGNI_PRODUCT_URL } from "@/lib/links";
 
 const valuePoints = [
-  "Connect to existing systems, APIs, and operational events",
-  "Understand entities, relationships, rules, and current state",
-  "Reason through evidence, constraints, and uncertainty",
-  "Support permitted decisions within defined boundaries",
-  "Execute authorised actions through controlled integrations",
-  "Learn from outcomes and feedback within defined limits",
+  "Ingest documents, APIs, databases, and events",
+  "Resolve entities, facts, relationships, and timelines",
+  "Evaluate rules and detect conflicts or exceptions",
+  "Return answers with confidence, evidence, and provenance",
+  "Trigger authorised actions through controlled integrations",
+  "Flag uncertain results for human review",
 ];
 
 export function OrgniSection() {
@@ -23,17 +22,17 @@ export function OrgniSection() {
           transition={{ duration: 0.5 }}
         >
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Connect. Understand. Reason. Decide. Execute. Learn.
+            From raw operational data to usable context.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Build on an intelligence layer that works with existing operational
-            infrastructure. Core systems remain in place and under customer control.
+            One API layer for understanding what happened, what is connected,
+            what conflicts, and what your software is allowed to do next.
           </p>
           <Link
-            href={ORGNI_PRODUCT_URL}
+            href="/docs"
             className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-primary"
           >
-            Explore Orgni
+            Explore the API
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </motion.div>

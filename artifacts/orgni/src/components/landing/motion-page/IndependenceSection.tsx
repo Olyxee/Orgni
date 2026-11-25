@@ -119,12 +119,11 @@ export function IndependenceSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Keep your systems. Add intelligence.
+            Use your stack. Keep your systems of record.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Development teams can connect existing systems, models, and tools
-            while Orgni holds operational context, permissions, and policy
-            boundaries in one infrastructure layer.
+            Connect Orgni through APIs while your databases, core platforms,
+            models, permissions, and approval systems remain in place.
           </p>
         </motion.div>
 
