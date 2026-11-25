@@ -1,272 +1,83 @@
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import {
-  Bell,
-  Calendar,
-  FileText,
-  MessageSquare,
-  Send,
-  Users,
-} from "lucide-react";
-import { ActivityItem, type Activity } from "./ActivityItem";
+import { motion } from "framer-motion";
+import { AlertTriangle, Check, FileCheck2, FileText, ShieldCheck, UserRoundCheck } from "lucide-react";
 
-const TEAMS_LOGO = `${import.meta.env.BASE_URL}integrations/teams.svg`;
-
-const members = [
-  { initials: "SM", color: "bg-[#5b5fc7]" },
-  { initials: "DN", color: "bg-[#c239b3]" },
-  { initials: "TK", color: "bg-[#0f7b6c]" },
-  { initials: "AP", color: "bg-[#ca5010]" },
+const evidence = [
+  { label: "Policy schedule", detail: "POL-88421 · Active", icon: ShieldCheck },
+  { label: "Loss report", detail: "Submitted 14 May", icon: FileText },
+  { label: "Assessment photos", detail: "12 verified files", icon: FileCheck2 },
 ];
-
-const COMMAND = "@Orgni review the evidence for claim CLM-2048.";
-
-const steps: Activity[] = [
-  { kind: "system", source: "Claims platform", note: "Claim record, status, and assessment history", icon: "database" },
-  { kind: "file", name: "CLM-2048 – Supporting evidence.pdf", type: "pdf", meta: "Document store · verified source" },
-  { kind: "system", source: "Policy system", note: "Coverage, exclusions, and effective dates", icon: "database" },
-  { kind: "person", name: "Thabo Khumalo", initials: "TK", via: "Teams", note: "assigned assessor for professional review" },
-  { kind: "file", name: "CLM-2048 – Review brief.docx", type: "docx", meta: "created just now" },
-  { kind: "system", source: "Approval controls", note: "Human approval required before action", icon: "calendar" },
-];
-
-const TYPE_MS = 32;
-const STEP_MS = 650;
-const HOLD_MS = 9000;
 
 export function ExperienceSection() {
-  const reduced = useReducedMotion() ?? false;
-  const [typed, setTyped] = useState(reduced ? COMMAND.length : 0);
-  const [done, setDone] = useState(reduced ? steps.length : 0);
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    if (!active || reduced) return;
-
-    let cancelled = false;
-    const timers: number[] = [];
-
-    const run = () => {
-      setTyped(0);
-      setDone(0);
-      for (let i = 1; i <= COMMAND.length; i += 1) {
-        timers.push(window.setTimeout(() => !cancelled && setTyped(i), i * TYPE_MS));
-      }
-      const typingDone = COMMAND.length * TYPE_MS + 500;
-      for (let s = 1; s <= steps.length; s += 1) {
-        timers.push(
-          window.setTimeout(
-            () => !cancelled && setDone(s),
-            typingDone + s * STEP_MS,
-          ),
-        );
-      }
-      timers.push(
-        window.setTimeout(run, typingDone + steps.length * STEP_MS + HOLD_MS),
-      );
-    };
-
-    run();
-    return () => {
-      cancelled = true;
-      timers.forEach((t) => window.clearTimeout(t));
-    };
-  }, [active, reduced]);
-
-  const ready = done === steps.length;
-
   return (
     <section className="bg-black">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[2fr_3fr] lg:gap-16">
-        <motion.div initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}>
-          <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            See the context behind every result.
-          </h2>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Every answer carries its source evidence, confidence, operational
-            state, and approval requirements.
+        <motion.div initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+          <p className="text-xs font-semibold uppercase text-white/45">Claim intelligence</p>
+          <h2 className="mt-4 font-serif text-3xl leading-tight md:text-5xl">Understand the whole claim before taking action.</h2>
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-white/55">
+            Orgni connects the policy, claimant, loss event, supporting evidence,
+            coverage rules, and approval boundary in one traceable assessment.
           </p>
         </motion.div>
 
-        <motion.div
-          onViewportEnter={() => setActive(true)}
-          onViewportLeave={() => setActive(false)}
-          viewport={{ amount: 0.15 }}
-          className="flex min-w-0 items-center"
-        >
-          <div
-            className="w-full min-w-0 overflow-hidden rounded-2xl border border-border bg-white shadow-lg"
-            aria-label="Example conversation with Orgni inside Microsoft Teams"
-          >
-            {/* Window chrome */}
-            <div className="flex items-center gap-2 border-b border-[#e1dfdd] bg-[#f5f5f5] px-4 py-2.5">
-              <span className="h-3 w-3 rounded-full bg-[#ff5f57]" />
-              <span className="h-3 w-3 rounded-full bg-[#febc2e]" />
-              <span className="h-3 w-3 rounded-full bg-[#28c840]" />
-              <span className="ml-3 flex items-center gap-2 text-xs font-medium text-[#616161]">
-                <img src={TEAMS_LOGO} alt="" className="h-4 w-4" />
-                Microsoft Teams
-              </span>
+        <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.55 }} className="overflow-hidden rounded-lg border border-white/15 bg-[#0a0a0a]" aria-label="Insurance claim assessment for claim CLM-2048">
+          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 px-5 py-5 md:px-6">
+            <div>
+              <p className="text-xs text-white/45">MOTOR CLAIM</p>
+              <h3 className="mt-1 text-xl font-semibold">CLM-2048</h3>
+              <p className="mt-1 text-sm text-white/50">Thandi Mokoena · POL-88421</p>
             </div>
+            <span className="rounded-full border border-white/20 px-3 py-1.5 text-xs text-white/70">Professional review</span>
+          </div>
 
-            <div className="flex">
-              {/* Left rail */}
-              <div className="hidden w-16 shrink-0 flex-col items-center gap-5 border-r border-[#e1dfdd] bg-[#ebebeb] py-4 sm:flex">
-                <img src={TEAMS_LOGO} alt="Microsoft Teams" className="mb-1 h-7 w-7" />
-                {[
-                  { label: "Activity", icon: Bell },
-                  { label: "Chat", icon: MessageSquare, active: true },
-                  { label: "Teams", icon: Users },
-                  { label: "Calendar", icon: Calendar },
-                ].map(({ label, icon: Icon, active: on }) => (
-                  <div
-                    key={label}
-                    className={`flex flex-col items-center gap-1 text-[10px] ${
-                      on ? "text-[#5b5fc7]" : "text-[#616161]"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" strokeWidth={on ? 2.2 : 1.8} />
-                    {label}
-                  </div>
+          <div className="grid md:grid-cols-[1.05fr_0.95fr]">
+            <div className="border-b border-white/10 p-5 md:border-b-0 md:border-r md:p-6">
+              <p className="mb-4 text-xs font-medium uppercase text-white/40">Evidence connected</p>
+              <div className="space-y-3">
+                {evidence.map(({ label, detail, icon: Icon }, index) => (
+                  <motion.div key={label} initial={{ opacity: 0, x: -8 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.12 + index * 0.08 }} className="flex items-center gap-3 border border-white/10 bg-white/[0.03] p-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-white text-black"><Icon className="h-4 w-4" /></span>
+                    <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{label}</span><span className="block text-xs text-white/45">{detail}</span></span>
+                    <Check className="h-4 w-4 text-white/60" />
+                  </motion.div>
                 ))}
               </div>
-
-              {/* Conversation */}
-              <div className="flex min-w-0 flex-1 flex-col">
-                <div className="flex items-center gap-3 border-b border-[#e1dfdd] px-4 py-3">
-                  <div className="flex -space-x-2">
-                    {members.slice(0, 3).map((m) => (
-                      <span
-                        key={m.initials}
-                        className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white text-[11px] font-semibold text-white ${m.color}`}
-                      >
-                        {m.initials}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-[#242424]">
-                      Claims operations – CLM-2048
-                    </p>
-                    <p className="text-xs text-[#616161]">
-                      {members.length} members · Orgni added
-                    </p>
-                  </div>
-                  <Users className="hidden h-4 w-4 text-[#616161] sm:block" />
-                </div>
-
-                <div className="flex h-[820px] flex-col sm:h-[710px] gap-4 overflow-hidden bg-[#f5f5f5] px-4 py-5 md:px-6">
-                  {/* Earlier group message */}
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c239b3] text-xs font-semibold text-white">
-                      DN
-                    </span>
-                    <div className="min-w-0">
-                      <p className="mb-1 text-xs text-[#616161]">
-                        David Naidoo <span className="ml-2">09:12</span>
-                      </p>
-                      <div className="rounded-lg rounded-tl-none bg-white px-4 py-2.5 text-[15px] leading-snug text-[#242424]">
-                        This claim has conflicting evidence and needs an
-                        assessment brief before professional review.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* User message */}
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#5b5fc7] text-xs font-semibold text-white">
-                      SM
-                    </span>
-                    <div className="min-w-0">
-                      <p className="mb-1 text-xs text-[#616161]">
-                        Sarah Mokoena <span className="ml-2">09:14</span>
-                      </p>
-                      <div className="rounded-lg rounded-tl-none bg-[#e8ebfa] px-4 py-3 text-[15px] leading-snug text-[#242424]">
-                        <span className="font-semibold text-[#5b5fc7]">
-                          {COMMAND.slice(0, 6)}
-                        </span>
-                        {COMMAND.slice(6, typed)}
-                        {!reduced && typed < COMMAND.length && (
-                          <span className="ml-0.5 inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-[#242424]" />
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Orgni reply */}
-                  <motion.div
-                    animate={{ opacity: typed === COMMAND.length ? 1 : 0, y: typed === COMMAND.length ? 0 : 8 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-start gap-3"
-                    aria-hidden={typed !== COMMAND.length}
-                  >
-                        <img
-                          src={`${import.meta.env.BASE_URL}orgni-logo.png`}
-                          alt="Orgni"
-                          className="h-8 w-8 shrink-0 rounded-full object-cover"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="mb-1 text-xs text-[#616161]">
-                            Orgni{" "}
-                            <span className="ml-1 rounded bg-[#e1dfdd] px-1 text-[10px] font-medium">
-                              APP
-                            </span>
-                            <span className="ml-2">09:14</span>
-                          </p>
-                          <div className="rounded-lg rounded-tl-none border border-[#e1dfdd] bg-white px-4 py-3 text-[15px] text-[#242424]">
-                            <p className="min-h-[2.6em] leading-snug">
-                              {ready
-                                ? "Review brief prepared. The evidence, policy context, exception, and approval boundary are traceable below."
-                                : "Reviewing the claim evidence and applicable policy context…"}
-                            </p>
-                            <div className="mt-3 space-y-1.5">
-                              {steps.map((step, i) => (
-                                <ActivityItem
-                                  key={i}
-                                  item={step}
-                                  index={i}
-                                  state={i < done ? "done" : i === done && !ready ? "current" : "pending"}
-                                />
-                              ))}
-                            </div>
-                            <motion.div
-                              animate={{ opacity: ready ? 1 : 0, y: ready ? 0 : 6 }}
-                              transition={{ duration: 0.3 }}
-                              className="mt-4 flex items-center gap-3 rounded-md border border-[#e1dfdd] bg-[#faf9f8] px-3 py-2.5"
-                              aria-hidden={!ready}
-                            >
-                                  <span className="flex h-9 w-9 items-center justify-center rounded bg-[#2b579a] text-white">
-                                    <FileText className="h-4 w-4" />
-                                  </span>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="truncate text-sm font-medium">
-                                      CLM-2048 – Review brief.docx
-                                    </p>
-                                    <p className="text-xs text-[#616161]">
-                                      Shared with the group · Ready
-                                    </p>
-                                  </div>
-                            </motion.div>
-                          </div>
-                        </div>
-                      </motion.div>
-                </div>
-
-                {/* Compose box */}
-                <div className="border-t border-[#e1dfdd] bg-white px-4 py-3">
-                  <div className="flex items-center justify-between rounded-md border border-[#c8c6c4] px-3 py-2 text-sm text-[#a19f9d]">
-                    Message Claims operations – CLM-2048
-                    <Send className="h-4 w-4 text-[#5b5fc7]" />
-                  </div>
-                </div>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="border border-white/10 p-3"><p className="text-xs text-white/40">Loss date</p><p className="mt-1 font-medium">12 May 2026</p></div>
+                <div className="border border-white/10 p-3"><p className="text-xs text-white/40">Claimed</p><p className="mt-1 font-medium">R48,750</p></div>
               </div>
             </div>
+
+            <div className="p-5 md:p-6">
+              <p className="mb-4 text-xs font-medium uppercase text-white/40">Coverage assessment</p>
+              <div className="space-y-4">
+                <Assessment icon={Check} title="Policy active on loss date" detail="Effective 01 Jan–31 Dec 2026" filled />
+                <Assessment icon={ShieldCheck} title="Accidental damage covered" detail="Section 4.2 · Excess R3,500" />
+                <div className="flex gap-3 border border-white/20 bg-white/[0.05] p-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div><p className="text-sm font-medium">Evidence conflict detected</p><p className="mt-1 text-xs leading-relaxed text-white/50">Loss time differs between the report and telematics record.</p></div>
+                </div>
+              </div>
+              <div className="mt-5 border-t border-white/10 pt-5">
+                <div className="flex items-center gap-3"><UserRoundCheck className="h-5 w-5" /><div><p className="text-sm font-medium">Decision held for assessor</p><p className="text-xs text-white/45">No payment status inferred</p></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-white/[0.025] px-5 py-4 text-xs text-white/45 md:px-6">
+            <span>8 sources · 94% confidence</span><span>Evidence and provenance preserved</span>
           </div>
         </motion.div>
       </div>
     </section>
+  );
+}
+
+function Assessment({ icon: Icon, title, detail, filled = false }: { icon: typeof Check; title: string; detail: string; filled?: boolean }) {
+  return (
+    <div className="flex gap-3">
+      <span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${filled ? "bg-white text-black" : "border border-white/25"}`}><Icon className="h-3.5 w-3.5" /></span>
+      <div><p className="text-sm font-medium">{title}</p><p className="mt-1 text-xs text-white/45">{detail}</p></div>
+    </div>
   );
 }
