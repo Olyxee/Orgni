@@ -13,14 +13,14 @@ import { KeepMovingCta } from "@/components/landing/motion-page/KeepMovingCta";
 
 export default function Home() {
   useSeo({
-    title: "Orgni - Operational intelligence for businesses in motion",
+    title: "Orgni | Intelligent Infrastructure for Insurance & Finance",
     description:
-      "Orgni is an AI operational layer for your business. Ask it for work in Teams, Slack or email and it gathers the context, works across your systems, and returns the finished result. Built by Olyxee.",
+      "Orgni is Olyxee's intelligent computing infrastructure for insurance and financial operations, bringing reasoning and controlled execution into existing enterprise systems.",
     path: "/",
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
+    <div className="dark min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 selection:text-primary overflow-x-clip">
       <SiteHeader />
 
       <main className="flex-1">

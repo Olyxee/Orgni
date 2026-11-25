@@ -119,12 +119,12 @@ export function IndependenceSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Not tied to one interface. Not tied to one model.
+            Keep your systems. Add intelligence.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            People reach Orgni from wherever work already happens. As models
-            and tools change, your business context and permissions stay in
-            place.
+            Development teams can connect existing systems, models, and tools
+            while Orgni holds operational context, permissions, and policy
+            boundaries in one infrastructure layer.
           </p>
         </motion.div>
 
@@ -139,10 +139,10 @@ export function IndependenceSection() {
             className="flex items-center justify-between rounded-2xl bg-primary px-5 py-5 text-primary-foreground md:px-6"
           >
             <span className="text-2xl font-medium">Orgni</span>
-            <span className="text-sm text-primary-foreground/80">Operational layer</span>
+            <span className="text-sm text-primary-foreground/80">Intelligence layer</span>
           </motion.div>
           <Connector delay={0.5} />
-          <Layer label="Held by Orgni" items={core} tone="dark" delay={0.6} />
+          <Layer label="Operational context" items={core} tone="dark" delay={0.6} />
           <Connector delay={0.8} />
           <Layer
             label="Models, tools and systems"

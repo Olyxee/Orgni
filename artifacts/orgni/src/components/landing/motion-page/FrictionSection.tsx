@@ -21,7 +21,7 @@ function ComplexityVisual({ reduced }: { reduced: boolean }) {
       viewBox="0 0 520 380"
       className="h-full w-full"
       role="img"
-      aria-label="An organisation growing from a few people into many interdependent systems"
+      aria-label="Operational context distributed across interdependent enterprise systems"
     >
       {rows.slice(0, -1).map((count, rowIndex) => {
         const next = rows[rowIndex + 1];
@@ -69,7 +69,7 @@ function ComplexityVisual({ reduced }: { reduced: boolean }) {
         fontSize="11"
         fontWeight="700"
       >
-        PEOPLE · SYSTEMS · MESSAGES · DOCUMENTS · DEPARTMENTS
+        CLAIMS · POLICIES · TRANSACTIONS · RULES · EVIDENCE
       </text>
     </svg>
   );
@@ -82,7 +82,7 @@ function FlowThroughVisual({ reduced }: { reduced: boolean }) {
       viewBox="0 0 520 380"
       className="h-full w-full"
       role="img"
-      aria-label="Many inputs moving smoothly through one operational layer into continuous work"
+      aria-label="Operational inputs moving through one controlled intelligence layer"
     >
       {inputs.map((y, i) => {
         const d = `M0 ${y} C 140 ${y}, 160 170, 240 170`;
@@ -153,7 +153,7 @@ function FlowThroughVisual({ reduced }: { reduced: boolean }) {
         fontSize="11"
         fontWeight="700"
       >
-        WORK KEEPS MOVING
+        CONTROLLED EXECUTION
       </text>
     </svg>
   );
@@ -170,11 +170,12 @@ export function FrictionSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }} className="max-w-2xl">
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Growth should not create friction.
+            Complex operations need shared context.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-            Work should not stop because someone is waiting for an answer, a
-            document, an approval, or another person.
+            Insurance and financial work spans records, evidence, rules, and
+            approvals. Orgni connects that context without replacing the systems
+            that hold it.
           </p>
         </motion.div>
 

@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 
 const areas = [
-  { name: "Logistics", text: "Track shipments, handle exceptions, and keep everyone updated." },
-  { name: "Finance", text: "Find invoices, follow up on payments, and route approvals." },
-  { name: "Sales", text: "Prepare account context and coordinate follow-ups." },
-  { name: "Operations", text: "See blockers, owners, deadlines, and unresolved work." },
-  { name: "Customer Service", text: "Handle routine requests and escalate exceptions." },
-  { name: "HR", text: "Support onboarding, policies, and internal requests." },
+  { name: "Claims operations", text: "Connect claims, policies, evidence, and operational state across existing systems." },
+  { name: "Claims exceptions", text: "Reason through complex cases while keeping professional judgment and approvals central." },
+  { name: "Policy and coverage", text: "Evaluate policy context, coverage rules, and supporting evidence consistently." },
+  { name: "Financial reconciliation", text: "Connect financial records and business context to identify discrepancies." },
+  { name: "Transaction exceptions", text: "Surface repayment, allocation, and transaction issues for controlled resolution." },
+  { name: "Approval workflows", text: "Support traceable decisions and authorised actions within defined boundaries." },
 ];
 
 export function UseCasesSection() {
@@ -20,7 +20,7 @@ export function UseCasesSection() {
           transition={{ duration: 0.5 }}
           className="max-w-2xl font-serif text-3xl leading-tight tracking-tight md:text-5xl"
         >
-          One operational layer. Across the business.
+          Intelligence across insurance and financial operations.
         </motion.h2>
 
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

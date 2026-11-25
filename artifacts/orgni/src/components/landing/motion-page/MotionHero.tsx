@@ -4,8 +4,8 @@ import { Link } from "wouter";
 import { ORGNI_PRODUCT_URL, OLYXEE_URL } from "@/lib/links";
 
 /**
- * Abstract "organisation accelerating" visual: a set of operational lanes
- * that start fragmented and converge into a single fast-moving stream.
+ * Abstract operational visual: fragmented system signals converge through one
+ * intelligence layer into a controlled stream.
  */
 function FlowVisual({ reduced }: { reduced: boolean }) {
   const lanes = [
@@ -21,7 +21,7 @@ function FlowVisual({ reduced }: { reduced: boolean }) {
       viewBox="0 0 520 420"
       className="h-full w-full"
       role="img"
-      aria-label="Fragmented streams of work converging into one continuous flow"
+      aria-label="Operational signals converging through a controlled intelligence layer"
     >
       <defs>
         <linearGradient id="lane-fade" x1="0" x2="1" y1="0" y2="0">
@@ -94,11 +94,12 @@ export function MotionHero() {
           transition={{ duration: 0.55, ease: "easeOut" }}
         >
           <h1 className="font-serif text-4xl leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
-            Operational intelligence for businesses in motion.
+            The intelligence layer for insurance and financial infrastructure.
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            Orgni helps your organisation understand what is happening and keep
-            work moving.
+            Intelligent computing infrastructure for development teams building
+            across insurance and financial operations. Connect existing systems,
+            reason through operational context, and execute within defined controls.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href={ORGNI_PRODUCT_URL} className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-primary">
@@ -106,7 +107,7 @@ export function MotionHero() {
               <ArrowUpRight className="h-4 w-4" />
             </Link>
             <a href={OLYXEE_URL} className="inline-flex h-12 items-center gap-2 rounded-full border border-border px-6 text-sm font-medium transition-colors hover:border-foreground">
-              About Olyxee
+              Discuss infrastructure
             </a>
           </div>
         </motion.div>

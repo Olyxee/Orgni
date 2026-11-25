@@ -4,12 +4,12 @@ import { Link } from "wouter";
 import { ORGNI_PRODUCT_URL } from "@/lib/links";
 
 const valuePoints = [
-  "Find answers without chasing people",
-  "Give Orgni work directly",
-  "Handle routine internal and customer requests",
-  "Spot blockers and dependencies early",
-  "Coordinate work across your systems",
-  "Keep teams moving",
+  "Connect to existing systems, APIs, and operational events",
+  "Understand entities, relationships, rules, and current state",
+  "Reason through evidence, constraints, and uncertainty",
+  "Support permitted decisions within defined boundaries",
+  "Execute authorised actions through controlled integrations",
+  "Learn from outcomes and feedback within defined limits",
 ];
 
 export function OrgniSection() {
@@ -23,17 +23,17 @@ export function OrgniSection() {
           transition={{ duration: 0.5 }}
         >
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Built for businesses in motion.
+            Connect. Understand. Reason. Decide. Execute. Learn.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Orgni understands how your organisation works and keeps knowledge,
-            decisions, and routine work moving across teams.
+            Build on an intelligence layer that works with existing operational
+            infrastructure. Core systems remain in place and under customer control.
           </p>
           <Link
             href={ORGNI_PRODUCT_URL}
             className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-primary"
           >
-            Discover Orgni
+            Explore Orgni
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </motion.div>

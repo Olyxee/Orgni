@@ -19,15 +19,15 @@ const members = [
   { initials: "AP", color: "bg-[#ca5010]" },
 ];
 
-const COMMAND = "@Orgni prepare everything for tomorrow’s client meeting.";
+const COMMAND = "@Orgni review the evidence for claim CLM-2048.";
 
 const steps: Activity[] = [
-  { kind: "system", source: "Outlook", note: "12 emails with Halden Logistics, last 30 days", icon: "mail" },
-  { kind: "file", name: "Halden Logistics – Proposal v3.pdf", type: "pdf", meta: "SharePoint · sent 2 weeks ago" },
-  { kind: "system", source: "Salesforce", note: "Account history, 3 open opportunities", icon: "database" },
-  { kind: "person", name: "Thabo Khumalo", initials: "TK", via: "Teams", note: "asked about the open delivery issue" },
-  { kind: "file", name: "Halden Logistics – Meeting brief.docx", type: "docx", meta: "created just now" },
-  { kind: "system", source: "Calendar", note: "Tomorrow 10:00 · 4 attendees confirmed", icon: "calendar" },
+  { kind: "system", source: "Claims platform", note: "Claim record, status, and assessment history", icon: "database" },
+  { kind: "file", name: "CLM-2048 – Supporting evidence.pdf", type: "pdf", meta: "Document store · verified source" },
+  { kind: "system", source: "Policy system", note: "Coverage, exclusions, and effective dates", icon: "database" },
+  { kind: "person", name: "Thabo Khumalo", initials: "TK", via: "Teams", note: "assigned assessor for professional review" },
+  { kind: "file", name: "CLM-2048 – Review brief.docx", type: "docx", meta: "created just now" },
+  { kind: "system", source: "Approval controls", note: "Human approval required before action", icon: "calendar" },
 ];
 
 const TYPE_MS = 32;
@@ -83,11 +83,11 @@ export function ExperienceSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Give Orgni work. Get the result.
+            Operational reasoning, inside your existing systems.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
-            Hand Orgni a task and it comes back done, with the context gathered
-            from across the business.
+            Orgni connects evidence, operational state, and business rules to
+            support complex cases within defined controls.
           </p>
         </motion.div>
 
@@ -149,7 +149,7 @@ export function ExperienceSection() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-[#242424]">
-                      Halden Logistics – Account team
+                      Claims operations – CLM-2048
                     </p>
                     <p className="text-xs text-[#616161]">
                       {members.length} members · Orgni added
@@ -169,8 +169,8 @@ export function ExperienceSection() {
                         David Naidoo <span className="ml-2">09:12</span>
                       </p>
                       <div className="rounded-lg rounded-tl-none bg-white px-4 py-2.5 text-[15px] leading-snug text-[#242424]">
-                        Halden moved the meeting to tomorrow 10:00. Can someone
-                        pull everything together?
+                        This claim has conflicting evidence and needs an
+                        assessment brief before professional review.
                       </div>
                     </div>
                   </div>
@@ -219,8 +219,8 @@ export function ExperienceSection() {
                           <div className="rounded-lg rounded-tl-none border border-[#e1dfdd] bg-white px-4 py-3 text-[15px] text-[#242424]">
                             <p className="min-h-[2.6em] leading-snug">
                               {ready
-                                ? "Done. Here is the brief for tomorrow’s 10:00 with Halden Logistics, shared with everyone here."
-                                : "On it, Sarah. Preparing everything for tomorrow’s meeting…"}
+                                ? "Review brief prepared. The evidence, policy context, exception, and approval boundary are traceable below."
+                                : "Reviewing the claim evidence and applicable policy context…"}
                             </p>
                             <div className="mt-3 space-y-1.5">
                               {steps.map((step, i) => (
@@ -243,7 +243,7 @@ export function ExperienceSection() {
                                   </span>
                                   <div className="min-w-0 flex-1">
                                     <p className="truncate text-sm font-medium">
-                                      Halden Logistics – Meeting brief.docx
+                                      CLM-2048 – Review brief.docx
                                     </p>
                                     <p className="text-xs text-[#616161]">
                                       Shared with the group · Ready
@@ -258,7 +258,7 @@ export function ExperienceSection() {
                 {/* Compose box */}
                 <div className="border-t border-[#e1dfdd] bg-white px-4 py-3">
                   <div className="flex items-center justify-between rounded-md border border-[#c8c6c4] px-3 py-2 text-sm text-[#a19f9d]">
-                    Message Halden Logistics – Account team
+                    Message Claims operations – CLM-2048
                     <Send className="h-4 w-4 text-[#5b5fc7]" />
                   </div>
                 </div>

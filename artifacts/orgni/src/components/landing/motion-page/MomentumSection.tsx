@@ -62,10 +62,11 @@ export function MomentumSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}>
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            Move at the speed of your ambition.
+            Designed for controlled, auditable operation.
           </h2>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-white/70">
-            Less waiting. Fewer blockers. Faster operations.
+            Human oversight, approval boundaries, traceable decisions, client
+            isolation, and security by design are part of the infrastructure.
           </p>
         </motion.div>
         <div className="h-[280px] md:h-[320px]">

@@ -131,7 +131,7 @@ function OrgniAvatar() {
   );
 }
 
-/* Stage 1 — a person asks in Teams, Orgni delivers. */
+/* Stage 1 — a person requests a controlled review in Teams. */
 function TodayVisual({ reduced }: { reduced: boolean }) {
   return (
     <div className="min-w-0 space-y-2.5">
@@ -150,21 +150,21 @@ function TodayVisual({ reduced }: { reduced: boolean }) {
             />
           </span>
         }
-        title="@Orgni prepare the Halden brief"
-        meta="Sarah · Microsoft Teams · 09:14"
+        title="@Orgni review claim CLM-2048"
+        meta="Sarah · Microsoft Teams · authorised request"
       />
       <Row
         reduced={reduced}
         delay={0.45}
         icon={<OrgniAvatar />}
-        title="Done. Brief shared with the account team."
-        meta="Orgni · 09:16 · 1 attachment"
+        title="Evidence and policy context prepared for review"
+        meta="Orgni · traceable sources · approval required"
       />
     </div>
   );
 }
 
-/* Stage 2 — a business event fires, Orgni acts without being asked. */
+/* Stage 2 — a business event triggers reasoning within defined controls. */
 function NextVisual({ reduced }: { reduced: boolean }) {
   return (
     <div className="min-w-0 space-y-2.5">
@@ -176,8 +176,8 @@ function NextVisual({ reduced }: { reduced: boolean }) {
             <img src={xeroLogo} alt="" className="h-4 w-4" />
           </span>
         }
-        title="New invoice received"
-        meta="Xero · INV-2048 · Meridian Freight"
+        title="Transaction exception detected"
+        meta="Financial system · TX-2048 · reconciliation"
       />
       <motion.div
         initial={{ opacity: 0 }}
@@ -187,25 +187,25 @@ function NextVisual({ reduced }: { reduced: boolean }) {
         className="flex items-center gap-2 pl-4 text-xs text-muted-foreground"
       >
         <span className="h-4 w-px bg-primary" />
-        No one asked. Orgni noticed.
+        Existing systems remain the source of record.
       </motion.div>
       <Row
         reduced={reduced}
         delay={0.6}
         icon={<OrgniAvatar />}
-        title="Matched to PO, routed to Aisha for approval"
-        meta="Orgni · automatic · 2 min after receipt"
+        title="Evidence matched and routed for authorised approval"
+        meta="Orgni · controlled action · rationale recorded"
       />
     </div>
   );
 }
 
-/* Stage 3 — a goal is set, routine work keeps moving inside its boundaries. */
+/* Stage 3 — authorised work proceeds inside explicit boundaries. */
 function LongTermVisual({ reduced }: { reduced: boolean }) {
   const ticks = [
-    "Delivery update sent to Brightline",
-    "Supplier reminder scheduled",
-    "Approval routed to Finance",
+    "Operational state updated",
+    "Exception routed for human review",
+    "Decision evidence preserved",
   ];
   return (
     <div className="min-w-0 space-y-2.5">
@@ -217,14 +217,14 @@ function LongTermVisual({ reduced }: { reduced: boolean }) {
             <Target className="h-4 w-4" />
           </span>
         }
-        title="Goal: keep every delivery on time"
-        meta="Set by you · within approval limits"
+        title="Objective: resolve approved exceptions"
+        meta="Defined by you · within approval boundaries"
       />
       <div className="rounded-xl border border-border bg-background px-3 py-2.5">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
             <OrgniAvatar />
-            Running continuously
+            Operating within defined controls
           </span>
           <span className="relative flex h-2 w-2">
             {!reduced && (
@@ -257,39 +257,39 @@ function LongTermVisual({ reduced }: { reduced: boolean }) {
 
 const stages = [
   {
-    label: "Today",
+    label: "Connect",
     status: "Available now",
     live: true,
-    title: "You ask, Orgni delivers.",
-    involvement: "You start every task",
+    title: "Connect systems and operational context.",
+    involvement: "Your systems remain under your control",
     Visual: TodayVisual,
     stats: [
-      { value: 3, prefix: "~", suffix: " min", label: "per routine task", compare: "instead of ~45 min by hand" },
-      { value: 200, label: "requests you still make", compare: "one per task, each week" },
+      { value: 1, label: "shared operational model", compare: "with traceable source context" },
+      { value: 0, label: "core systems replaced", compare: "Orgni works across what exists" },
     ] as Stat[],
   },
   {
-    label: "Next",
+    label: "Reason",
     status: "In development",
     live: false,
-    title: "The business triggers the work.",
-    involvement: "You approve the exceptions",
+    title: "Evaluate evidence, rules, and exceptions.",
+    involvement: "People retain regulated judgment",
     Visual: NextVisual,
     stats: [
-      { value: 0, label: "requests needed", compare: "work starts from the event" },
-      { value: 20, prefix: "~", label: "exceptions reach you", compare: "out of ~200 tasks a week" },
+      { value: 1, label: "traceable rationale", compare: "for every supported decision" },
+      { value: 0, label: "unsupported decisions", compare: "uncertainty is flagged for review" },
     ] as Stat[],
   },
   {
-    label: "Long-term",
+    label: "Execute",
     status: "Direction",
     live: false,
-    title: "You set the goal. Work keeps moving.",
-    involvement: "You set direction and limits",
+    title: "Carry out authorised actions and learn.",
+    involvement: "You define permissions and limits",
     Visual: LongTermVisual,
     stats: [
-      { value: 24, suffix: "/7", label: "routine work in motion", compare: "inside the limits you set" },
-      { value: 1, prefix: "~", suffix: " h", label: "of your week on routine", compare: "down from ~150 h across the team" },
+      { value: 1, label: "controlled execution path", compare: "through approved integrations" },
+      { value: 1, label: "auditable outcome", compare: "with feedback retained in context" },
     ] as Stat[],
   },
 ];
@@ -308,11 +308,12 @@ export function DirectionSection() {
           className="max-w-2xl"
         >
           <h2 className="font-serif text-3xl leading-tight tracking-tight md:text-5xl">
-            From asking for work to work happening automatically.
+            From operational context to controlled execution.
           </h2>
           <p className="mt-5 text-lg leading-relaxed text-muted-foreground">
-            Each step hands more of the routine to Orgni, and keeps you in
-            charge of what matters.
+            Orgni connects, understands, reasons, and supports permitted
+            decisions before carrying out authorised actions through controlled
+            integrations.
           </p>
         </motion.div>
 
@@ -389,9 +390,8 @@ export function DirectionSection() {
 
         <p className="mt-8 text-sm text-muted-foreground">
           <FileText className="mr-1.5 inline h-3.5 w-3.5 align-[-2px]" />
-          Figures are an illustrative example for a team handling ~200 routine
-          tasks a week, not measured results. Today is live; Next and
-          long-term describe where Orgni is heading.
+          Execution remains bounded by permissions, approval requirements, and
+          customer-controlled systems. Uncertain results are routed for review.
         </p>
       </div>
     </section>

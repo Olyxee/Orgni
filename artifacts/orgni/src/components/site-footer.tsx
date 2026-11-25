@@ -44,8 +44,8 @@ export function SiteFooter() {
               <span className="font-serif text-2xl leading-none">Orgni</span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-neutral-400">
-              Operational intelligence for businesses in motion. Built by
-              Olyxee.
+              Intelligent computing infrastructure for insurance and financial
+              operations. Built by Olyxee.
             </p>
             <div className="mt-4 flex flex-wrap gap-x-6">
               <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
