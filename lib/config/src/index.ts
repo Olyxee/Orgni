@@ -50,6 +50,53 @@ export const apiEnvSchema = baseEnvSchema.extend({
    */
   DOCUMENT_INTELLIGENCE_URL: z.string().url().optional(),
   /**
+   * Per-request timeout for calls to the Document Intelligence service, in
+   * milliseconds.  Defaults to 30 000 ms (30 s) when unset.
+   */
+  DOCUMENT_INTELLIGENCE_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Maximum number of attempts per document when the Document Intelligence
+   * service returns a transient error.  Defaults to 5 when unset (1 initial
+   * attempt + 4 retries).  Set to 1 to disable retries entirely.
+   */
+  DOCUMENT_INTELLIGENCE_MAX_ATTEMPTS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Base delay in milliseconds for the exponential backoff between Document
+   * Intelligence retry attempts.  Defaults to 1000 ms (1 s) when unset.  The
+   * actual delay for attempt N is retryBaseMs × 2^(N−1) ± 10 % jitter.
+   */
+  DOCUMENT_INTELLIGENCE_RETRY_BASE_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Maximum wait time in milliseconds honored from a server-sent Retry-After
+   * header (numeric seconds or HTTP-date). Defaults to 10 000 ms (10 s) when unset.
+   */
+  DOCUMENT_INTELLIGENCE_MAX_RETRY_AFTER_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
+   * Maximum total time budget in milliseconds for document ingestion across all
+   * retry attempts and backoff waits. Defaults to 60 000 ms (60 s) when unset.
+   */
+  DOCUMENT_INTELLIGENCE_TOTAL_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .optional(),
+  /**
    * Base URL of the Python Organizational Ontology service
    * (intelligence/organizational-ontology). When set, the upload endpoint maps
    * tokens into reviewable facts; when unset, it returns tokens only.
